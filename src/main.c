@@ -99,9 +99,9 @@ int main(int argc, char *argv[]) {
 	};
 
 	for (uint8_t ind = 0; ind < radios_len; ind++) {
-		trace("%.*s %uhz %hhudbm 4/%hhucr %uhz %hhusf %s 0x%02x\n", radios[ind].device_len, radios[ind].device,
-					radios[ind].frequency, radios[ind].tx_power, radios[ind].coding_rate, radios[ind].bandwidth,
-					radios[ind].spreading_factor, human_bool(radios[ind].checksum), radios[ind].sync_word);
+		trace("%.*s %uhz %uhz 4/%hhucr %hhusf %hhudbm 0x%02x %s\n", radios[ind].device_len, radios[ind].device,
+					radios[ind].frequency, radios[ind].bandwidth, radios[ind].coding_rate, radios[ind].spreading_factor,
+					radios[ind].tx_power, radios[ind].sync_word, human_bool(radios[ind].checksum));
 	}
 
 	info("found %hhu radio configurations\n", radios_len);

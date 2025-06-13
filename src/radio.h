@@ -9,12 +9,12 @@ typedef struct radio_t {
 	char device[64];
 	uint8_t device_len;
 	uint32_t frequency;
-	uint8_t tx_power;
-	uint8_t coding_rate;
 	uint32_t bandwidth;
+	uint8_t coding_rate;
 	uint8_t spreading_factor;
-	bool checksum;
+	uint8_t tx_power;
 	uint8_t sync_word;
+	bool checksum;
 } radio_t;
 
 extern const char *radio_table;

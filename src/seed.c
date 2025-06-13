@@ -9,12 +9,12 @@ int seed_radio(sqlite3 *database) {
 					.device = "/dev/spidev0.0",
 					.device_len = 14,
 					.frequency = 433 * 1000 * 1000,
-					.tx_power = 2,
-					.coding_rate = 5,
 					.bandwidth = 125 * 1000,
+					.coding_rate = 5,
 					.spreading_factor = 7,
-					.checksum = true,
+					.tx_power = 2,
 					.sync_word = 0x12,
+					.checksum = true,
 			},
 	};
 
