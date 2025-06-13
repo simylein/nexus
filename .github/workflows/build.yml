@@ -1,0 +1,13 @@
+name: nexus
+on:
+  push:
+    branches: [main, develop, feature/*, refactor/*, bugfix/*, hotfix/*]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: make release
+        run: make release
+      - name: nexus version
+        run: ./nexus --version
