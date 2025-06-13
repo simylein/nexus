@@ -3,12 +3,9 @@
 #include <sqlite3.h>
 #include <stdint.h>
 
-uint8_t radio_ids[1][16];
-
 int seed_radio(sqlite3 *database) {
 	radio_t radios[] = {
 			{
-					.id = &radio_ids[0],
 					.device = "/dev/spidev0.0",
 					.device_len = 14,
 					.frequency = 433 * 1000 * 1000,

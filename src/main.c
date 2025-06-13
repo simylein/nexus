@@ -2,6 +2,7 @@
 #include "format.h"
 #include "init.h"
 #include "logger.h"
+#include "radio.h"
 #include "seed.h"
 #include <sqlite3.h>
 #include <stdlib.h>
@@ -74,4 +75,38 @@ int main(int argc, char *argv[]) {
 	}
 
 	info("starting nexus application\n");
+
+	sqlite3 *database;
+	int db_error = sqlite3_open_v2(database_file, &database, SQLITE_OPEN_READWRITE, NULL);
+	if (db_error != SQLITE_OK) {
+		fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
+		exit(1);
+	}
+
+	int exec_error = sqlite3_exec(database, "pragma foreign_keys = on;", NULL, NULL, NULL);
+	if (exec_error != SQLITE_OK) {
+		fatal("failed to enforce foreign key constraints because %s\n", sqlite3_errmsg(database));
+		exit(1);
+	}
+
+	sqlite3_busy_timeout(database, database_timeout);
+
+	radio_t radios[16];
+	uint8_t radios_len;
+	if (radio_select(database, &radios, &radios_len) != 0) {
+		fatal("failed to select radios\n");
+		exit(1);
+	};
+
+	for (uint8_t ind = 0; ind < radios_len; ind++) {
+		trace("%.*s %uhz %hhudbm 4/%hhucr %uhz %hhusf %s 0x%02x\n", radios[ind].device_len, radios[ind].device,
+					radios[ind].frequency, radios[ind].tx_power, radios[ind].coding_rate, radios[ind].bandwidth,
+					radios[ind].spreading_factor, human_bool(radios[ind].checksum), radios[ind].sync_word);
+	}
+
+	info("found %hhu radio configurations\n", radios_len);
+
+	if (sqlite3_close_v2(database) != SQLITE_OK) {
+		error("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
+	}
 }

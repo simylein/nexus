@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 typedef struct radio_t {
-	uint8_t (*id)[16];
-	char *device;
+	uint8_t id[16];
+	char device[64];
 	uint8_t device_len;
 	uint32_t frequency;
 	uint8_t tx_power;
@@ -20,4 +20,5 @@ typedef struct radio_t {
 extern const char *radio_table;
 extern const char *radio_schema;
 
+uint16_t radio_select(sqlite3 *database, radio_t (*radios)[16], uint8_t *radios_len);
 uint16_t radio_insert(sqlite3 *database, radio_t *radio);
