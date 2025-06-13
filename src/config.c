@@ -6,6 +6,9 @@
 
 const char *name = "nexus";
 
+const char *database_file = "nexus.sqlite";
+uint16_t database_timeout = 500;
+
 uint8_t log_level = 4;
 bool log_receives = true;
 bool log_transmits = true;
@@ -37,6 +40,28 @@ int parse_bool(const char *arg, const char *key, bool *value) {
 		return 1;
 	}
 
+	return 0;
+}
+
+int parse_uint16(const char *arg, const char *key, const uint16_t min, const uint16_t max, uint16_t *value) {
+	if (arg == NULL) {
+		error("please provide a value for %s\n", key);
+		return 1;
+	}
+
+	char *arg_end;
+	const uint64_t new_value = strtoul(arg, &arg_end, 10);
+	if (*arg_end != '\0') {
+		error("%s must be an unsigned integer\n", key);
+		return 1;
+	}
+
+	if (new_value < min || new_value > max) {
+		error("%s must be between %hu and %hu\n", key, min, max);
+		return 1;
+	}
+
+	*value = (uint16_t)new_value;
 	return 0;
 }
 
@@ -90,6 +115,12 @@ int configure(int argc, char *argv[]) {
 		if (match_arg(flag, "--name", "-n")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "name", 2, 8, &name);
+		} else if (match_arg(flag, "--database-file", "-df")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_str(value, "database file", 4, 64, &database_file);
+		} else if (match_arg(flag, "--database-timeout", "-dt")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint16(value, "database timeout", 10, 10000, &database_timeout);
 		} else if (match_arg(flag, "--log-level", "-ll")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_log_level(value, &log_level);

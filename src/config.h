@@ -5,6 +5,9 @@
 
 extern const char *name;
 
+extern const char *database_file;
+extern uint16_t database_timeout;
+
 extern uint8_t log_level;
 extern bool log_receives;
 extern bool log_transmits;
