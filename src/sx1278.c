@@ -15,6 +15,8 @@ const uint8_t reg_fifo_addr = 0x0d;
 const uint8_t reg_rx_addr = 0x10;
 const uint8_t reg_irq_flags = 0x12;
 const uint8_t reg_packet_len = 0x13;
+const uint8_t reg_packet_snr = 0x19;
+const uint8_t reg_packet_rssi = 0x1a;
 const uint8_t reg_modem_config_1 = 0x1d;
 const uint8_t reg_modem_config_2 = 0x1e;
 const uint8_t reg_sync_word = 0x39;
@@ -272,6 +274,30 @@ int sx1278_sync_word(int fd, uint8_t word) {
 	}
 
 	trace("sync word %hhu sync_word 0x%02x\n", word, sync_word);
+	return 0;
+}
+
+int sx1278_snr(int fd, int8_t *snr) {
+	uint8_t packet_snr;
+	if (spi_read_register(fd, reg_packet_snr, &packet_snr) == -1) {
+		return -1;
+	}
+
+	*snr = (int8_t)packet_snr;
+
+	trace("packet_snr 0x%02x\n", packet_snr);
+	return 0;
+}
+
+int sx1278_rssi(int fd, int16_t *rssi) {
+	uint8_t packet_rssi;
+	if (spi_read_register(fd, reg_packet_rssi, &packet_rssi) == -1) {
+		return -1;
+	}
+
+	*rssi = -157 + packet_rssi;
+
+	trace("packet_rssi 0x%02x\n", packet_rssi);
 	return 0;
 }
 

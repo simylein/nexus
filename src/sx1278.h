@@ -14,4 +14,7 @@ int sx1278_spreading_factor(int fd, uint8_t sf);
 int sx1278_checksum(int fd, bool crc);
 int sx1278_sync_word(int fd, uint8_t word);
 
+int sx1278_snr(int fd, int8_t *snr);
+int sx1278_rssi(int fd, int16_t *rssi);
+
 int sx1278_receive(int fd, uint8_t (*data)[256], uint8_t *length);
