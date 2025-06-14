@@ -10,6 +10,7 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 int main(int argc, char *argv[]) {
 	if (argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
@@ -125,5 +126,14 @@ int main(int argc, char *argv[]) {
 			fatal("failed to initialise spi for radio %s\n", radios[ind].device);
 			exit(1);
 		}
+
+		if (spawn(&workers[ind], ind, fd, &radios[ind], &thread, &fatal) == -1) {
+			exit(1);
+		}
+	}
+
+	// FIXME make main thread do something useful
+	while (true) {
+		sleep(60);
 	}
 }
