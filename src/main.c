@@ -1,9 +1,12 @@
 #include "config.h"
+#include "error.h"
 #include "format.h"
 #include "init.h"
 #include "logger.h"
 #include "radio.h"
 #include "seed.h"
+#include "spi.h"
+#include "thread.h"
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <string.h>
@@ -108,5 +111,19 @@ int main(int argc, char *argv[]) {
 
 	if (sqlite3_close_v2(database) != SQLITE_OK) {
 		error("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
+	}
+
+	worker_t *workers = malloc(radios_len * sizeof(worker_t));
+	if (workers == NULL) {
+		fatal("failed to allocate %zu bytes for workers because %s\n", radios_len * sizeof(worker_t), errno_str());
+		exit(1);
+	}
+
+	for (uint8_t ind = 0; ind < radios_len; ind++) {
+		int fd = spi_init(radios[ind].device, 0, 8 * 1000 * 1000, 8);
+		if (fd == -1) {
+			fatal("failed to initialise spi for radio %s\n", radios[ind].device);
+			exit(1);
+		}
 	}
 }
