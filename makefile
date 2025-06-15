@@ -9,7 +9,7 @@ objects = $(patsubst $(src)/%,$(obj)/%,$(sources:.c=.o))
 
 target = nexus
 
-version = 0.0.5
+version = $(shell git describe --tags --abbrev=0 2>/dev/null || echo unknown)
 commit = $(shell git rev-parse --short HEAD 2> /dev/null || echo unknown)
 
 flags += -Dversion=\"$(version)\"
