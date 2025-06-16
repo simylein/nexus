@@ -30,5 +30,6 @@ jobs:
           done
           if ! nc -z $address $port; then
             echo "$address $port timed out"
+            cat nexus.log
             exit 1
           fi
