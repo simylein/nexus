@@ -17,4 +17,18 @@ jobs:
         run: ./nexus --seed
       - name: nexus start
         run: |
-          ./nexus >nexus.log 2>&1 &
+          address=0.0.0.0
+          port=1278
+          ./nexus --address $address --port $port >nexus.log 2>&1 &
+          for i in {1..8}; do
+            if nc -z $address $port; then
+              echo "listening on $address $port"
+              break
+            fi
+            echo "waiting for listening socket"
+            sleep 1
+          done
+          if ! nc -z $address $port; then
+            echo "$address $port timed out"
+            exit 1
+          fi
