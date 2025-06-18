@@ -8,12 +8,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int spawn(worker_t *worker, uint8_t id, int fd, radio_t *radio, void *(*function)(void *),
+int spawn(worker_t *worker, void *(*function)(void *),
 					void (*logger)(const char *message, ...) __attribute__((format(printf, 1, 2)))) {
-	worker->arg.id = id;
-	worker->arg.fd = fd;
-	worker->arg.radio = radio;
-	trace("spawning worker thread %hhu\n", id);
+	trace("spawning worker thread %hhu\n", worker->arg.id);
 
 	int spawn_error = pthread_create(&worker->thread, NULL, function, (void *)&worker->arg);
 	if (spawn_error != 0) {
@@ -80,7 +77,7 @@ void *thread(void *args) {
 		}
 
 		if (rx_data_len < 3) {
-			error("received packet without headers\n");
+			debug("received packet without headers\n");
 			continue;
 		}
 

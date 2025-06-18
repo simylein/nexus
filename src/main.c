@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
 	sqlite3_busy_timeout(database, database_timeout);
 
 	radio_t radios[16];
-	uint8_t radios_len;
+	uint8_t radios_len = 0;
 	if (radio_select(database, &radios, &radios_len) != 0) {
 		fatal("failed to select radios\n");
 		exit(1);
@@ -145,13 +145,19 @@ int main(int argc, char *argv[]) {
 	}
 
 	for (uint8_t ind = 0; ind < radios_len; ind++) {
-		int fd = spi_init(radios[ind].device, 0, 8 * 1000 * 1000, 8);
+		char device[65];
+		sprintf(device, "%.*s", (int)radios[ind].device_len, radios[ind].device);
+		int fd = spi_init(device, 0, 8 * 1000 * 1000, 8);
 		if (fd == -1) {
 			fatal("failed to initialise spi for radio %s\n", radios[ind].device);
 			exit(1);
 		}
 
-		if (spawn(&workers[ind], ind, fd, &radios[ind], &thread, &fatal) == -1) {
+		workers[ind].arg.id = ind;
+		workers[ind].arg.fd = fd;
+		workers[ind].arg.radio = &radios[ind];
+
+		if (spawn(&workers[ind], &thread, &fatal) == -1) {
 			exit(1);
 		}
 	}

@@ -15,7 +15,7 @@ typedef struct worker_t {
 	pthread_t thread;
 } worker_t;
 
-int spawn(worker_t *worker, uint8_t id, int fd, radio_t *radio, void *(*function)(void *),
+int spawn(worker_t *worker, void *(*function)(void *),
 					void (*logger)(const char *message, ...) __attribute__((format(printf, 1, 2))));
 
 void *thread(void *args);
