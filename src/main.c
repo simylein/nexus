@@ -1,4 +1,5 @@
 #include "config.h"
+#include "device.h"
 #include "error.h"
 #include "format.h"
 #include "init.h"
@@ -10,6 +11,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <sqlite3.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -134,6 +136,15 @@ int main(int argc, char *argv[]) {
 
 	info("found %hhu radio configurations\n", radios_len);
 
+	device_t devices[16];
+	uint8_t devices_len = 0;
+	if (device_select(database, &devices, &devices_len) != 0) {
+		fatal("failed to select devices\n");
+		exit(1);
+	}
+
+	info("found %hhu device registrations\n", devices_len);
+
 	if (sqlite3_close_v2(database) != SQLITE_OK) {
 		error("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
 	}
@@ -156,6 +167,8 @@ int main(int argc, char *argv[]) {
 		workers[ind].arg.id = ind;
 		workers[ind].arg.fd = fd;
 		workers[ind].arg.radio = &radios[ind];
+		workers[ind].arg.devices = &devices;
+		workers[ind].arg.devices_len = devices_len;
 
 		if (spawn(&workers[ind], &thread, &fatal) == -1) {
 			exit(1);
