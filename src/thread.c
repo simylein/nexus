@@ -1,11 +1,15 @@
 #include "thread.h"
+#include "endian.h"
 #include "error.h"
+#include "http.h"
 #include "logger.h"
 #include "radio.h"
 #include "sx1278.h"
 #include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 int spawn(worker_t *worker, void *(*function)(void *),
@@ -95,5 +99,66 @@ void *thread(void *args) {
 
 		rx("id %02x%02x kind %02x bytes %hhu rssi %hd snr %.2f sf %hhu\n", rx_data[0], rx_data[1], rx_data[2], rx_data_len, rssi,
 			 snr / 4.0f, arg->radio->spreading_factor);
+
+		uint8_t(*device_id)[16] = NULL;
+		for (uint8_t ind = 0; ind < arg->devices_len; ind++) {
+			if (memcmp(&rx_data[0], (*arg->devices)[ind].tag, sizeof((*arg->devices)[ind].tag)) == 0) {
+				device_id = &(*arg->devices)[ind].id;
+			}
+		}
+
+		if (device_id == NULL) {
+			debug("no registration for device %02x%02x\n", rx_data[0], rx_data[1]);
+			continue;
+		}
+
+		uint8_t kind = rx_data[2];
+		uint8_t *data = &rx_data[3];
+		uint8_t data_len = rx_data_len - 3;
+		uint16_t airtime = 0;
+		time_t received_at = time(NULL);
+
+		request_t request = {.body_len = 0};
+		response_t response = {.status = 0};
+
+		char method[] = "POST";
+		request.method = method;
+		request.method_len = sizeof(method);
+
+		char pathname[] = "/api/uplink";
+		request.pathname = pathname;
+		request.pathname_len = sizeof(pathname);
+
+		char protocol[] = "HTTP/1.1";
+		request.protocol = protocol;
+		request.protocol_len = sizeof(protocol);
+
+		append_body(&request, &kind, sizeof(kind));
+		append_body(&request, &data_len, sizeof(data_len));
+		append_body(&request, data, data_len);
+		append_body(&request, &(uint16_t[]){hton16(airtime)}, sizeof(airtime));
+		append_body(&request, &(uint32_t[]){hton32(arg->radio->frequency)}, sizeof(arg->radio->frequency));
+		append_body(&request, &(uint32_t[]){hton32(arg->radio->bandwidth)}, sizeof(arg->radio->bandwidth));
+		append_body(&request, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
+		append_body(&request, (char *)&snr, sizeof(snr));
+		append_body(&request, &arg->radio->spreading_factor, sizeof(arg->radio->spreading_factor));
+		append_body(&request, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+		append_body(&request, device_id, sizeof(*device_id));
+
+		// TODO use config values
+		const char *warden_address = "0.0.0.0";
+		const uint16_t warden_port = 2254;
+
+		if (fetch(warden_address, warden_port, &request, &response) == -1) {
+			error("failed to talk with host %s:%hu\n", warden_address, warden_port);
+			continue;
+		}
+
+		if (response.status != 201) {
+			error("host rejected uplink with status %hu\n", response.status);
+			continue;
+		}
+
+		info("successfully created uplink\n");
 	}
 }
