@@ -7,6 +7,7 @@
 #include "sx1278.h"
 #include <errno.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -35,6 +36,8 @@ int spawn(worker_t *worker, void *(*function)(void *),
 
 void *thread(void *args) {
 	arg_t *arg = (arg_t *)args;
+
+	srand((unsigned int)time(NULL));
 
 	if (sx1278_sleep(arg->fd) == -1) {
 		error("failed to enable sleep mode\n");
@@ -145,12 +148,16 @@ void *thread(void *args) {
 		append_body(&request, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
 		append_body(&request, device_id, sizeof(*device_id));
 
-		// TODO use config values
-		const char *warden_address = "0.0.0.0";
-		const uint16_t warden_port = 2254;
+		host_t *host = NULL;
+		if (arg->hosts_len == 0) {
+			warn("%hhu host connections to forward to\n", arg->hosts_len);
+			continue;
+		}
+		host = &(*arg->hosts)[rand() % arg->hosts_len];
 
-		if (fetch(warden_address, warden_port, &request, &response) == -1) {
-			error("failed to talk with host %s:%hu\n", warden_address, warden_port);
+		char buffer[65];
+		sprintf(buffer, "%.*s", host->address_len, host->address);
+		if (fetch(buffer, host->port, &request, &response) == -1) {
 			continue;
 		}
 

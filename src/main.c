@@ -2,6 +2,7 @@
 #include "device.h"
 #include "error.h"
 #include "format.h"
+#include "host.h"
 #include "init.h"
 #include "logger.h"
 #include "radio.h"
@@ -145,6 +146,15 @@ int main(int argc, char *argv[]) {
 
 	info("found %hhu device registrations\n", devices_len);
 
+	host_t hosts[16];
+	uint8_t hosts_len = 0;
+	if (host_select(database, &hosts, &hosts_len) != 0) {
+		fatal("failed to select hosts\n");
+		exit(1);
+	}
+
+	info("found %hhu host connections\n", hosts_len);
+
 	if (sqlite3_close_v2(database) != SQLITE_OK) {
 		error("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
 	}
@@ -169,6 +179,8 @@ int main(int argc, char *argv[]) {
 		workers[ind].arg.radio = &radios[ind];
 		workers[ind].arg.devices = &devices;
 		workers[ind].arg.devices_len = devices_len;
+		workers[ind].arg.hosts = &hosts;
+		workers[ind].arg.hosts_len = hosts_len;
 
 		if (spawn(&workers[ind], &thread, &fatal) == -1) {
 			exit(1);
