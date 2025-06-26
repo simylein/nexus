@@ -1,4 +1,5 @@
 #include "thread.h"
+#include "auth.h"
 #include "endian.h"
 #include "error.h"
 #include "http.h"
@@ -154,6 +155,15 @@ void *thread(void *args) {
 			continue;
 		}
 		host = &(*arg->hosts)[rand() % arg->hosts_len];
+
+		if (arg->cookie_age + 3600 < received_at) {
+			debug("refreshing auth cookie with age %lu\n", arg->cookie_age);
+			if (auth(host, arg->cookie, &arg->cookie_len, &arg->cookie_age) == -1) {
+				continue;
+			}
+		}
+
+		append_header(&request, "cookie:auth=%.*s\r\n", arg->cookie_len, arg->cookie);
 
 		char buffer[65];
 		sprintf(buffer, "%.*s", host->address_len, host->address);
