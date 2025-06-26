@@ -14,6 +14,9 @@ typedef struct arg_t {
 	uint8_t devices_len;
 	host_t (*hosts)[16];
 	uint8_t hosts_len;
+	char (*cookie)[128];
+	uint8_t cookie_len;
+	time_t cookie_age;
 } arg_t;
 
 typedef struct worker_t {

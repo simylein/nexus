@@ -31,6 +31,9 @@ void stop(int sig) {
 		error("failed to close socket because %s\n", errno_str());
 	}
 
+	for (uint8_t ind = 0; ind < workers_len; ind++) {
+		free(workers[ind].arg.cookie);
+	}
 	free(workers);
 
 	info("graceful shutdown complete\n");
@@ -193,6 +196,13 @@ int main(int argc, char *argv[]) {
 		workers[ind].arg.devices_len = devices_len;
 		workers[ind].arg.hosts = &hosts;
 		workers[ind].arg.hosts_len = hosts_len;
+		workers[ind].arg.cookie = malloc(sizeof(*workers[ind].arg.cookie));
+		if (workers[ind].arg.cookie == NULL) {
+			fatal("failed to allocate %zu bytes for cookie because %s\n", sizeof(*workers[ind].arg.cookie), errno_str());
+			exit(1);
+		}
+		workers[ind].arg.cookie_len = 0;
+		workers[ind].arg.cookie_age = 0;
 
 		if (spawn(&workers[ind], &thread, &fatal) == -1) {
 			exit(1);
