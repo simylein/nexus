@@ -8,6 +8,10 @@ typedef struct host_t {
 	char address[64];
 	uint8_t address_len;
 	uint16_t port;
+	char username[16];
+	uint8_t username_len;
+	char password[64];
+	uint8_t password_len;
 } host_t;
 
 extern const char *host_table;

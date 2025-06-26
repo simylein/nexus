@@ -21,6 +21,7 @@ int server_sock;
 struct sockaddr_in server_addr;
 
 worker_t *workers;
+uint8_t workers_len;
 
 void stop(int sig) {
 	signal(sig, SIG_DFL);
@@ -144,6 +145,12 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	for (uint8_t ind = 0; ind < devices_len; ind++) {
+		trace("id %02x%02x%02x%02x%02x%02x%02x%02x tag %02x%02x\n", devices[ind].id[0], devices[ind].id[1], devices[ind].id[2],
+					devices[ind].id[3], devices[ind].id[4], devices[ind].id[5], devices[ind].id[6], devices[ind].id[7],
+					devices[ind].tag[0], devices[ind].tag[1]);
+	}
+
 	info("found %hhu device registrations\n", devices_len);
 
 	host_t hosts[16];
@@ -153,19 +160,24 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	for (uint8_t ind = 0; ind < hosts_len; ind++) {
+		trace("address %.*s port %hu\n", hosts[ind].address_len, hosts[ind].address, hosts[ind].port);
+	}
+
 	info("found %hhu host connections\n", hosts_len);
 
 	if (sqlite3_close_v2(database) != SQLITE_OK) {
 		error("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
 	}
 
-	workers = malloc(radios_len * sizeof(worker_t));
+	workers_len = radios_len;
+	workers = malloc(workers_len * sizeof(worker_t));
 	if (workers == NULL) {
-		fatal("failed to allocate %zu bytes for workers because %s\n", radios_len * sizeof(worker_t), errno_str());
+		fatal("failed to allocate %zu bytes for workers because %s\n", workers_len * sizeof(worker_t), errno_str());
 		exit(1);
 	}
 
-	for (uint8_t ind = 0; ind < radios_len; ind++) {
+	for (uint8_t ind = 0; ind < workers_len; ind++) {
 		char device[65];
 		sprintf(device, "%.*s", (int)radios[ind].device_len, radios[ind].device);
 		int fd = spi_init(device, 0, 8 * 1000 * 1000, 8);
@@ -187,7 +199,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	info("spawned %hhu worker threads\n", radios_len);
+	info("spawned %hhu worker threads\n", workers_len);
 
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
 		fatal("failed to create socket because %s\n", errno_str());
