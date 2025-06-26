@@ -1,7 +1,9 @@
 #include "http.h"
 #include "error.h"
 #include "logger.h"
+#include "utils.h"
 #include <arpa/inet.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -34,8 +36,12 @@ int fetch(const char *address, uint16_t port, request_t *request, response_t *re
 	}
 
 	request_length +=
-			(size_t)sprintf(&request_buffer[request_length], "%.*s %.*s %.*s\r\n\r\n", (int)request->method_len, request->method,
+			(size_t)sprintf(&request_buffer[request_length], "%.*s %.*s %.*s\r\n", (int)request->method_len, request->method,
 											(int)request->pathname_len, request->pathname, (int)request->protocol_len, request->protocol);
+	memcpy(&request_buffer[request_length], request->header, request->header_len);
+	request_length += request->header_len;
+	memcpy(&request_buffer[request_length], "\r\n", 2);
+	request_length += 2;
 	memcpy(&request_buffer[request_length], request->body, request->body_len);
 	request_length += request->body_len;
 
@@ -96,13 +102,28 @@ int fetch(const char *address, uint16_t port, request_t *request, response_t *re
 		} else if (*byte == '\n') {
 			stage = 4;
 		} else {
-			response->status_text++;
+			response->status_text_len++;
 		}
 		index++;
 	}
 	response->status_text = &response_buffer[status_text_index];
 
-	if (stage != 4) {
+	const size_t header_index = index;
+	while ((stage >= 3 && stage <= 5) && index < 2048 && index < response_length) {
+		char *byte = &response_buffer[index];
+		if (*byte >= 'A' && *byte <= 'Z') {
+			*byte += 32;
+		}
+		if (*byte == '\r' || *byte == '\n') {
+			stage += 1;
+		} else {
+			response->header_len++;
+		}
+		index++;
+	}
+	response->header = &response_buffer[header_index];
+
+	if (stage != 6) {
 		error("failed to parse response\n");
 		status = -1;
 		goto cleanup;
@@ -113,6 +134,25 @@ cleanup:
 		error("failed to close socket because %s\n", errno_str());
 	}
 	return status;
+}
+
+const char *find_header(response_t *response, const char *key) {
+	const char *header = strncasestrn(response->header, response->header_len, key, strlen(key));
+	if (header != NULL) {
+		header += strlen(key);
+		if (header[0] == ' ') {
+			header += 1;
+		}
+		return header;
+	}
+	return NULL;
+}
+
+void append_header(request_t *request, const char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	request->header_len += (uint16_t)vsprintf(request->header + request->header_len, format, args);
+	va_end(args);
 }
 
 void append_body(request_t *request, const void *buffer, size_t buffer_len) {
