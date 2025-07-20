@@ -1,4 +1,5 @@
 #include "thread.h"
+#include "airtime.h"
 #include "auth.h"
 #include "endian.h"
 #include "error.h"
@@ -119,7 +120,7 @@ void *thread(void *args) {
 		uint8_t kind = rx_data[2];
 		uint8_t *data = &rx_data[3];
 		uint8_t data_len = rx_data_len - 3;
-		uint16_t airtime = 0;
+		uint16_t airtime = airtime_calculate(arg->radio, rx_data_len);
 		time_t received_at = time(NULL);
 
 		request_t request = {.body_len = 0};
