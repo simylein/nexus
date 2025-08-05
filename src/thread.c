@@ -178,5 +178,23 @@ void *thread(void *args) {
 		}
 
 		info("successfully created uplink\n");
+
+		uint8_t tx_data[256];
+		uint8_t tx_data_len = 0;
+
+		tx_data[tx_data_len] = rx_data[0];
+		tx_data_len += 1;
+		tx_data[tx_data_len] = rx_data[1];
+		tx_data_len += 1;
+		tx_data[tx_data_len] = 0x06;
+		tx_data_len += 1;
+
+		if (sx1278_transmit(arg->fd, &tx_data, tx_data_len) == -1) {
+			error("failed to transmit packet\n");
+			continue;
+		}
+
+		tx("id %02x%02x kind %02x bytes %hhu power %hhu sf %hhu\n", tx_data[0], tx_data[1], tx_data[2], tx_data_len,
+			 arg->radio->tx_power, arg->radio->spreading_factor);
 	}
 }

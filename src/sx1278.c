@@ -3,6 +3,7 @@
 #include "spi.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
 
 const uint8_t reg_fifo = 0x00;
@@ -12,11 +13,13 @@ const uint8_t reg_frf_mid = 0x07;
 const uint8_t reg_frf_lsb = 0x08;
 const uint8_t reg_pa_config = 0x09;
 const uint8_t reg_fifo_addr = 0x0d;
+const uint8_t reg_tx_addr = 0x0e;
 const uint8_t reg_rx_addr = 0x10;
 const uint8_t reg_irq_flags = 0x12;
 const uint8_t reg_packet_len = 0x13;
 const uint8_t reg_packet_snr = 0x19;
 const uint8_t reg_packet_rssi = 0x1a;
+const uint8_t reg_payload_len = 0x22;
 const uint8_t reg_modem_config_1 = 0x1d;
 const uint8_t reg_modem_config_2 = 0x1e;
 const uint8_t reg_sync_word = 0x39;
@@ -58,6 +61,26 @@ int sx1278_standby(int fd) {
 	}
 
 	trace("standby op_mode 0x%02x\n", op_mode);
+	return 0;
+}
+
+int sx1278_tx(int fd) {
+	if (spi_write_register(fd, reg_op_mode, 0x83) == -1) {
+		return -1;
+	};
+
+	uint8_t op_mode;
+	while (true) {
+		if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+			return -1;
+		};
+		if ((op_mode & 0x07) == 0x03) {
+			break;
+		}
+		usleep(500);
+	}
+
+	trace("transmit op_mode 0x%02x\n", op_mode);
 	return 0;
 }
 
@@ -301,6 +324,56 @@ int sx1278_rssi(int fd, int16_t *rssi) {
 	return 0;
 }
 
+int sx1278_transmit(int fd, uint8_t (*data)[256], uint8_t length) {
+	if (spi_write_register(fd, reg_fifo_addr, 0x80) == -1) {
+		return -1;
+	}
+
+	if (spi_write_register(fd, reg_tx_addr, 0x80) == -1) {
+		return -1;
+	}
+	char buffer[512];
+	uint16_t buffer_len = 0;
+	for (uint8_t index = 0; index < length; index++) {
+		if (spi_write_register(fd, reg_fifo, (*data)[index]) == -1) {
+			return -1;
+		}
+		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%02x", (*data)[index]);
+	}
+
+	if (spi_write_register(fd, reg_payload_len, length) == -1) {
+		return -1;
+	}
+
+	if (sx1278_tx(fd) == -1) {
+		return -1;
+	}
+
+	uint8_t irq_flags;
+	while (true) {
+		if (spi_read_register(fd, reg_irq_flags, &irq_flags) == -1) {
+			return -1;
+		};
+		if (irq_flags & 0x08) {
+			trace("transmitting completed irq_flags 0x%02x\n", irq_flags);
+			break;
+		}
+		usleep(500);
+	}
+	trace("transmitted data %.*s\n", buffer_len, buffer);
+
+	if (spi_write_register(fd, reg_irq_flags, 0xff) == -1) {
+		return -1;
+	}
+
+	if (spi_read_register(fd, reg_irq_flags, &irq_flags) == -1) {
+		return -1;
+	};
+
+	trace("acknowledged irq_flags 0x%02x\n", irq_flags);
+	return 0;
+}
+
 int sx1278_receive(int fd, uint8_t (*data)[256], uint8_t *length) {
 	if (sx1278_rx(fd) == -1) {
 		return -1;
@@ -332,11 +405,15 @@ int sx1278_receive(int fd, uint8_t (*data)[256], uint8_t *length) {
 		return -1;
 	}
 
+	char buffer[512];
+	uint16_t buffer_len = 0;
 	for (uint8_t index = 0; index < packet_len; index++) {
 		if (spi_read_register(fd, reg_fifo, &(*data)[index]) == -1) {
 			return -1;
 		}
+		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%02x", (*data)[index]);
 	}
+	trace("received data %.*s\n", buffer_len, buffer);
 
 	*length = packet_len;
 

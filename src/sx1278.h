@@ -17,4 +17,5 @@ int sx1278_sync_word(int fd, uint8_t word);
 int sx1278_snr(int fd, int8_t *snr);
 int sx1278_rssi(int fd, int16_t *rssi);
 
+int sx1278_transmit(int fd, uint8_t (*data)[256], uint8_t length);
 int sx1278_receive(int fd, uint8_t (*data)[256], uint8_t *length);
