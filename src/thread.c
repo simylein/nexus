@@ -7,6 +7,7 @@
 #include "logger.h"
 #include "radio.h"
 #include "sx1278.h"
+#include "uplink.h"
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -123,32 +124,19 @@ void *thread(void *args) {
 		uint16_t airtime = airtime_calculate(arg->radio, rx_data_len);
 		time_t received_at = time(NULL);
 
-		request_t request = {.body_len = 0};
-		response_t response = {.status = 0};
-
-		char method[] = "POST";
-		request.method = method;
-		request.method_len = sizeof(method);
-
-		char pathname[] = "/api/uplink";
-		request.pathname = pathname;
-		request.pathname_len = sizeof(pathname);
-
-		char protocol[] = "HTTP/1.1";
-		request.protocol = protocol;
-		request.protocol_len = sizeof(protocol);
-
-		append_body(&request, &kind, sizeof(kind));
-		append_body(&request, &data_len, sizeof(data_len));
-		append_body(&request, data, data_len);
-		append_body(&request, &(uint16_t[]){hton16(airtime)}, sizeof(airtime));
-		append_body(&request, &(uint32_t[]){hton32(arg->radio->frequency)}, sizeof(arg->radio->frequency));
-		append_body(&request, &(uint32_t[]){hton32(arg->radio->bandwidth)}, sizeof(arg->radio->bandwidth));
-		append_body(&request, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
-		append_body(&request, (char *)&snr, sizeof(snr));
-		append_body(&request, &arg->radio->spreading_factor, sizeof(arg->radio->spreading_factor));
-		append_body(&request, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
-		append_body(&request, device_id, sizeof(*device_id));
+		uplink_t uplink = {
+				.kind = kind,
+				.data = data,
+				.data_len = data_len,
+				.airtime = airtime,
+				.frequency = arg->radio->frequency,
+				.bandwidth = arg->radio->bandwidth,
+				.rssi = rssi,
+				.snr = snr,
+				.sf = arg->radio->spreading_factor,
+				.received_at = received_at,
+				.device_id = device_id,
+		};
 
 		host_t *host = NULL;
 		if (arg->hosts_len == 0) {
@@ -164,20 +152,9 @@ void *thread(void *args) {
 			}
 		}
 
-		append_header(&request, "cookie:auth=%.*s\r\n", arg->cookie_len, arg->cookie);
-
-		char buffer[65];
-		sprintf(buffer, "%.*s", host->address_len, host->address);
-		if (fetch(buffer, host->port, &request, &response) == -1) {
+		if (uplink_create(&uplink, host, arg->cookie, arg->cookie_len) == -1) {
 			continue;
 		}
-
-		if (response.status != 201) {
-			error("host rejected uplink with status %hu\n", response.status);
-			continue;
-		}
-
-		info("successfully created uplink\n");
 
 		uint8_t tx_data[256];
 		uint8_t tx_data_len = 0;
