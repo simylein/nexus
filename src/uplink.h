@@ -1,3 +1,5 @@
+#pragma once
+
 #include "host.h"
 #include <stdint.h>
 #include <time.h>
