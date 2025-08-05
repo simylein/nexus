@@ -1,9 +1,9 @@
 #include "thread.h"
 #include "airtime.h"
 #include "auth.h"
+#include "downlink.h"
 #include "endian.h"
 #include "error.h"
-#include "http.h"
 #include "logger.h"
 #include "radio.h"
 #include "sx1278.h"
@@ -118,26 +118,6 @@ void *thread(void *args) {
 			continue;
 		}
 
-		uint8_t kind = rx_data[2];
-		uint8_t *data = &rx_data[3];
-		uint8_t data_len = rx_data_len - 3;
-		uint16_t airtime = airtime_calculate(arg->radio, rx_data_len);
-		time_t received_at = time(NULL);
-
-		uplink_t uplink = {
-				.kind = kind,
-				.data = data,
-				.data_len = data_len,
-				.airtime = airtime,
-				.frequency = arg->radio->frequency,
-				.bandwidth = arg->radio->bandwidth,
-				.rssi = rssi,
-				.snr = snr,
-				.sf = arg->radio->spreading_factor,
-				.received_at = received_at,
-				.device_id = device_id,
-		};
-
 		host_t *host = NULL;
 		if (arg->hosts_len == 0) {
 			warn("%hhu host connections to forward to\n", arg->hosts_len);
@@ -145,12 +125,26 @@ void *thread(void *args) {
 		}
 		host = &(*arg->hosts)[rand() % arg->hosts_len];
 
-		if (arg->cookie_age + 3600 < received_at) {
+		if (arg->cookie_age + 3600 < time(NULL)) {
 			debug("refreshing auth cookie with age %lu\n", arg->cookie_age);
 			if (auth(host, arg->cookie, &arg->cookie_len, &arg->cookie_age) == -1) {
 				continue;
 			}
 		}
+
+		uplink_t uplink = {
+				.kind = rx_data[2],
+				.data = &rx_data[3],
+				.data_len = rx_data_len - 3,
+				.airtime = airtime_calculate(arg->radio, rx_data_len),
+				.frequency = arg->radio->frequency,
+				.bandwidth = arg->radio->bandwidth,
+				.rssi = rssi,
+				.snr = snr,
+				.sf = arg->radio->spreading_factor,
+				.received_at = time(NULL),
+				.device_id = device_id,
+		};
 
 		if (uplink_create(&uplink, host, arg->cookie, arg->cookie_len) == -1) {
 			continue;
@@ -173,5 +167,22 @@ void *thread(void *args) {
 
 		tx("id %02x%02x kind %02x bytes %hhu power %hhu sf %hhu\n", tx_data[0], tx_data[1], tx_data[2], tx_data_len,
 			 arg->radio->tx_power, arg->radio->spreading_factor);
+
+		downlink_t downlink = {
+				.kind = tx_data[2],
+				.data = &tx_data[3],
+				.data_len = tx_data_len - 3,
+				.airtime = airtime_calculate(arg->radio, tx_data_len),
+				.frequency = arg->radio->frequency,
+				.bandwidth = arg->radio->bandwidth,
+				.tx_power = arg->radio->tx_power,
+				.sf = arg->radio->spreading_factor,
+				.sent_at = time(NULL),
+				.device_id = device_id,
+		};
+
+		if (downlink_create(&downlink, host, arg->cookie, arg->cookie_len) == -1) {
+			continue;
+		}
 	}
 }
