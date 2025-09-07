@@ -2,7 +2,6 @@
 #include "airtime.h"
 #include "auth.h"
 #include "downlink.h"
-#include "endian.h"
 #include "error.h"
 #include "logger.h"
 #include "radio.h"
@@ -106,7 +105,7 @@ void *thread(void *args) {
 		rx("id %02x%02x kind %02x bytes %hhu rssi %hd snr %.2f sf %hhu\n", rx_data[0], rx_data[1], rx_data[2], rx_data_len, rssi,
 			 snr / 4.0f, arg->radio->spreading_factor);
 
-		uint8_t(*device_id)[16] = NULL;
+		uint8_t (*device_id)[16] = NULL;
 		for (uint8_t ind = 0; ind < arg->devices_len; ind++) {
 			if (memcmp(&rx_data[0], (*arg->devices)[ind].tag, sizeof((*arg->devices)[ind].tag)) == 0) {
 				device_id = &(*arg->devices)[ind].id;
@@ -157,7 +156,7 @@ void *thread(void *args) {
 		tx_data_len += 1;
 		tx_data[tx_data_len] = rx_data[1];
 		tx_data_len += 1;
-		tx_data[tx_data_len] = 0x06;
+		tx_data[tx_data_len] = 0x00;
 		tx_data_len += 1;
 
 		if (sx1278_transmit(arg->fd, &tx_data, tx_data_len) == -1) {
