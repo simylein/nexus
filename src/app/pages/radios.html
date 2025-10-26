@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View all of your radios" />
+		<title>Nexus radios</title>
+		<style></style>
+	</head>
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		onload="loadRadios()"
+	>
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
+			>
+				<a href="/" class="no-underline text-black dark:text-white">Home</a>
+				<a href="/radios" class="no-underline text-blue-600 dark:text-blue-400">Radios</a>
+			</nav>
+		</header>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<div class="overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th
+								id="id"
+								sort="asc"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('id'); loadRadios()"
+							>
+								Id
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3 w-3">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+								</svg>
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="device"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('device'); loadRadios()"
+							>
+								Device
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="frequency"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('frequency'); loadRadios()"
+							>
+								Frequency
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="bandwidth"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('bandwidth'); loadRadios()"
+							>
+								Bandwidth
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="spreading-factor"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('spreadingFactor'); loadRadios()"
+							>
+								Spreading Factor
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="coding-rate"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('codingRate'); loadRadios()"
+							>
+								Coding rate
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="tx-power"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('txPower'); loadRadios()"
+							>
+								Tx power
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="sync-word"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('syncWord'); loadRadios()"
+							>
+								Sync word
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="checksum"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('checksum'); loadRadios()"
+							>
+								Checksum
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+						</tr>
+					</thead>
+					<tbody id="radios">
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+						<radio-row ref="./src/app/components/radio-row.html" />
+					</tbody>
+				</table>
+			</div>
+		</main>
+		<footer class="w-full background-neutral-100 dark:background-neutral-900">
+			<div
+				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
+			>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">nexus {version} {commit}</p>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">written by simylein</p>
+			</div>
+		</footer>
+	</body>
+	<script>
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/resize.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/color-tx-power.js';
+		import './src/app/scripts/search.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		const radios = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('radios') };
+		const columns = {
+			id: document.getElementById('id'),
+			device: document.getElementById('device'),
+			frequency: document.getElementById('frequency'),
+			bandwidth: document.getElementById('bandwidth'),
+			spreadingFactor: document.getElementById('spreading-factor'),
+			codingRate: document.getElementById('coding-rate'),
+			txPower: document.getElementById('tx-power'),
+			syncWord: document.getElementById('sync-word'),
+			checksum: document.getElementById('checksum'),
+		};
+		const paintSorting = (column) => {
+			const element = columns[column];
+			const sort = element.getAttribute('sort') === 'asc' ? 'desc' : 'asc';
+			Object.keys(columns).forEach((col) => {
+				columns[col].removeAttribute('sort');
+				columns[col].children[0].classList.add('hidden');
+				columns[col].children[1].classList.add('hidden');
+			});
+			element.setAttribute('sort', sort);
+			switch (true) {
+				case sort === 'asc':
+					element.children[0].classList.remove('hidden');
+					break;
+				case sort === 'desc':
+					element.children[1].classList.remove('hidden');
+					break;
+			}
+			setParam('order', column);
+			setParam('sort', sort);
+		};
+		const loadingRadios = (element) => {
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
+				loading(element.children[ind].children[5].children[0], ['w-7', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
+				loading(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
+				loading(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
+			});
+		};
+		const paintRadios = (element, data) => {
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
+					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].device);
+					paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], data[ind].frequency);
+					paint(element.children[ind].children[3].children[0], [], ['w-16', 'h-4'], data[ind].bandwidth);
+					paint(element.children[ind].children[4].children[0], [], ['w-5', 'h-4'], data[ind].spreadingFactor);
+					fade(element.children[ind].children[4].children[0]);
+					colorSf(element.children[ind].children[4].children[0], data[ind].spreadingFactor);
+					paint(element.children[ind].children[5].children[0], [], ['w-7', 'h-4'], `4/${data[ind].codingRate}`);
+					paint(element.children[ind].children[6].children[0], [], ['w-5', 'h-4'], data[ind].txPower);
+					fade(element.children[ind].children[6].children[0]);
+					colorTxPower(element.children[ind].children[6].children[0], data[ind].txPower);
+					paint(element.children[ind].children[7].children[0], [], ['w-5', 'h-4'], data[ind].syncWord);
+					paint(element.children[ind].children[8].children[0], [], ['w-8', 'h-4'], data[ind].checksum);
+				}
+			});
+		};
+		const errorRadios = (element) => {
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
+				error(element.children[ind].children[5].children[0], ['w-7', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
+				error(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
+				error(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
+			});
+		};
+		const parseRadios = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const radios = [];
+			while (binary.offset < buffer.byteLength) {
+				const radio = {
+					id: null,
+					device: null,
+					frequency: null,
+					bandwidth: null,
+					spreadingFactor: null,
+					codingRate: null,
+					txPower: null,
+					syncWord: null,
+					checksum: null,
+				};
+				radio.id = binary.uuid();
+				radio.device = binary.string();
+				radio.frequency = binary.uint(32);
+				radio.bandwidth = binary.uint(32);
+				radio.spreadingFactor = binary.uint(8);
+				radio.codingRate = binary.uint(8);
+				radio.txPower = binary.uint(8);
+				radio.syncWord = binary.uint(8);
+				radio.checksum = binary.bool();
+				radios.push(radio);
+			}
+			return radios;
+		};
+		const loadRadios = fetching(
+			radios,
+			(context) => window.requestAnimationFrame(() => loadingRadios(context.element)),
+			(context) => {
+				const endpoint = `/api/radios?order=${getParam('order', 'id')}&sort=${getParam('sort', 'asc')}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseRadios(response)),
+			(context) => window.requestAnimationFrame(() => paintRadios(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorRadios(context.element))
+		);
+	</script>
+</html>

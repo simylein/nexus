@@ -27,12 +27,12 @@ all:
 	@echo "make release    performance optimized"
 
 develop: $(objects)
-	@echo "linking $(target) $(commit)..."
+	@echo "linking $(target) $(version) $(commit)..."
 	@$(cc) $(flags) -o $(target) $(objects) -lm -lsqlite3 -O0 -fsanitize=address
 
 release: $(objects)
-	@echo "linking $(target) $(commit)..."
-	@$(cc) $(flags) -o $(target) $(objects) -lm -lsqlite3 -O3 -march=native
+	@echo "linking $(target) $(version) $(commit)..."
+	@$(cc) $(flags) -o $(target) $(objects) -lm -lsqlite3 -O3 -march=native -flto=full
 
 clean:
 	@echo "cleaning up..."

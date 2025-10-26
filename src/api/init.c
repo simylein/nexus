@@ -1,7 +1,6 @@
-#include "device.h"
-#include "host.h"
-#include "logger.h"
+#include "../lib/logger.h"
 #include "radio.h"
+#include "user.h"
 #include <sqlite3.h>
 #include <stdlib.h>
 
@@ -32,15 +31,10 @@ cleanup:
 }
 
 int init(sqlite3 *database) {
+	if (init_table(database, user_table, user_schema) == -1) {
+		return -1;
+	}
 	if (init_table(database, radio_table, radio_schema) == -1) {
-		return -1;
-	}
-
-	if (init_table(database, device_table, device_schema) == -1) {
-		return -1;
-	}
-
-	if (init_table(database, host_table, host_schema) == -1) {
 		return -1;
 	}
 

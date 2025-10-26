@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Signin to your account" />
+		<title>Nexus signin</title>
+		<style></style>
+	</head>
+	<body class="font-sans m-0 text-base leading-none text-black dark:text-white background-white dark:background-black">
+		<notifications ref="./src/app/components/notifications.html" />
+		<main class="min-h-dvh flex items-center justify-center">
+			<div class="box-border w-full max-w-96 m-4 sm:m-8 lg:m-16 pt-8 pr-8 pb-4 pl-8 background-neutral-100 dark:background-neutral-900">
+				<form class="flex flex-col items-center" onsubmit="handleSubmit(event)">
+					<h1 class="m-0 mb-4 text-2xl font-medium">Signin</h1>
+					<div class="w-full flex flex-col items-start pb-4">
+						<label for="username" class="mb-2 text-base font-normal">Username</label>
+						<input
+							id="username"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="username"
+							autofocus
+							onchange="setValue('username', event.target.value)"
+							onblur="setTouched('username', true)"
+						/>
+						<p id="username-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start pb-4">
+						<label for="password" class="mb-2 text-base font-normal">Password</label>
+						<input
+							id="password"
+							type="password"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="password"
+							onchange="setValue('password', event.target.value)"
+							onblur="setTouched('password', true)"
+						/>
+						<p id="password-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<button
+						id="signin-button"
+						type="submit"
+						class="min-w-32 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 cursor-pointer"
+					>
+						Signin
+					</button>
+				</form>
+			</div>
+		</main>
+	</body>
+	<script>
+		import './src/app/scripts/formik.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/report.js';
+		import './src/app/scripts/notification.js';
+		const { setValue, setTouched, handleSubmit } = formik(
+			{
+				button: document.getElementById('signin-button'),
+				username: document.getElementById('username-validation'),
+				password: document.getElementById('password-validation'),
+			},
+			{
+				username: (value) => {
+					if (!value) return 'username is required';
+					if (value.length < 4) return 'username is too short';
+					if (value.length > 16) return 'username is too long';
+					if (!value.match(/^[a-z]+$/)) return 'username must be lowercase letters';
+				},
+				password: (value) => {
+					if (!value) return 'password is required';
+					if (value.length < 8) return 'password is too short';
+					if (value.length > 64) return 'password is too long';
+					if (!value.match(/[0-9]/)) return 'password must include digits';
+					if (!value.match(/[a-z]/)) return 'password must include lowercase letters';
+					if (!value.match(/[A-Z]/)) return 'password must include uppercase letters';
+				},
+			},
+			async (values) => {
+				const data = new Blob([values.username, '\0', values.password, '\0']);
+				try {
+					await fetcher('post', '/api/signin', data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully signed in as ${values.username}`);
+					const memo = document.cookie.match(/memo=([^;]*)/);
+					window.location.href = memo?.[1] ?? '/';
+				} catch (err) {
+					report(err);
+				}
+			}
+		);
+	</script>
+</html>

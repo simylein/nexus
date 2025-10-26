@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -62,4 +63,56 @@ const char *strncasestrn(const char *buffer, size_t buffer_len, const char *buf,
 	}
 
 	return NULL;
+}
+
+int strnto8(const char *string, const size_t string_len, uint8_t *value) {
+	for (size_t index = 0; index < string_len; index++) {
+		if (string[index] < '0' || string[index] > '9') {
+			return -1;
+		}
+
+		uint8_t digit = (uint8_t)string[index] - '0';
+		*value = (uint8_t)(*value * 10 + digit);
+	}
+
+	return 0;
+}
+
+int strnto16(const char *string, const size_t string_len, uint16_t *value) {
+	for (size_t index = 0; index < string_len; index++) {
+		if (string[index] < '0' || string[index] > '9') {
+			return -1;
+		}
+
+		uint16_t digit = (uint16_t)string[index] - '0';
+		*value = (uint16_t)(*value * 10 + digit);
+	}
+
+	return 0;
+}
+
+int strnto32(const char *string, const size_t string_len, uint32_t *value) {
+	for (size_t index = 0; index < string_len; index++) {
+		if (string[index] < '0' || string[index] > '9') {
+			return -1;
+		}
+
+		uint32_t digit = (uint32_t)string[index] - '0';
+		*value = (uint32_t)(*value * 10 + digit);
+	}
+
+	return 0;
+}
+
+int strnto64(const char *string, const size_t string_len, uint64_t *value) {
+	for (size_t index = 0; index < string_len; index++) {
+		if (string[index] < '0' || string[index] > '9') {
+			return -1;
+		}
+
+		uint64_t digit = (uint64_t)string[index] - '0';
+		*value = (uint64_t)(*value * 10 + digit);
+	}
+
+	return 0;
 }
