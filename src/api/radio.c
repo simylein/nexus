@@ -1,4 +1,5 @@
 #include "radio.h"
+#include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
@@ -106,6 +107,102 @@ cleanup:
 	return status;
 }
 
+int radio_parse(radio_t *radio, request_t *request) {
+	request->body.pos = 0;
+
+	uint8_t stage = 0;
+
+	radio->device_len = 0;
+	const uint8_t device_index = (uint8_t)request->body.pos;
+	while (stage == 0 && radio->device_len < 32 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 1;
+		} else {
+			radio->device_len++;
+		}
+	}
+	radio->device = &request->body.ptr[device_index];
+	if (stage != 1) {
+		debug("found device with %hhu bytes\n", radio->device_len);
+		return -1;
+	}
+
+	if (request->body.len < request->body.pos + sizeof(radio->frequency)) {
+		debug("missing frequency on radio\n");
+		return -1;
+	}
+	memcpy(&radio->frequency, body_read(request, sizeof(radio->frequency)), sizeof(radio->frequency));
+	radio->frequency = ntoh32(radio->frequency);
+
+	if (request->body.len < request->body.pos + sizeof(radio->bandwidth)) {
+		debug("missing bandwidth on radio\n");
+		return -1;
+	}
+	memcpy(&radio->bandwidth, body_read(request, sizeof(radio->bandwidth)), sizeof(radio->bandwidth));
+	radio->bandwidth = ntoh32(radio->bandwidth);
+
+	if (request->body.len < request->body.pos + sizeof(radio->spreading_factor)) {
+		debug("missing spreading factor on radio\n");
+		return -1;
+	}
+	radio->spreading_factor = *(uint8_t *)body_read(request, sizeof(radio->spreading_factor));
+
+	if (request->body.len < request->body.pos + sizeof(radio->coding_rate)) {
+		debug("missing coding rate on radio\n");
+		return -1;
+	}
+	radio->coding_rate = *(uint8_t *)body_read(request, sizeof(radio->coding_rate));
+
+	if (request->body.len < request->body.pos + sizeof(radio->tx_power)) {
+		debug("missing tx power on radio\n");
+		return -1;
+	}
+	radio->tx_power = *(uint8_t *)body_read(request, sizeof(radio->tx_power));
+
+	if (request->body.len < request->body.pos + sizeof(radio->sync_word)) {
+		debug("missing sync word on radio\n");
+		return -1;
+	}
+	radio->sync_word = *(uint8_t *)body_read(request, sizeof(radio->sync_word));
+
+	if (request->body.len != request->body.pos) {
+		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
+		return -1;
+	}
+
+	return 0;
+}
+
+int radio_validate(radio_t *radio) {
+	if (radio->frequency < 400 * 1000 * 1000 || radio->frequency > 500 * 1000 * 1000) {
+		debug("invalid frequency %u on radio\n", radio->frequency);
+		return -1;
+	}
+
+	if (radio->bandwidth < 7800 || radio->bandwidth > 500 * 1000) {
+		debug("invalid bandwidth %u on radio\n", radio->bandwidth);
+		return -1;
+	}
+
+	if (radio->spreading_factor < 7 || radio->spreading_factor > 12) {
+		debug("invalid spreading factor %u on radio\n", radio->spreading_factor);
+		return -1;
+	}
+
+	if (radio->coding_rate < 5 || radio->coding_rate > 8) {
+		debug("invalid coding rate %u on radio\n", radio->coding_rate);
+		return -1;
+	}
+
+	if (radio->tx_power < 2 || radio->tx_power > 17) {
+		debug("invalid tx power %u on radio\n", radio->tx_power);
+		return -1;
+	}
+
+	return 0;
+}
+
 uint16_t radio_insert(sqlite3 *database, radio_t *radio) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -156,6 +253,42 @@ cleanup:
 	return status;
 }
 
+uint16_t radio_delete(sqlite3 *database, radio_t *radio) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "delete from radio "
+										"where id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, radio->id, sizeof(*radio->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	if (sqlite3_changes(database) == 0) {
+		warn("radio %02x%02x not found\n", (*radio->id)[0], (*radio->id)[1]);
+		status = 404;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 void radio_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	radio_query_t query;
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", (const char **)&query.order, (size_t *)&query.order_len,
@@ -180,5 +313,60 @@ void radio_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *r
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu radios\n", radios_len);
+	response->status = 200;
+}
+
+void radio_create(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	radio_t radio = {.id = &id};
+	if (request->body.len == 0 || radio_parse(&radio, request) == -1 || radio_validate(&radio) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = radio_insert(database, &radio);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("created radio %02x%02x\n", (*radio.id)[0], (*radio.id)[1]);
+	response->status = 201;
+}
+
+void radio_remove(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((radio_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((radio_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	radio_t radio = {.id = &id};
+	uint16_t status = radio_delete(database, &radio);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("deleted radio %02x%02x\n", (*radio.id)[0], (*radio.id)[1]);
 	response->status = 200;
 }

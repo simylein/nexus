@@ -2,6 +2,9 @@
 
 void logger_init(void);
 
+void rx(const char *message, ...) __attribute__((format(printf, 1, 2)));
+void tx(const char *message, ...) __attribute__((format(printf, 1, 2)));
+
 void req(const char *message, ...) __attribute__((format(printf, 1, 2)));
 void res(const char *message, ...) __attribute__((format(printf, 1, 2)));
 

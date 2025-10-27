@@ -134,6 +134,20 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "post", "/api/radio", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			radio_create(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "delete", "/api/radios/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			radio_remove(database, request, response);
+		}
+	}
+
 	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
 		user_signin(database, request, response);
 	}

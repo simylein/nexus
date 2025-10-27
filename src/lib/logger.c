@@ -53,6 +53,28 @@ void print(FILE *file, const char *time, const char *level, const char *color, c
 	funlockfile(file);
 }
 
+void rx(const char *message, ...) {
+	if (log_requests == true) {
+		char buffer[9];
+		timestamp(&buffer);
+		va_list args;
+		va_start(args, message);
+		print(stdout, buffer, "rx", bold, message, args);
+		va_end(args);
+	}
+}
+
+void tx(const char *message, ...) {
+	if (log_responses == true) {
+		char buffer[9];
+		timestamp(&buffer);
+		va_list args;
+		va_start(args, message);
+		print(stdout, buffer, "tx", bold, message, args);
+		va_end(args);
+	}
+}
+
 void req(const char *message, ...) {
 	if (log_requests == true) {
 		char buffer[9];

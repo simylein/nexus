@@ -11,6 +11,7 @@
 		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
 		onload="loadRadios()"
 	>
+		<notifications ref="./src/app/components/notifications.html" />
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -20,6 +21,20 @@
 			</nav>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<div class="flex items-center justify-between">
+				<div></div>
+				<svg
+					id="create"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+				</svg>
+			</div>
 			<div class="overflow-x-auto scrollbar-none">
 				<table class="w-full text-nowrap border-collapse">
 					<thead>
@@ -110,6 +125,7 @@
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
 								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
 							</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
 						</tr>
 					</thead>
 					<tbody id="radios">
@@ -132,6 +148,193 @@
 					</tbody>
 				</table>
 			</div>
+			<dialog id="create-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="createForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Create radio?</h1>
+					<div class="w-full flex flex-col items-start">
+						<label for="device" class="mb-2 text-base font-normal">Device</label>
+						<input
+							id="radio-device"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="device"
+							autofocus
+							onchange="createForm.setValue('device', event.target.value)"
+							onblur="createForm.setTouched('device', true)"
+						/>
+						<p id="radio-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="frequency" class="mb-2 text-base font-normal">Frequency</label>
+						<input
+							id="radio-frequency"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="frequency"
+							onchange="createForm.setValue('frequency', event.target.value)"
+							onblur="createForm.setTouched('frequency', true)"
+						/>
+						<p id="radio-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
+						<input
+							id="radio-bandwidth"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="bandwidth"
+							onchange="createForm.setValue('bandwidth', event.target.value)"
+							onblur="createForm.setTouched('bandwidth', true)"
+						/>
+						<p id="radio-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="spreading-factor" class="mb-2 text-base font-normal">Spreading factor</label>
+						<div id="spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(7); createForm.setValue('spreadingFactor', 7); createForm.setTouched('spreadingFactor', true)"
+							>
+								7
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(8); createForm.setValue('spreadingFactor', 8); createForm.setTouched('spreadingFactor', true)"
+							>
+								8
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(9); createForm.setValue('spreadingFactor', 9); createForm.setTouched('spreadingFactor', true)"
+							>
+								9
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(10); createForm.setValue('spreadingFactor', 10); createForm.setTouched('spreadingFactor', true)"
+							>
+								10
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(11); createForm.setValue('spreadingFactor', 11); createForm.setTouched('spreadingFactor', true)"
+							>
+								11
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(12); createForm.setValue('spreadingFactor', 12); createForm.setTouched('spreadingFactor', true)"
+							>
+								12
+							</button>
+						</div>
+						<p id="radio-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="coding-rate" class="mb-2 text-base font-normal">Coding rate</label>
+						<div id="coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightCodingRate(5); createForm.setValue('codingRate', 5); createForm.setTouched('codingRate', true)"
+							>
+								4/5
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightCodingRate(6); createForm.setValue('codingRate', 6); createForm.setTouched('codingRate', true)"
+							>
+								4/6
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightCodingRate(7); createForm.setValue('codingRate', 7); createForm.setTouched('codingRate', true)"
+							>
+								4/7
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightCodingRate(8); createForm.setValue('codingRate', 8); createForm.setTouched('codingRate', true)"
+							>
+								4/8
+							</button>
+						</div>
+						<p id="radio-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="device" class="mb-2 text-base font-normal">Tx power</label>
+						<input
+							id="radio-tx-power"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="tx power"
+							autofocus
+							onchange="createForm.setValue('txPower', event.target.value)"
+							onblur="createForm.setTouched('txPower', true)"
+						/>
+						<p id="radio-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="sync-word" class="mb-2 text-base font-normal">Sync word</label>
+						<input
+							id="radio-sync-word"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="sync word"
+							onchange="createForm.setValue('syncWord', event.target.value)"
+							onblur="createForm.setTouched('syncWord', true)"
+						/>
+						<p id="radio-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="create-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-green-300 dark:background-green-700 outline-none cursor-pointer"
+						>
+							Create
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeCreateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+			<dialog id="delete-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-2" onsubmit="deleteForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Delete radio?</h1>
+					<p class="m-0 text-base font-normal">Deleting this radio will stop any further transmissions and remove said radio from service.</p>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="delete-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-red-300 dark:background-red-700 outline-none cursor-pointer"
+						>
+							Delete
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeDeleteDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -148,11 +351,18 @@
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/color-cr.js';
 		import './src/app/scripts/color-tx-power.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/formik.js';
+		import './src/app/scripts/report.js';
+		import './src/app/scripts/notification.js';
+		const create = document.getElementById('create');
+		const spreadingFactors = document.getElementById('spreading-factors');
+		const codingRates = document.getElementById('coding-rates');
 		const radios = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('radios') };
 		const columns = {
 			id: document.getElementById('id'),
@@ -186,6 +396,9 @@
 			setParam('sort', sort);
 		};
 		const loadingRadios = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
@@ -193,14 +406,21 @@
 				loading(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
 				loading(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[5].children[0]);
 				loading(element.children[ind].children[5].children[0], ['w-7', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
 				loading(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
 				loading(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
 				loading(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
+				element.children[ind].children[9].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[9].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[9].children[0].onclick = null;
 			});
 		};
 		const paintRadios = (element, data) => {
+			create.classList.remove('opacity-50', 'cursor-not-allowed');
+			create.classList.add('cursor-pointer');
+			create.onclick = () => openCreateDialog();
 			resize(element, data.length > 0 ? data.length : 1);
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
@@ -212,15 +432,23 @@
 					fade(element.children[ind].children[4].children[0]);
 					colorSf(element.children[ind].children[4].children[0], data[ind].spreadingFactor);
 					paint(element.children[ind].children[5].children[0], [], ['w-7', 'h-4'], `4/${data[ind].codingRate}`);
+					fade(element.children[ind].children[5].children[0]);
+					colorCr(element.children[ind].children[5].children[0], data[ind].codingRate);
 					paint(element.children[ind].children[6].children[0], [], ['w-5', 'h-4'], data[ind].txPower);
 					fade(element.children[ind].children[6].children[0]);
 					colorTxPower(element.children[ind].children[6].children[0], data[ind].txPower);
 					paint(element.children[ind].children[7].children[0], [], ['w-5', 'h-4'], data[ind].syncWord);
 					paint(element.children[ind].children[8].children[0], [], ['w-8', 'h-4'], data[ind].checksum);
+					element.children[ind].children[9].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[9].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[9].children[0].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
 		const errorRadios = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
 			array(element.children.length).forEach((ind) => {
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
@@ -228,11 +456,15 @@
 				error(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
 				error(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[5].children[0]);
 				error(element.children[ind].children[5].children[0], ['w-7', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
 				error(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
 				error(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
 				error(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
+				element.children[ind].children[9].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[9].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[9].children[0].onclick = null;
 			});
 		};
 		const parseRadios = async (response) => {
@@ -258,7 +490,7 @@
 				radio.spreadingFactor = binary.uint(8);
 				radio.codingRate = binary.uint(8);
 				radio.txPower = binary.uint(8);
-				radio.syncWord = binary.uint(8);
+				radio.syncWord = binary.hex(1);
 				radio.checksum = binary.bool();
 				radios.push(radio);
 			}
@@ -274,6 +506,180 @@
 			async (context, response) => (context.data = await parseRadios(response)),
 			(context) => window.requestAnimationFrame(() => paintRadios(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorRadios(context.element))
+		);
+		const highlightSpreadingFactor = (spreadingFactor) => {
+			array(spreadingFactors.children.length).forEach((ind) => {
+				fade(spreadingFactors.children[ind]);
+				spreadingFactors.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+			});
+			switch (spreadingFactor) {
+				case 7:
+					fade(spreadingFactors.children[0]);
+					spreadingFactors.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					break;
+				case 8:
+					fade(spreadingFactors.children[1]);
+					spreadingFactors.children[1].classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-100', 'dark:background-lime-900');
+					break;
+				case 9:
+					fade(spreadingFactors.children[2]);
+					spreadingFactors.children[2].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
+					break;
+				case 10:
+					fade(spreadingFactors.children[3]);
+					spreadingFactors.children[3].classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-100', 'dark:background-amber-900');
+					break;
+				case 11:
+					fade(spreadingFactors.children[4]);
+					spreadingFactors.children[4].classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-100', 'dark:background-orange-900');
+					break;
+				case 12:
+					fade(spreadingFactors.children[5]);
+					spreadingFactors.children[5].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
+					break;
+			}
+		};
+		const highlightCodingRate = (codingRate) => {
+			array(codingRates.children.length).forEach((ind) => {
+				fade(codingRates.children[ind]);
+				codingRates.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+			});
+			switch (codingRate) {
+				case 5:
+					fade(codingRates.children[0]);
+					codingRates.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					break;
+				case 6:
+					fade(codingRates.children[1]);
+					codingRates.children[1].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
+					break;
+				case 7:
+					fade(codingRates.children[2]);
+					codingRates.children[2].classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-100', 'dark:background-orange-900');
+					break;
+				case 8:
+					fade(codingRates.children[3]);
+					codingRates.children[3].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
+					break;
+			}
+		};
+		const createDialog = document.getElementById('create-dialog');
+		const deleteDialog = document.getElementById('delete-dialog');
+		let radio = null;
+		const openCreateDialog = () => {
+			document.getElementById('radio-device').value = '';
+			document.getElementById('radio-frequency').value = '';
+			document.getElementById('radio-bandwidth').value = '';
+			highlightSpreadingFactor(0);
+			highlightCodingRate(0);
+			createDialog.showModal();
+		};
+		const closeCreateDialog = () => {
+			createForm.reset();
+			createDialog.close();
+		};
+		const openDeleteDialog = (radio) => {
+			deleteForm.setValue('radioId', radio.id);
+			deleteForm.setTouched('radioId', true);
+			deleteDialog.showModal();
+		};
+		const closeDeleteDialog = () => {
+			deleteForm.reset();
+			deleteDialog.close();
+		};
+		const createForm = formik(
+			{
+				button: document.getElementById('create-button'),
+				device: document.getElementById('radio-device-validation'),
+				frequency: document.getElementById('radio-frequency-validation'),
+				bandwidth: document.getElementById('radio-bandwidth-validation'),
+				spreadingFactor: document.getElementById('radio-spreading-factor-validation'),
+				codingRate: document.getElementById('radio-coding-rate-validation'),
+				txPower: document.getElementById('radio-tx-power-validation'),
+				syncWord: document.getElementById('radio-sync-word-validation'),
+			},
+			{
+				device: (value) => {
+					if (!value) return 'device is required';
+					if (value.length < 8) return 'device must be at least 8 characters';
+					if (value.length > 32) return 'device must be at most 32 characters';
+					if (!value.match(/^[/a-z0-9.]+$/)) return 'device must be a valid unix path';
+				},
+				frequency: (value) => {
+					if (!value) return 'frequency is required';
+					if (!value.match(/^[0-9]+$/)) return 'frequency must be a number';
+					if (+value < 430000000) return 'frequency must be min 430000000';
+					if (+value > 440000000) return 'frequency must be max 440000000';
+				},
+				bandwidth: (value) => {
+					if (!value) return 'bandwidth is required';
+					if (!value.match(/^[0-9]+$/)) return 'bandwidth must be a number';
+					if (+value < 7800) return 'bandwidth must be min 7800';
+					if (+value > 500000) return 'bandwidth must be max 500000';
+				},
+				spreadingFactor: (value) => {
+					if (!value) return 'spreading factor is required';
+					if (value < 7) return 'spreading factor must be min 7';
+					if (value > 12) return 'spreading factor must be max 12';
+				},
+				codingRate: (value) => {
+					if (!value) return 'coding rate is required';
+					if (value < 5) return 'coding rate must be min 5';
+					if (value > 8) return 'coding rate must be max 8';
+				},
+				txPower: (value) => {
+					if (!value) return 'tx power is required';
+					if (!value.match(/^[0-9]+$/)) return 'tx power must be a number';
+					if (+value < 2) return 'tx power must be min 2';
+					if (+value > 17) return 'tx power must be max 17';
+				},
+				syncWord: (value) => {
+					if (!value) return 'sync word is required';
+					if (value.length !== 2) return 'sync word must be 2 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'sync word must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(12);
+				const view = new DataView(bytes.buffer);
+				view.setUint32(0, +values.frequency);
+				view.setUint32(4, +values.bandwidth);
+				view.setUint8(8, values.spreadingFactor);
+				view.setUint8(9, values.codingRate);
+				view.setUint8(10, values.txPower);
+				view.setUint8(11, parseInt(values.syncWord, 16));
+				const data = new Blob([values.device, '\0', view]);
+				try {
+					await fetcher('post', '/api/radio', data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully created radio');
+					loadRadios(true);
+				} catch (err) {
+					report(err);
+				}
+				closeCreateDialog();
+			}
+		);
+		const deleteForm = formik(
+			{
+				button: document.getElementById('delete-button'),
+			},
+			{
+				radioId: (value) => {
+					if (!value) return 'radio id is required';
+					if (value.length !== 32) return 'radio id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'radio id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				try {
+					await fetcher('delete', `/api/radios/${values.radioId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully deleted radio ${values.radioId.substring(0, 4)}`);
+					loadRadios(true);
+				} catch (err) {
+					report(err);
+				}
+				closeDeleteDialog();
+			}
 		);
 	</script>
 </html>
