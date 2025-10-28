@@ -4,6 +4,7 @@
 #include "../lib/endian.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "device.h"
 #include "radio.h"
 #include "user.h"
 #include <sqlite3.h>
@@ -123,6 +124,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/devices", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve(&page_devices, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
 		serve(&page_signin, response);
 	}
@@ -130,7 +138,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/api/radios", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			radio_find(database, &bwt, request, response);
+			radio_find(database, request, response);
 		}
 	}
 
@@ -145,6 +153,27 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			radio_remove(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/devices", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			device_find(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "post", "/api/device", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			device_create(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "delete", "/api/devices/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			device_remove(database, request, response);
 		}
 	}
 

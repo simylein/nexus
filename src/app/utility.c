@@ -447,7 +447,7 @@ void text(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 			{.key = "text-2xl", .key_len = 8, .val = "font-size:24px", .val_len = 14},
 			{.key = "text-3xl", .key_len = 8, .val = "font-size:30px", .val_len = 14},
 			{.key = "text-4xl", .key_len = 8, .val = "font-size:36px", .val_len = 14},
-			{.key = "text-left", .key_len = 9, .val = "text-align:left", .val_len = 0},
+			{.key = "text-left", .key_len = 9, .val = "text-align:left", .val_len = 15},
 			{.key = "text-center", .key_len = 11, .val = "text-align:center", .val_len = 17},
 			{.key = "text-right", .key_len = 10, .val = "text-align:right", .val_len = 16},
 			{.key = "text-justify", .key_len = 12, .val = "text-align:justify", .val_len = 18},

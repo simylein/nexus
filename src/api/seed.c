@@ -1,4 +1,5 @@
 #include "../lib/logger.h"
+#include "device.h"
 #include "radio.h"
 #include "user.h"
 #include <sqlite3.h>
@@ -11,6 +12,8 @@ uint8_t *user_ids;
 uint8_t user_ids_len;
 uint8_t *radio_ids;
 uint8_t radio_ids_len;
+uint8_t *device_ids;
+uint8_t device_ids_len;
 
 int seed_user(sqlite3 *database) {
 	char *usernames[] = {"alice", "bob", "charlie", "dave"};
@@ -74,6 +77,31 @@ int seed_radio(sqlite3 *database) {
 	return 0;
 }
 
+int seed_device(sqlite3 *database) {
+	device_ids_len = 8;
+	device_ids = malloc(device_ids_len * sizeof(*((radio_t *)0)->id));
+	if (device_ids == NULL) {
+		return -1;
+	}
+
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		for (uint8_t ind = 0; ind < sizeof(*((device_t *)0)->id); ind++) {
+			device_ids[index * sizeof(*((device_t *)0)->id) + ind] = (uint8_t)rand();
+		}
+		device_t device = {
+				.id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+				.tag = (uint8_t (*)[2])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+		};
+
+		if (device_insert(database, &device) != 0) {
+			return -1;
+		}
+	}
+
+	info("seeded table device\n");
+	return 0;
+}
+
 int seed(sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
@@ -83,9 +111,13 @@ int seed(sqlite3 *database) {
 	if (seed_radio(database) == -1) {
 		return -1;
 	}
+	if (seed_device(database) == -1) {
+		return -1;
+	}
 
 	free(user_ids);
 	free(radio_ids);
+	free(device_ids);
 
 	return 0;
 }

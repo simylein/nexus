@@ -1,6 +1,5 @@
 #include "radio.h"
 #include "../lib/base16.h"
-#include "../lib/bwt.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
 #include "../lib/request.h"
@@ -23,7 +22,7 @@ const char *radio_schema = "create table radio ("
 													 "checksum boolean not null"
 													 ")";
 
-uint16_t radio_select(sqlite3 *database, bwt_t *bwt, radio_query_t *query, response_t *response, uint8_t *radios_len) {
+uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *response, uint8_t *radios_len) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
@@ -32,24 +31,24 @@ uint16_t radio_select(sqlite3 *database, bwt_t *bwt, radio_query_t *query, respo
 										"radio.spreading_factor, radio.coding_rate, radio.tx_power, radio.sync_word, radio.checksum "
 										"from radio "
 										"order by "
-										"case when ?2 = 'id' and ?3 = 'asc' then radio.id end asc, "
-										"case when ?2 = 'id' and ?3 = 'desc' then radio.id end desc, "
-										"case when ?2 = 'device' and ?3 = 'asc' then radio.device end asc, "
-										"case when ?2 = 'device' and ?3 = 'desc' then radio.device end desc, "
-										"case when ?2 = 'frequency' and ?3 = 'asc' then radio.frequency end asc, "
-										"case when ?2 = 'frequency' and ?3 = 'desc' then radio.frequency end desc, "
-										"case when ?2 = 'bandwidth' and ?3 = 'asc' then radio.bandwidth end asc, "
-										"case when ?2 = 'bandwidth' and ?3 = 'desc' then radio.bandwidth end desc, "
-										"case when ?2 = 'spreadingFactor' and ?3 = 'asc' then radio.spreading_factor end asc, "
-										"case when ?2 = 'spreadingFactor' and ?3 = 'desc' then radio.spreading_factor end desc, "
-										"case when ?2 = 'codingRate' and ?3 = 'asc' then radio.coding_rate end asc, "
-										"case when ?2 = 'codingRate' and ?3 = 'desc' then radio.coding_rate end desc, "
-										"case when ?2 = 'txPower' and ?3 = 'asc' then radio.tx_power end asc, "
-										"case when ?2 = 'txPower' and ?3 = 'desc' then radio.tx_power end desc, "
-										"case when ?2 = 'syncWord' and ?3 = 'asc' then radio.sync_word end asc, "
-										"case when ?2 = 'syncWord' and ?3 = 'desc' then radio.sync_word end desc, "
-										"case when ?2 = 'checksum' and ?3 = 'asc' then radio.checksum end asc, "
-										"case when ?2 = 'checksum' and ?3 = 'desc' then radio.checksum end desc";
+										"case when ?1 = 'id' and ?2 = 'asc' then radio.id end asc, "
+										"case when ?1 = 'id' and ?2 = 'desc' then radio.id end desc, "
+										"case when ?1 = 'device' and ?2 = 'asc' then radio.device end asc, "
+										"case when ?1 = 'device' and ?2 = 'desc' then radio.device end desc, "
+										"case when ?1 = 'frequency' and ?2 = 'asc' then radio.frequency end asc, "
+										"case when ?1 = 'frequency' and ?2 = 'desc' then radio.frequency end desc, "
+										"case when ?1 = 'bandwidth' and ?2 = 'asc' then radio.bandwidth end asc, "
+										"case when ?1 = 'bandwidth' and ?2 = 'desc' then radio.bandwidth end desc, "
+										"case when ?1 = 'spreadingFactor' and ?2 = 'asc' then radio.spreading_factor end asc, "
+										"case when ?1 = 'spreadingFactor' and ?2 = 'desc' then radio.spreading_factor end desc, "
+										"case when ?1 = 'codingRate' and ?2 = 'asc' then radio.coding_rate end asc, "
+										"case when ?1 = 'codingRate' and ?2 = 'desc' then radio.coding_rate end desc, "
+										"case when ?1 = 'txPower' and ?2 = 'asc' then radio.tx_power end asc, "
+										"case when ?1 = 'txPower' and ?2 = 'desc' then radio.tx_power end desc, "
+										"case when ?1 = 'syncWord' and ?2 = 'asc' then radio.sync_word end asc, "
+										"case when ?1 = 'syncWord' and ?2 = 'desc' then radio.sync_word end desc, "
+										"case when ?1 = 'checksum' and ?2 = 'asc' then radio.checksum end asc, "
+										"case when ?1 = 'checksum' and ?2 = 'desc' then radio.checksum end desc";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -58,9 +57,8 @@ uint16_t radio_select(sqlite3 *database, bwt_t *bwt, radio_query_t *query, respo
 		goto cleanup;
 	}
 
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, query->order, query->order_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 3, query->sort, query->sort_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 1, query->order, query->order_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, query->sort, query->sort_len, SQLITE_STATIC);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -186,17 +184,17 @@ int radio_validate(radio_t *radio) {
 	}
 
 	if (radio->spreading_factor < 7 || radio->spreading_factor > 12) {
-		debug("invalid spreading factor %u on radio\n", radio->spreading_factor);
+		debug("invalid spreading factor %hhu on radio\n", radio->spreading_factor);
 		return -1;
 	}
 
 	if (radio->coding_rate < 5 || radio->coding_rate > 8) {
-		debug("invalid coding rate %u on radio\n", radio->coding_rate);
+		debug("invalid coding rate %hhu on radio\n", radio->coding_rate);
 		return -1;
 	}
 
 	if (radio->tx_power < 2 || radio->tx_power > 17) {
-		debug("invalid tx power %u on radio\n", radio->tx_power);
+		debug("invalid tx power %hhu on radio\n", radio->tx_power);
 		return -1;
 	}
 
@@ -289,7 +287,7 @@ cleanup:
 	return status;
 }
 
-void radio_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void radio_find(sqlite3 *database, request_t *request, response_t *response) {
 	radio_query_t query;
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", (const char **)&query.order, (size_t *)&query.order_len,
 							 16) == -1) {
@@ -304,7 +302,7 @@ void radio_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *r
 	}
 
 	uint8_t radios_len = 0;
-	uint16_t status = radio_select(database, bwt, &query, response, &radios_len);
+	uint16_t status = radio_select(database, &query, response, &radios_len);
 	if (status != 0) {
 		response->status = status;
 		return;

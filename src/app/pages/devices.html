@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View all of your devices" />
+		<title>Nexus devices</title>
+		<style></style>
+	</head>
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		onload="loadDevices()"
+	>
+		<notifications ref="./src/app/components/notifications.html" />
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
+			>
+				<a href="/" class="no-underline text-black dark:text-white">Home</a>
+				<a href="/radios" class="no-underline text-black dark:text-white">Radios</a>
+				<a href="/devices" class="no-underline text-blue-600 dark:text-blue-400">Devices</a>
+			</nav>
+		</header>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<div class="flex items-center justify-between">
+				<div></div>
+				<svg
+					id="create"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+				</svg>
+			</div>
+			<div class="overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th
+								id="id"
+								sort="asc"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('id'); loadDevices()"
+							>
+								Id
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3 w-3">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+								</svg>
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="tag"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('tag'); loadDevices()"
+							>
+								Tag
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
+						</tr>
+					</thead>
+					<tbody id="devices">
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+						<device-row ref="./src/app/components/device-row.html" />
+					</tbody>
+				</table>
+			</div>
+			<dialog id="create-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="createForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Create device?</h1>
+					<div class="w-full flex flex-col items-start">
+						<label for="device-id" class="mb-2 text-base font-normal">Id</label>
+						<input
+							id="device-id"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="id"
+							autofocus
+							onchange="createForm.setValue('id', event.target.value)"
+							onblur="createForm.setTouched('id', true)"
+						/>
+						<p id="device-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="device-tag" class="mb-2 text-base font-normal">Tag</label>
+						<input
+							id="device-tag"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="tag"
+							onchange="createForm.setValue('tag', event.target.value)"
+							onblur="createForm.setTouched('tag', true)"
+						/>
+						<p id="device-tag-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="create-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-green-300 dark:background-green-700 outline-none cursor-pointer"
+						>
+							Create
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeCreateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+			<dialog id="delete-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-2" onsubmit="deleteForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Delete device?</h1>
+					<p class="m-0 text-base font-normal">Deleting this device will stop the transmissions for said device.</p>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="delete-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-red-300 dark:background-red-700 outline-none cursor-pointer"
+						>
+							Delete
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeDeleteDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+		</main>
+		<footer class="w-full background-neutral-100 dark:background-neutral-900">
+			<div
+				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
+			>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">nexus {version} {commit}</p>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">written by simylein</p>
+			</div>
+		</footer>
+	</body>
+	<script>
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/resize.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/color-cr.js';
+		import './src/app/scripts/color-tx-power.js';
+		import './src/app/scripts/search.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/formik.js';
+		import './src/app/scripts/report.js';
+		import './src/app/scripts/notification.js';
+		const create = document.getElementById('create');
+		const spreadingFactors = document.getElementById('spreading-factors');
+		const codingRates = document.getElementById('coding-rates');
+		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
+		const columns = {
+			id: document.getElementById('id'),
+			tag: document.getElementById('tag'),
+		};
+		const paintSorting = (column) => {
+			const element = columns[column];
+			const sort = element.getAttribute('sort') === 'asc' ? 'desc' : 'asc';
+			Object.keys(columns).forEach((col) => {
+				columns[col].removeAttribute('sort');
+				columns[col].children[0].classList.add('hidden');
+				columns[col].children[1].classList.add('hidden');
+			});
+			element.setAttribute('sort', sort);
+			switch (true) {
+				case sort === 'asc':
+					element.children[0].classList.remove('hidden');
+					break;
+				case sort === 'desc':
+					element.children[1].classList.remove('hidden');
+					break;
+			}
+			setParam('order', column);
+			setParam('sort', sort);
+		};
+		const loadingDevices = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-80', 'h-4'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
+				element.children[ind].children[2].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[2].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[2].children[0].onclick = null;
+			});
+		};
+		const paintDevices = (element, data) => {
+			create.classList.remove('opacity-50', 'cursor-not-allowed');
+			create.classList.add('cursor-pointer');
+			create.onclick = () => openCreateDialog();
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					paint(element.children[ind].children[0].children[0], [], ['w-80', 'h-4'], data[ind].id);
+					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4'], data[ind].tag);
+					element.children[ind].children[2].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[2].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[2].children[0].onclick = () => openDeleteDialog(data[ind]);
+				}
+			});
+		};
+		const errorDevices = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0], ['w-80', 'h-4'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
+				element.children[ind].children[2].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[2].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[2].children[0].onclick = null;
+			});
+		};
+		const parseDevices = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const devices = [];
+			while (binary.offset < buffer.byteLength) {
+				const device = {
+					id: null,
+					device: null,
+					frequency: null,
+					bandwidth: null,
+					spreadingFactor: null,
+					codingRate: null,
+					txPower: null,
+					syncWord: null,
+					checksum: null,
+				};
+				device.id = binary.uuid();
+				device.tag = binary.hex(2);
+				devices.push(device);
+			}
+			return devices;
+		};
+		const loadDevices = fetching(
+			devices,
+			(context) => window.requestAnimationFrame(() => loadingDevices(context.element)),
+			(context) => {
+				const endpoint = `/api/devices?order=${getParam('order', 'id')}&sort=${getParam('sort', 'asc')}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseDevices(response)),
+			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
+		);
+		const createDialog = document.getElementById('create-dialog');
+		const deleteDialog = document.getElementById('delete-dialog');
+		let device = null;
+		const openCreateDialog = () => {
+			document.getElementById('device-id').value = '';
+			document.getElementById('device-tag').value = '';
+			createDialog.showModal();
+		};
+		const closeCreateDialog = () => {
+			createForm.reset();
+			createDialog.close();
+		};
+		const openDeleteDialog = (device) => {
+			deleteForm.setValue('deviceId', device.id);
+			deleteForm.setTouched('deviceId', true);
+			deleteDialog.showModal();
+		};
+		const closeDeleteDialog = () => {
+			deleteForm.reset();
+			deleteDialog.close();
+		};
+		const createForm = formik(
+			{
+				button: document.getElementById('create-button'),
+				id: document.getElementById('device-id-validation'),
+				tag: document.getElementById('device-tag-validation'),
+			},
+			{
+				id: (value) => {
+					if (!value) return 'id is required';
+					if (value.length !== 32) return 'id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
+				},
+				tag: (value) => {
+					if (!value) return 'tag is required';
+					if (value.length !== 4) return 'tag must be 4 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'tag must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(values.id.length / 2 + values.tag.length / 2);
+				for (let ind = 0; ind < values.id.length / 2; ind++) {
+					bytes[ind] = parseInt(values.id.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				for (let ind = 0; ind < values.tag.length / 2; ind++) {
+					bytes[values.id.length / 2 + ind] = parseInt(values.tag.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				const data = new Blob([bytes]);
+				try {
+					await fetcher('post', '/api/device', data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully created device');
+					loadDevices(true);
+				} catch (err) {
+					report(err);
+				}
+				closeCreateDialog();
+			}
+		);
+		const deleteForm = formik(
+			{
+				button: document.getElementById('delete-button'),
+			},
+			{
+				deviceId: (value) => {
+					if (!value) return 'device id is required';
+					if (value.length !== 32) return 'device id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				try {
+					await fetcher('delete', `/api/devices/${values.deviceId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully deleted device ${values.deviceId.substring(0, 4)}`);
+					loadDevices(true);
+				} catch (err) {
+					report(err);
+				}
+				closeDeleteDialog();
+			}
+		);
+	</script>
+</html>

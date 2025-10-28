@@ -18,6 +18,7 @@
 			>
 				<a href="/" class="no-underline text-black dark:text-white">Home</a>
 				<a href="/radios" class="no-underline text-blue-600 dark:text-blue-400">Radios</a>
+				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
 			</nav>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
@@ -152,7 +153,7 @@
 				<form class="m-4 flex flex-col gap-4" onsubmit="createForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Create radio?</h1>
 					<div class="w-full flex flex-col items-start">
-						<label for="device" class="mb-2 text-base font-normal">Device</label>
+						<label for="radio-device" class="mb-2 text-base font-normal">Device</label>
 						<input
 							id="radio-device"
 							type="text"
@@ -165,7 +166,7 @@
 						<p id="radio-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="frequency" class="mb-2 text-base font-normal">Frequency</label>
+						<label for="radio-frequency" class="mb-2 text-base font-normal">Frequency</label>
 						<input
 							id="radio-frequency"
 							type="text"
@@ -177,7 +178,7 @@
 						<p id="radio-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
+						<label for="radio-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
 						<input
 							id="radio-bandwidth"
 							type="text"
@@ -189,7 +190,7 @@
 						<p id="radio-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="spreading-factor" class="mb-2 text-base font-normal">Spreading factor</label>
+						<label for="spreading-factors" class="mb-2 text-base font-normal">Spreading factor</label>
 						<div id="spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
 							<button
 								type="button"
@@ -237,7 +238,7 @@
 						<p id="radio-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="coding-rate" class="mb-2 text-base font-normal">Coding rate</label>
+						<label for="coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
 						<div id="coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
 							<button
 								type="button"
@@ -271,7 +272,7 @@
 						<p id="radio-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="device" class="mb-2 text-base font-normal">Tx power</label>
+						<label for="radio-tx-power" class="mb-2 text-base font-normal">Tx power</label>
 						<input
 							id="radio-tx-power"
 							type="text"
@@ -284,7 +285,7 @@
 						<p id="radio-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="sync-word" class="mb-2 text-base font-normal">Sync word</label>
+						<label for="radio-sync-word" class="mb-2 text-base font-normal">Sync word</label>
 						<input
 							id="radio-sync-word"
 							type="text"
@@ -572,6 +573,8 @@
 			document.getElementById('radio-bandwidth').value = '';
 			highlightSpreadingFactor(0);
 			highlightCodingRate(0);
+			document.getElementById('radio-tx-power').value = '';
+			document.getElementById('radio-sync-word').value = '';
 			createDialog.showModal();
 		};
 		const closeCreateDialog = () => {
