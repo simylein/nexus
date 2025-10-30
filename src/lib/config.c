@@ -14,6 +14,9 @@ uint8_t queue_size = 8;
 uint8_t least_workers = 4;
 uint8_t most_workers = 64;
 
+uint8_t uplinks_size = 16;
+uint8_t downlinks_size = 16;
+
 const char *bwt_key = "n6ee65x78u75s73";
 uint32_t bwt_ttl = 2764800;
 

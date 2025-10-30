@@ -13,6 +13,9 @@ extern uint8_t queue_size;
 extern uint8_t least_workers;
 extern uint8_t most_workers;
 
+extern uint8_t uplinks_size;
+extern uint8_t downlinks_size;
+
 extern char *bwt_key;
 extern uint32_t bwt_ttl;
 

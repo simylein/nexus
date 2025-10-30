@@ -1,5 +1,7 @@
+#include "api/downlink.h"
 #include "api/init.h"
 #include "api/seed.h"
+#include "api/uplink.h"
 #include "app/page.h"
 #include "lib/config.h"
 #include "lib/error.h"
@@ -48,6 +50,26 @@ void stop(int sig) {
 
 	free(queue.tasks);
 	free(thread_pool.workers);
+
+	if (uplinks.size > 0) {
+		info("waiting for %hhu uplinks...\n", uplinks.size);
+	}
+	while (uplinks.size > 0) {
+		trace("waiting for %hhu uplinks in queue\n", uplinks.size);
+		pthread_cond_wait(&uplinks.available, &uplinks.lock);
+	}
+
+	free(uplinks.ptr);
+
+	if (downlinks.size > 0) {
+		info("waiting for %hhu downlinks...\n", downlinks.size);
+	}
+	while (downlinks.size > 0) {
+		trace("waiting for %hhu downlinks in queue\n", downlinks.size);
+		pthread_cond_wait(&downlinks.available, &downlinks.lock);
+	}
+
+	free(downlinks.ptr);
 
 	page_close();
 	page_free();
@@ -151,6 +173,28 @@ int main(int argc, char *argv[]) {
 	}
 
 	info("spawned %hhu worker threads\n", least_workers);
+
+	uplinks.ptr = malloc(uplinks_size * sizeof(*uplinks.ptr));
+	if (uplinks.ptr == NULL) {
+		fatal("failed to allocate %zu bytes for uplinks because %s\n", uplinks_size * sizeof(*uplinks.ptr), errno_str());
+		exit(1);
+	}
+
+	pthread_t uplink;
+	if (uplink_spawn(&uplink, uplink_thread) == -1) {
+		exit(1);
+	}
+
+	downlinks.ptr = malloc(downlinks_size * sizeof(*downlinks.ptr));
+	if (downlinks.ptr == NULL) {
+		fatal("failed to allocate %zu bytes for downlinks because %s\n", downlinks_size * sizeof(*downlinks.ptr), errno_str());
+		exit(1);
+	}
+
+	pthread_t downlink;
+	if (downlink_spawn(&downlink, downlink_thread) == -1) {
+		exit(1);
+	}
 
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
 		fatal("failed to create socket because %s\n", errno_str());
