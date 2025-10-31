@@ -1,5 +1,5 @@
-#include "error.h"
-#include "logger.h"
+#include "../lib/error.h"
+#include "../lib/logger.h"
 #include <fcntl.h>
 #include <linux/spi/spidev.h>
 #include <pthread.h>

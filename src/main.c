@@ -1,8 +1,9 @@
-#include "api/downlink.h"
 #include "api/init.h"
 #include "api/seed.h"
-#include "api/uplink.h"
+#include "app/downlink.h"
 #include "app/page.h"
+#include "app/radio.h"
+#include "app/uplink.h"
 #include "lib/config.h"
 #include "lib/error.h"
 #include "lib/format.h"
@@ -193,6 +194,21 @@ int main(int argc, char *argv[]) {
 
 	pthread_t downlink;
 	if (downlink_spawn(&downlink, downlink_thread) == -1) {
+		exit(1);
+	}
+
+	sqlite3 *database;
+	if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
+		fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
+		exit(1);
+	}
+
+	if (radio_init(database) == -1) {
+		exit(1);
+	}
+
+	if (sqlite3_close_v2(database) != SQLITE_OK) {
+		fatal("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
 		exit(1);
 	}
 

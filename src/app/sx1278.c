@@ -1,5 +1,5 @@
-#include "format.h"
-#include "logger.h"
+#include "../lib/format.h"
+#include "../lib/logger.h"
 #include "spi.h"
 #include <stdbool.h>
 #include <stdint.h>
