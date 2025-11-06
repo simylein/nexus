@@ -6,6 +6,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
+#include "http.h"
 #include <errno.h>
 #include <pthread.h>
 #include <stdbool.h>
@@ -118,7 +119,14 @@ int downlink_create(downlink_t *downlink, strn8_t *cookie) {
 	memcpy(&request.body.ptr[request.body.len], downlink->device_id, sizeof(downlink->device_id));
 	request.body.len += sizeof(downlink->device_id);
 
-	// TODO actually fetch it
+	if (fetch("127.0.0.1", 2254, &request, &response) == -1) {
+		return -1;
+	}
+
+	if (response.status == 400) {
+		warn("host rejected uplink with status %hu\n", response.status);
+		return 0;
+	}
 
 	if (response.status != 201) {
 		error("host rejected downlink with status %hu\n", response.status);
