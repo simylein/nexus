@@ -344,7 +344,7 @@ void radio_remove(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	uint8_t uuid_len = 0;
-	const char *uuid = param_find(request, 12, &uuid_len);
+	const char *uuid = param_find(request, 11, &uuid_len);
 	if (uuid_len != sizeof(*((radio_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((radio_t *)0)->id) * 2);
 		response->status = 400;

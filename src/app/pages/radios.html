@@ -676,7 +676,7 @@
 			},
 			async (values) => {
 				try {
-					await fetcher('delete', `/api/radios/${values.radioId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
+					await fetcher('delete', `/api/radio/${values.radioId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', `Successfully deleted radio ${values.radioId.substring(0, 4)}`);
 					loadRadios(true);
 				} catch (err) {

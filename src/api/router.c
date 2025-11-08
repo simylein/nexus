@@ -157,7 +157,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
-	if (endpoint(request, "delete", "/api/radios/:id", &method_found, &pathname_found) == true) {
+	if (endpoint(request, "delete", "/api/radio/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			radio_remove(database, request, response);
@@ -178,7 +178,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
-	if (endpoint(request, "delete", "/api/devices/:id", &method_found, &pathname_found) == true) {
+	if (endpoint(request, "delete", "/api/device/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			device_remove(database, request, response);
@@ -196,6 +196,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			host_create(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "delete", "/api/host/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			host_remove(database, request, response);
 		}
 	}
 

@@ -351,7 +351,7 @@
 			},
 			async (values) => {
 				try {
-					await fetcher('delete', `/api/devices/${values.deviceId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
+					await fetcher('delete', `/api/device/${values.deviceId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', `Successfully deleted device ${values.deviceId.substring(0, 4)}`);
 					loadDevices(true);
 				} catch (err) {

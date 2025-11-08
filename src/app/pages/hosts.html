@@ -422,7 +422,7 @@
 			},
 			async (values) => {
 				try {
-					await fetcher('delete', `/api/hosts/${values.hostId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
+					await fetcher('delete', `/api/host/${values.hostId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', `Successfully deleted host ${values.hostId.substring(0, 4)}`);
 					loadHosts(true);
 				} catch (err) {

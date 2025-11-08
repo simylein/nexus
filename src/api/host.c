@@ -1,4 +1,5 @@
 #include "host.h"
+#include "../lib/base16.h"
 #include "../lib/endian.h"
 #include "../lib/format.h"
 #include "../lib/logger.h"
@@ -245,6 +246,41 @@ cleanup:
 	return status;
 }
 
+uint16_t host_delete(sqlite3 *database, host_t *host) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "delete from host "
+										"where id = ?";
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, host->id, sizeof(*host->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	if (sqlite3_changes(database) == 0) {
+		warn("host %02x%02x not found\n", (*host->id)[0], (*host->id)[1]);
+		status = 404;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 void host_find(sqlite3 *database, request_t *request, response_t *response) {
 	host_query_t query;
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", (const char **)&query.order, (size_t *)&query.order_len,
@@ -293,4 +329,36 @@ void host_create(sqlite3 *database, request_t *request, response_t *response) {
 
 	info("created host %02x%02x\n", (*host.id)[0], (*host.id)[1]);
 	response->status = 201;
+}
+
+void host_remove(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((host_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((host_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	host_t host = {.id = &id};
+	uint16_t status = host_delete(database, &host);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("deleted host %02x%02x\n", (*host.id)[0], (*host.id)[1]);
+	response->status = 200;
 }
