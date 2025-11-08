@@ -98,8 +98,6 @@ int radio_init(sqlite3 *database) {
 		goto cleanup;
 	}
 
-	uint8_t *device_ids = NULL;
-	uint8_t *device_tags = NULL;
 	device_t *devices = NULL;
 	uint8_t devices_len = 0;
 	while (true) {
@@ -111,22 +109,18 @@ int radio_init(sqlite3 *database) {
 				status = -1;
 				goto cleanup;
 			}
-			device_ids = realloc(device_ids, sizeof(*((device_t *)0)->id) * (devices_len + 1));
-			if (device_ids == NULL) {
-				error("failed to allocate %zu bytes for device ids because %s\n", sizeof(*((device_t *)0)->id) * (devices_len + 1),
-							errno_str());
+			devices[devices_len].id = malloc(sizeof(*((device_t *)0)->id));
+			if (devices[devices_len].id == NULL) {
+				error("failed to allocate %zu bytes for id because %s\n", sizeof(*((device_t *)0)->id), errno_str());
 				status = -1;
 				goto cleanup;
 			}
-			devices[devices_len].id = (uint8_t (*)[16])(&device_ids[devices_len * sizeof(*((device_t *)0)->id)]);
-			device_tags = realloc(device_tags, sizeof(*((device_t *)0)->tag) * (devices_len + 1));
-			if (device_tags == NULL) {
-				error("failed to allocate %zu bytes for device ids because %s\n", sizeof(*((device_t *)0)->tag) * (devices_len + 1),
-							errno_str());
+			devices[devices_len].tag = malloc(sizeof(*((device_t *)0)->tag));
+			if (devices[devices_len].tag == NULL) {
+				error("failed to allocate %zu bytes for tag because %s\n", sizeof(*((device_t *)0)->tag), errno_str());
 				status = -1;
 				goto cleanup;
 			}
-			devices[devices_len].tag = (uint8_t (*)[2])(&device_tags[devices_len * sizeof(*((device_t *)0)->tag)]);
 			const uint8_t *id = sqlite3_column_blob(stmt_device, 0);
 			const size_t id_len = (size_t)sqlite3_column_bytes(stmt_device, 0);
 			if (id_len != sizeof(*((device_t *)0)->id)) {
