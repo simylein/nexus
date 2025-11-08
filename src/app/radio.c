@@ -165,6 +165,8 @@ int radio_init(sqlite3 *database) {
 		radio_spawn(&threads[index], radio_thread, &arg);
 	}
 
+	info("spawned %hhu radio threads\n", radios_len);
+
 cleanup:
 	sqlite3_finalize(stmt_radio);
 	sqlite3_finalize(stmt_device);

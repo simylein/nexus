@@ -175,33 +175,21 @@ int main(int argc, char *argv[]) {
 
 	info("spawned %hhu worker threads\n", least_workers);
 
-	uplinks.ptr = malloc(uplinks_size * sizeof(*uplinks.ptr));
-	if (uplinks.ptr == NULL) {
-		fatal("failed to allocate %zu bytes for uplinks because %s\n", uplinks_size * sizeof(*uplinks.ptr), errno_str());
-		exit(1);
-	}
-
-	pthread_t uplink;
-	if (uplink_spawn(&uplink, uplink_thread, NULL) == -1) {
-		exit(1);
-	}
-
-	downlinks.ptr = malloc(downlinks_size * sizeof(*downlinks.ptr));
-	if (downlinks.ptr == NULL) {
-		fatal("failed to allocate %zu bytes for downlinks because %s\n", downlinks_size * sizeof(*downlinks.ptr), errno_str());
-		exit(1);
-	}
-
-	pthread_t downlink;
-	if (downlink_spawn(&downlink, downlink_thread, NULL) == -1) {
-		exit(1);
-	}
-
 	sqlite3 *database;
 	if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
 		fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
 		exit(1);
 	}
+
+	if (uplink_init(database) == -1) {
+		exit(1);
+	}
+
+	if (downlink_init(database) == -1) {
+		exit(1);
+	}
+
+	info("spawned %hhu queue threads\n", 2);
 
 	if (radio_init(database) == -1) {
 		exit(1);

@@ -36,6 +36,8 @@ typedef struct downlink_arg_t {
 
 extern struct downlinks_t downlinks;
 
+int downlink_init(sqlite3 *database);
+
 int downlink_spawn(pthread_t *thread, void *(*function)(void *), downlink_arg_t *arg);
 
 void *downlink_thread(void *args);

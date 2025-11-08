@@ -25,10 +25,117 @@ downlinks_t downlinks = {
 		.available = PTHREAD_COND_INITIALIZER,
 };
 
+int downlink_init(sqlite3 *database) {
+	int status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select "
+										"host.id, host.address, host.port, host.username, host.password "
+										"from host "
+										"order by port asc";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = -1;
+		goto cleanup;
+	}
+
+	host_t *hosts = NULL;
+	uint8_t hosts_len = 0;
+	while (true) {
+		int result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+			hosts = realloc(hosts, sizeof(host_t) * (hosts_len + 1));
+			if (hosts == NULL) {
+				error("failed to allocate %zu bytes for hosts because %s\n", sizeof(host_t) * (hosts_len + 1), errno_str());
+				status = -1;
+				goto cleanup;
+			}
+			const uint8_t *id = sqlite3_column_blob(stmt, 0);
+			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
+			if (id_len != sizeof(*((host_t *)0)->id)) {
+				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((host_t *)0)->id));
+				status = 500;
+				goto cleanup;
+			}
+			hosts[hosts_len].id = malloc(sizeof(*((host_t *)0)->id));
+			if (hosts[hosts_len].id == NULL) {
+				error("failed to allocate %zu bytes for id because %s\n", sizeof(*((host_t *)0)->id), errno_str());
+				status = -1;
+				goto cleanup;
+			}
+			memcpy(hosts[hosts_len].id, id, id_len);
+			const uint8_t *addr = sqlite3_column_text(stmt, 1);
+			const size_t address_len = (uint8_t)sqlite3_column_bytes(stmt, 1);
+			hosts[hosts_len].address = malloc(address_len);
+			if (hosts[hosts_len].address == NULL) {
+				error("failed to allocate %zu bytes for address because %s\n", address_len, errno_str());
+				status = -1;
+				goto cleanup;
+			}
+			memcpy(hosts[hosts_len].address, addr, address_len);
+			hosts[hosts_len].address_len = (uint8_t)address_len;
+			hosts[hosts_len].port = (uint16_t)sqlite3_column_int(stmt, 2);
+			const uint8_t *username = sqlite3_column_text(stmt, 3);
+			const size_t username_len = (uint8_t)sqlite3_column_bytes(stmt, 3);
+			hosts[hosts_len].username = malloc(username_len);
+			if (hosts[hosts_len].username == NULL) {
+				error("failed to allocate %zu bytes for username because %s\n", username_len, errno_str());
+				status = -1;
+				goto cleanup;
+			}
+			memcpy(hosts[hosts_len].username, username, username_len);
+			hosts[hosts_len].username_len = (uint8_t)username_len;
+			const uint8_t *password = sqlite3_column_text(stmt, 4);
+			const size_t password_len = (uint8_t)sqlite3_column_bytes(stmt, 4);
+			hosts[hosts_len].password = malloc(password_len);
+			if (hosts[hosts_len].password == NULL) {
+				error("failed to allocate %zu bytes for password because %s\n", password_len, errno_str());
+				status = -1;
+				goto cleanup;
+			}
+			memcpy(hosts[hosts_len].password, password, password_len);
+			hosts[hosts_len].password_len = (uint8_t)password_len;
+			hosts_len += 1;
+		} else if (result == SQLITE_DONE) {
+			status = 0;
+			break;
+		} else {
+			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+			status = 500;
+			goto cleanup;
+		}
+	}
+
+	downlinks.ptr = malloc(downlinks_size * sizeof(*downlinks.ptr));
+	if (downlinks.ptr == NULL) {
+		fatal("failed to allocate %zu bytes for downlinks because %s\n", downlinks_size * sizeof(*downlinks.ptr), errno_str());
+		exit(1);
+	}
+
+	pthread_t downlink;
+	downlink_arg_t *arg = malloc(sizeof(downlink_arg_t));
+	if (arg == NULL) {
+		error("failed to allocate %zu bytes for downlink arg because %s\n", sizeof(downlink_arg_t), errno_str());
+		status = -1;
+		goto cleanup;
+	}
+	arg->hosts = hosts;
+	arg->hosts_len = hosts_len;
+	if (downlink_spawn(&downlink, downlink_thread, arg) == -1) {
+		exit(1);
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 int downlink_spawn(pthread_t *thread, void *(*function)(void *), downlink_arg_t *arg) {
 	trace("spawning downlink thread\n");
 
-	int spawn_error = pthread_create(thread, NULL, function, (void *)&arg);
+	int spawn_error = pthread_create(thread, NULL, function, (void *)arg);
 	if (spawn_error != 0) {
 		errno = spawn_error;
 		fatal("failed to spawn downlink thread because %s\n", errno_str());
@@ -133,7 +240,7 @@ int downlink_create(downlink_t *downlink, host_t *host, strn8_t *cookie) {
 	request.body.len += sizeof(downlink->device_id);
 
 	char buffer[64];
-	sprintf(buffer, "%s", host->address);
+	sprintf(buffer, "%.*s", host->address_len, host->address);
 	if (fetch(buffer, host->port, &request, &response) == -1) {
 		return -1;
 	}

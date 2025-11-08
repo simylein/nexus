@@ -38,6 +38,8 @@ typedef struct uplink_arg_t {
 
 extern struct uplinks_t uplinks;
 
+int uplink_init(sqlite3 *database);
+
 int uplink_spawn(pthread_t *thread, void *(*function)(void *), uplink_arg_t *arg);
 
 void *uplink_thread(void *args);
