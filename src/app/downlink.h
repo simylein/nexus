@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../api/host.h"
 #include "../lib/strn.h"
 #include <pthread.h>
 #include <stdint.h>
@@ -28,10 +29,15 @@ typedef struct downlinks_t {
 	pthread_cond_t available;
 } downlinks_t;
 
+typedef struct downlink_arg_t {
+	host_t *hosts;
+	uint8_t hosts_len;
+} downlink_arg_t;
+
 extern struct downlinks_t downlinks;
 
-int downlink_spawn(pthread_t *thread, void *(*function)(void *));
+int downlink_spawn(pthread_t *thread, void *(*function)(void *), downlink_arg_t *arg);
 
 void *downlink_thread(void *args);
 
-int downlink_create(downlink_t *downlink, strn8_t *cookie);
+int downlink_create(downlink_t *downlink, host_t *host, strn8_t *cookie);

@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -24,10 +25,10 @@ uplinks_t uplinks = {
 		.available = PTHREAD_COND_INITIALIZER,
 };
 
-int uplink_spawn(pthread_t *thread, void *(*function)(void *)) {
+int uplink_spawn(pthread_t *thread, void *(*function)(void *), uplink_arg_t *arg) {
 	trace("spawning uplink thread\n");
 
-	int spawn_error = pthread_create(thread, NULL, function, NULL);
+	int spawn_error = pthread_create(thread, NULL, function, (void *)&arg);
 	if (spawn_error != 0) {
 		errno = spawn_error;
 		fatal("failed to spawn uplink thread because %s\n", errno_str());
@@ -45,7 +46,7 @@ int uplink_spawn(pthread_t *thread, void *(*function)(void *)) {
 }
 
 void *uplink_thread(void *args) {
-	(void)args;
+	uplink_arg_t *arg = (uplink_arg_t *)args;
 
 	char buffer[128];
 	strn8_t cookie = {.ptr = (char *)&buffer, .len = 0, .cap = sizeof(buffer)};
@@ -60,7 +61,19 @@ void *uplink_thread(void *args) {
 		uplink_t uplink = uplinks.ptr[uplinks.head];
 		pthread_mutex_unlock(&uplinks.lock);
 
-		while (uplink_create(&uplink, &cookie) == -1) {
+		while (true) {
+			host_t *host = NULL;
+			if (arg->hosts_len == 0) {
+				warn("%hhu host connections to forward to\n", arg->hosts_len);
+				sleep(8);
+				continue;
+			}
+			host = &arg->hosts[rand() % arg->hosts_len];
+
+			if (uplink_create(&uplink, host, &cookie) != -1) {
+				break;
+			}
+
 			sleep(8);
 		}
 
@@ -73,7 +86,7 @@ void *uplink_thread(void *args) {
 	}
 }
 
-int uplink_create(uplink_t *uplink, strn8_t *cookie) {
+int uplink_create(uplink_t *uplink, host_t *host, strn8_t *cookie) {
 	request_t request;
 	response_t response;
 
@@ -123,7 +136,9 @@ int uplink_create(uplink_t *uplink, strn8_t *cookie) {
 	memcpy(&request.body.ptr[request.body.len], uplink->device_id, sizeof(uplink->device_id));
 	request.body.len += sizeof(uplink->device_id);
 
-	if (fetch("127.0.0.1", 2254, &request, &response) == -1) {
+	char buffer[64];
+	sprintf(buffer, "%s", host->address);
+	if (fetch(buffer, host->port, &request, &response) == -1) {
 		return -1;
 	}
 

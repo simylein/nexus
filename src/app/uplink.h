@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../api/host.h"
 #include "../lib/strn.h"
 #include <pthread.h>
 #include <stdint.h>
@@ -30,10 +31,15 @@ typedef struct uplinks_t {
 	pthread_cond_t available;
 } uplinks_t;
 
+typedef struct uplink_arg_t {
+	host_t *hosts;
+	uint8_t hosts_len;
+} uplink_arg_t;
+
 extern struct uplinks_t uplinks;
 
-int uplink_spawn(pthread_t *thread, void *(*function)(void *));
+int uplink_spawn(pthread_t *thread, void *(*function)(void *), uplink_arg_t *arg);
 
 void *uplink_thread(void *args);
 
-int uplink_create(uplink_t *uplink, strn8_t *cookie);
+int uplink_create(uplink_t *uplink, host_t *host, strn8_t *cookie);

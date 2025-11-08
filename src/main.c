@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	pthread_t uplink;
-	if (uplink_spawn(&uplink, uplink_thread) == -1) {
+	if (uplink_spawn(&uplink, uplink_thread, NULL) == -1) {
 		exit(1);
 	}
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	pthread_t downlink;
-	if (downlink_spawn(&downlink, downlink_thread) == -1) {
+	if (downlink_spawn(&downlink, downlink_thread, NULL) == -1) {
 		exit(1);
 	}
 

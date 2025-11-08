@@ -59,13 +59,13 @@ int radio_init(sqlite3 *database) {
 			memcpy(radios[radios_len].id, id, id_len);
 			const uint8_t *device = sqlite3_column_text(stmt_radio, 1);
 			const size_t device_len = (uint8_t)sqlite3_column_bytes(stmt_radio, 1);
-			radios[radios_len].device = malloc(radios[radios_len].device_len);
+			radios[radios_len].device = malloc(device_len);
 			if (radios[radios_len].device == NULL) {
-				error("failed to allocate %hhu bytes for device because %s\n", radios[radios_len].device_len, errno_str());
+				error("failed to allocate %zu bytes for device because %s\n", device_len, errno_str());
 				status = -1;
 				goto cleanup;
 			}
-			memcpy(radios[radios_len].device, device, radios[radios_len].device_len);
+			memcpy(radios[radios_len].device, device, device_len);
 			radios[radios_len].device_len = (uint8_t)device_len;
 			radios[radios_len].frequency = (uint32_t)sqlite3_column_int(stmt_radio, 2);
 			radios[radios_len].bandwidth = (uint32_t)sqlite3_column_int(stmt_radio, 3);

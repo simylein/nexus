@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -24,10 +25,10 @@ downlinks_t downlinks = {
 		.available = PTHREAD_COND_INITIALIZER,
 };
 
-int downlink_spawn(pthread_t *thread, void *(*function)(void *)) {
+int downlink_spawn(pthread_t *thread, void *(*function)(void *), downlink_arg_t *arg) {
 	trace("spawning downlink thread\n");
 
-	int spawn_error = pthread_create(thread, NULL, function, NULL);
+	int spawn_error = pthread_create(thread, NULL, function, (void *)&arg);
 	if (spawn_error != 0) {
 		errno = spawn_error;
 		fatal("failed to spawn downlink thread because %s\n", errno_str());
@@ -45,7 +46,7 @@ int downlink_spawn(pthread_t *thread, void *(*function)(void *)) {
 }
 
 void *downlink_thread(void *args) {
-	(void)args;
+	downlink_arg_t *arg = (downlink_arg_t *)args;
 
 	char buffer[128];
 	strn8_t cookie = {.ptr = (char *)&buffer, .len = 0, .cap = sizeof(buffer)};
@@ -60,7 +61,19 @@ void *downlink_thread(void *args) {
 		downlink_t downlink = downlinks.ptr[downlinks.head];
 		pthread_mutex_unlock(&downlinks.lock);
 
-		while (downlink_create(&downlink, &cookie) == -1) {
+		while (true) {
+			host_t *host = NULL;
+			if (arg->hosts_len == 0) {
+				warn("%hhu host connections to forward to\n", arg->hosts_len);
+				sleep(8);
+				continue;
+			}
+			host = &arg->hosts[rand() % arg->hosts_len];
+
+			if (downlink_create(&downlink, host, &cookie) != -1) {
+				break;
+			}
+
 			sleep(8);
 		}
 
@@ -73,7 +86,7 @@ void *downlink_thread(void *args) {
 	}
 }
 
-int downlink_create(downlink_t *downlink, strn8_t *cookie) {
+int downlink_create(downlink_t *downlink, host_t *host, strn8_t *cookie) {
 	request_t request;
 	response_t response;
 
@@ -119,7 +132,9 @@ int downlink_create(downlink_t *downlink, strn8_t *cookie) {
 	memcpy(&request.body.ptr[request.body.len], downlink->device_id, sizeof(downlink->device_id));
 	request.body.len += sizeof(downlink->device_id);
 
-	if (fetch("127.0.0.1", 2254, &request, &response) == -1) {
+	char buffer[64];
+	sprintf(buffer, "%s", host->address);
+	if (fetch(buffer, host->port, &request, &response) == -1) {
 		return -1;
 	}
 
