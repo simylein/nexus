@@ -302,6 +302,11 @@ void *radio_thread(void *args) {
 
 		pthread_mutex_lock(&uplinks.lock);
 
+		while (uplinks.size >= uplinks_size) {
+			warn("waiting for uplinks size %hhu to decrease\n", uplinks.size);
+			pthread_cond_wait(&uplinks.available, &uplinks.lock);
+		}
+
 		memcpy(&uplinks.ptr[uplinks.tail], &uplink, sizeof(uplink));
 		uplinks.tail = (uint8_t)((uplinks.tail + 1) % uplinks_size);
 		uplinks.size++;
@@ -341,6 +346,11 @@ void *radio_thread(void *args) {
 		memcpy(downlink.device_id, device->id, sizeof(*device->id));
 
 		pthread_mutex_lock(&downlinks.lock);
+
+		while (downlinks.size >= downlinks_size) {
+			warn("waiting for downlinks size %hhu to decrease\n", downlinks.size);
+			pthread_cond_wait(&downlinks.available, &downlinks.lock);
+		}
 
 		memcpy(&downlinks.ptr[downlinks.tail], &downlink, sizeof(downlink));
 		downlinks.tail = (uint8_t)((downlinks.tail + 1) % downlinks_size);
