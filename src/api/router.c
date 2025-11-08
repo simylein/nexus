@@ -5,6 +5,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "device.h"
+#include "host.h"
 #include "radio.h"
 #include "user.h"
 #include <sqlite3.h>
@@ -131,6 +132,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/hosts", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve(&page_hosts, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
 		serve(&page_signin, response);
 	}
@@ -174,6 +182,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			device_remove(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/hosts", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			host_find(database, request, response);
 		}
 	}
 

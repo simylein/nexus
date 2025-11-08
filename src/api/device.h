@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../lib/request.h"
 #include "../lib/response.h"
 #include <sqlite3.h>
 #include <stdint.h>

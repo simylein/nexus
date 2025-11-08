@@ -1,5 +1,6 @@
 #include "../lib/logger.h"
 #include "device.h"
+#include "host.h"
 #include "radio.h"
 #include "user.h"
 #include <sqlite3.h>
@@ -39,6 +40,9 @@ int init(sqlite3 *database) {
 		return -1;
 	}
 	if (init_table(database, device_table, device_schema) == -1) {
+		return -1;
+	}
+	if (init_table(database, host_table, host_schema) == -1) {
 		return -1;
 	}
 

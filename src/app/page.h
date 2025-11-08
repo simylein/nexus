@@ -7,6 +7,7 @@ extern file_t page_robots;
 extern file_t page_security;
 extern file_t page_radios;
 extern file_t page_devices;
+extern file_t page_hosts;
 extern file_t page_signin;
 
 extern file_t page_bad_request;

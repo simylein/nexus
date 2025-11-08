@@ -1,9 +1,11 @@
 #include "../lib/logger.h"
 #include "device.h"
+#include "host.h"
 #include "radio.h"
 #include "user.h"
 #include <sqlite3.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -14,6 +16,8 @@ uint8_t *radio_ids;
 uint8_t radio_ids_len;
 uint8_t *device_ids;
 uint8_t device_ids_len;
+uint8_t *host_ids;
+uint8_t host_ids_len;
 
 int seed_user(sqlite3 *database) {
 	char *usernames[] = {"alice", "bob", "charlie", "dave"};
@@ -102,6 +106,39 @@ int seed_device(sqlite3 *database) {
 	return 0;
 }
 
+int seed_host(sqlite3 *database) {
+	char *addresses[] = {"127.0.0.1", "127.0.0.1"};
+	uint16_t ports[] = {1284, 1285};
+	char *usernames[] = {"nexus", "nexus"};
+	char *passwords[] = {".go4Nexus", ".go4Nexus"};
+
+	host_ids_len = sizeof(addresses) / sizeof(*addresses);
+	host_ids = malloc(host_ids_len * sizeof(*((host_t *)0)->id));
+	if (host_ids == NULL) {
+		return -1;
+	}
+
+	for (uint8_t index = 0; index < host_ids_len; index++) {
+		host_t host = {
+				.id = (uint8_t (*)[16])(&host_ids[index * sizeof(*((user_t *)0)->id)]),
+				.address = addresses[index],
+				.address_len = (uint8_t)strlen(addresses[index]),
+				.port = ports[index],
+				.username = usernames[index],
+				.username_len = (uint8_t)strlen(usernames[index]),
+				.password = passwords[index],
+				.password_len = (uint8_t)strlen(passwords[index]),
+		};
+
+		if (host_insert(database, &host) != 0) {
+			return -1;
+		}
+	}
+
+	info("seeded table host\n");
+	return 0;
+}
+
 int seed(sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
@@ -114,10 +151,14 @@ int seed(sqlite3 *database) {
 	if (seed_device(database) == -1) {
 		return -1;
 	}
+	if (seed_host(database) == -1) {
+		return -1;
+	}
 
 	free(user_ids);
 	free(radio_ids);
 	free(device_ids);
+	free(host_ids);
 
 	return 0;
 }

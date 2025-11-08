@@ -11,6 +11,7 @@ file_t page_robots = {.path = "./src/app/pages/robots.txt", .lock = PTHREAD_RWLO
 file_t page_security = {.path = "./src/app/pages/security.txt", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_radios = {.path = "./src/app/pages/radios.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_devices = {.path = "./src/app/pages/devices.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_hosts = {.path = "./src/app/pages/hosts.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_signin = {.path = "./src/app/pages/signin.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 
 file_t page_bad_request = {.path = "./src/app/pages/400.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
@@ -29,6 +30,7 @@ file_t *pages[] = {
 		&page_security,
 		&page_radios,
 		&page_devices,
+		&page_hosts,
 		&page_signin,
 		&page_bad_request,
 		&page_unauthorized,

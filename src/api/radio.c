@@ -205,7 +205,7 @@ uint16_t radio_insert(sqlite3 *database, radio_t *radio) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into radio (id, device, frequency, bandwidth,  "
+	const char *sql = "insert into radio (id, device, frequency, bandwidth, "
 										"spreading_factor, coding_rate, tx_power, sync_word, checksum) "
 										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);

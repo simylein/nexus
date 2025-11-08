@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View all of your hosts" />
+		<title>Nexus hosts</title>
+		<style></style>
+	</head>
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		onload="loadHosts()"
+	>
+		<notifications ref="./src/app/components/notifications.html" />
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
+			>
+				<a href="/" class="no-underline text-black dark:text-white">Home</a>
+				<a href="/radios" class="no-underline text-black dark:text-white">Radios</a>
+				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+				<a href="/hosts" class="no-underline text-blue-600 dark:text-blue-400">Hosts</a>
+			</nav>
+		</header>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<div class="flex items-center justify-between">
+				<div></div>
+				<svg
+					id="create"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+				</svg>
+			</div>
+			<div class="overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th
+								id="id"
+								sort="asc"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('id'); loadHosts()"
+							>
+								Id
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3 w-3">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+								</svg>
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="address"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('address'); loadHosts()"
+							>
+								Address
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="port"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('port'); loadHosts()"
+							>
+								Port
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="username"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('username'); loadHosts()"
+							>
+								Username
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="password"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('password'); loadHosts()"
+							>
+								Password
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
+						</tr>
+					</thead>
+					<tbody id="hosts">
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+						<host-row ref="./src/app/components/host-row.html" />
+					</tbody>
+				</table>
+			</div>
+			<dialog id="create-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="createForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Create host?</h1>
+					<div class="w-full flex flex-col items-start">
+						<label for="host-address" class="mb-2 text-base font-normal">Address</label>
+						<input
+							id="host-address"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="address"
+							autofocus
+							onchange="createForm.setValue('address', event.target.value)"
+							onblur="createForm.setTouched('address', true)"
+						/>
+						<p id="host-address-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="host-port" class="mb-2 text-base font-normal">Port</label>
+						<input
+							id="host-port"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="port"
+							autofocus
+							onchange="createForm.setValue('port', event.target.value)"
+							onblur="createForm.setTouched('port', true)"
+						/>
+						<p id="host-port-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="host-username" class="mb-2 text-base font-normal">Username</label>
+						<input
+							id="host-username"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="username"
+							autofocus
+							onchange="createForm.setValue('username', event.target.value)"
+							onblur="createForm.setTouched('username', true)"
+						/>
+						<p id="host-username-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="host-password" class="mb-2 text-base font-normal">Password</label>
+						<input
+							id="host-password"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="password"
+							autofocus
+							onchange="createForm.setValue('password', event.target.value)"
+							onblur="createForm.setTouched('password', true)"
+						/>
+						<p id="host-password-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="create-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-green-300 dark:background-green-700 outline-none cursor-pointer"
+						>
+							Create
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeCreateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+			<dialog id="delete-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-2" onsubmit="deleteForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Delete host?</h1>
+					<p class="m-0 text-base font-normal">Deleting this host will remove said connection to a warden instance.</p>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="delete-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-red-300 dark:background-red-700 outline-none cursor-pointer"
+						>
+							Delete
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeDeleteDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+		</main>
+		<footer class="w-full background-neutral-100 dark:background-neutral-900">
+			<div
+				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
+			>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">nexus {version} {commit}</p>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">written by simylein</p>
+			</div>
+		</footer>
+	</body>
+	<script>
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/resize.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/color-cr.js';
+		import './src/app/scripts/color-tx-power.js';
+		import './src/app/scripts/search.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/formik.js';
+		import './src/app/scripts/report.js';
+		import './src/app/scripts/notification.js';
+		const create = document.getElementById('create');
+		const hosts = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('hosts') };
+		const columns = {
+			id: document.getElementById('id'),
+			address: document.getElementById('address'),
+			port: document.getElementById('port'),
+			username: document.getElementById('username'),
+			password: document.getElementById('password'),
+		};
+		const paintSorting = (column) => {
+			const element = columns[column];
+			const sort = element.getAttribute('sort') === 'asc' ? 'desc' : 'asc';
+			Object.keys(columns).forEach((col) => {
+				columns[col].removeAttribute('sort');
+				columns[col].children[0].classList.add('hidden');
+				columns[col].children[1].classList.add('hidden');
+			});
+			element.setAttribute('sort', sort);
+			switch (true) {
+				case sort === 'asc':
+					element.children[0].classList.remove('hidden');
+					break;
+				case sort === 'desc':
+					element.children[1].classList.remove('hidden');
+					break;
+			}
+			setParam('order', column);
+			setParam('sort', sort);
+		};
+		const loadingHosts = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-20', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
+				loading(element.children[ind].children[4].children[0], ['w-32', 'h-4'], [], '');
+				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].onclick = null;
+			});
+		};
+		const paintHosts = (element, data) => {
+			create.classList.remove('opacity-50', 'cursor-not-allowed');
+			create.classList.add('cursor-pointer');
+			create.onclick = () => openCreateDialog();
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
+					paint(element.children[ind].children[1].children[0], [], ['w-20', 'h-4'], data[ind].address);
+					paint(element.children[ind].children[2].children[0], [], ['w-12', 'h-4'], data[ind].port);
+					paint(element.children[ind].children[3].children[0], [], ['w-16', 'h-4'], data[ind].username);
+					paint(element.children[ind].children[4].children[0], [], ['w-32', 'h-4'], data[ind].password);
+					element.children[ind].children[5].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[5].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[5].children[0].onclick = () => openDeleteDialog(data[ind]);
+				}
+			});
+		};
+		const errorHosts = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-20', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
+				error(element.children[ind].children[4].children[0], ['w-32', 'h-4'], [], '');
+				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].onclick = null;
+			});
+		};
+		const parseHosts = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const hosts = [];
+			while (binary.offset < buffer.byteLength) {
+				const host = { id: null, address: null, port: null, username: null, password: null };
+				host.id = binary.uuid();
+				host.address = binary.string();
+				host.port = binary.uint(16);
+				host.username = binary.string();
+				host.password = binary.string();
+				hosts.push(host);
+			}
+			return hosts;
+		};
+		const loadHosts = fetching(
+			hosts,
+			(context) => window.requestAnimationFrame(() => loadingHosts(context.element)),
+			(context) => {
+				const endpoint = `/api/hosts?order=${getParam('order', 'id')}&sort=${getParam('sort', 'asc')}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseHosts(response)),
+			(context) => window.requestAnimationFrame(() => paintHosts(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorHosts(context.element))
+		);
+		const createDialog = document.getElementById('create-dialog');
+		const deleteDialog = document.getElementById('delete-dialog');
+		let host = null;
+		const openCreateDialog = () => {
+			document.getElementById('host-address').value = '';
+			document.getElementById('host-port').value = '';
+			document.getElementById('host-username').value = '';
+			document.getElementById('host-password').value = '';
+			createDialog.showModal();
+		};
+		const closeCreateDialog = () => {
+			createForm.reset();
+			createDialog.close();
+		};
+		const openDeleteDialog = (host) => {
+			deleteForm.setValue('hostId', host.id);
+			deleteForm.setTouched('hostId', true);
+			deleteDialog.showModal();
+		};
+		const closeDeleteDialog = () => {
+			deleteForm.reset();
+			deleteDialog.close();
+		};
+		const createForm = formik(
+			{
+				button: document.getElementById('create-button'),
+				address: document.getElementById('host-address-validation'),
+				port: document.getElementById('host-port-validation'),
+				username: document.getElementById('host-username-validation'),
+				password: document.getElementById('host-password-validation'),
+			},
+			{
+				address: (value) => {
+					if (!value) return 'device is required';
+					if (!value.match(/^(\d{1,3}\.){3}\d{1,3}$/)) return 'device must be a valid ipv4 address';
+				},
+				port: (value) => {
+					if (!value) return 'port is required';
+					if (!value.match(/^[0-9]+$/)) return 'port must be a number';
+					if (+value < 1) return 'port must be min 1';
+					if (+value > 65535) return 'port must be max 65535';
+				},
+				username: (value) => {
+					if (!value) return 'username is required';
+					if (value.length < 4) return 'username is too short';
+					if (value.length > 16) return 'username is too long';
+					if (!value.match(/^[a-z]+$/)) return 'username must be lowercase letters';
+				},
+				password: (value) => {
+					if (!value) return 'password is required';
+					if (value.length < 8) return 'password is too short';
+					if (value.length > 64) return 'password is too long';
+					if (!value.match(/[0-9]/)) return 'password must include digits';
+					if (!value.match(/[a-z]/)) return 'password must include lowercase letters';
+					if (!value.match(/[A-Z]/)) return 'password must include uppercase letters';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(2);
+				const view = new DataView(bytes.buffer);
+				view.setUint16(0, +values.port);
+				const data = new Blob([values.address, '\0', view, values.username, '\0', values.password, '\0']);
+				try {
+					await fetcher('post', '/api/host', data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully created host');
+					loadHosts(true);
+				} catch (err) {
+					report(err);
+				}
+				closeCreateDialog();
+			}
+		);
+		const deleteForm = formik(
+			{
+				button: document.getElementById('delete-button'),
+			},
+			{
+				hostId: (value) => {
+					if (!value) return 'host id is required';
+					if (value.length !== 32) return 'host id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'host id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				try {
+					await fetcher('delete', `/api/hosts/${values.hostId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully deleted host ${values.hostId.substring(0, 4)}`);
+					loadHosts(true);
+				} catch (err) {
+					report(err);
+				}
+				closeDeleteDialog();
+			}
+		);
+	</script>
+</html>
