@@ -157,7 +157,7 @@ int host_validate(host_t *host) {
 		return -1;
 	}
 
-	if (host->port < 1 || host->port > 65535) {
+	if (host->port < 1) {
 		debug("invalid port %u on host\n", host->port);
 		return -1;
 	}

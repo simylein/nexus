@@ -26,7 +26,7 @@ int fetch(const char *address, uint16_t port, request_t *request, response_t *re
 	memcpy(&request_buffer[request_length], "\r\n", 2);
 	request_length += 2;
 	memcpy(&request_buffer[request_length], request->body.ptr, request->body.len);
-	request_length += request->body.len;
+	request_length += (uint16_t)request->body.len;
 
 	if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
 		error("failed to create socket because %s\n", errno_str());

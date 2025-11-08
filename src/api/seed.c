@@ -63,7 +63,7 @@ int seed_radio(sqlite3 *database) {
 				.id = (uint8_t (*)[16])(&radio_ids[index * sizeof(*((radio_t *)0)->id)]),
 				.device = devices[index],
 				.device_len = (uint8_t)strlen(devices[index]),
-				.frequency = 434225000 - (index * 200000),
+				.frequency = (uint32_t)434225000 - (index * 200000),
 				.bandwidth = 125000,
 				.spreading_factor = 7 + index,
 				.coding_rate = 5,
