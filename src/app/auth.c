@@ -64,7 +64,6 @@ int auth(host_t *host, cookie_t *cookie) {
 
 	const char key[] = "set-cookie";
 	const char *set_cookie = strncasestrn(response.header.ptr, response.header.len, key, sizeof(key) - 1);
-	const size_t set_cookie_len = response.header.len - (size_t)(set_cookie - (const char *)response.header.ptr);
 
 	if (set_cookie == NULL) {
 		warn("host did not return a set cookie header\n");
@@ -78,6 +77,8 @@ int auth(host_t *host, cookie_t *cookie) {
 	if (set_cookie[0] == ' ') {
 		set_cookie += 1;
 	}
+
+	const size_t set_cookie_len = response.header.len - (size_t)(set_cookie - (const char *)response.header.ptr);
 
 	const char *new_cookie;
 	size_t new_cookie_len;
