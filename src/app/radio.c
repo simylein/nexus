@@ -160,9 +160,18 @@ int radio_init(sqlite3 *database) {
 		goto cleanup;
 	}
 
+	radio_arg_t *args = malloc(sizeof(radio_arg_t) * radios_len);
+	if (args == NULL) {
+		error("failed to allocate %zu bytes for args because %s\n", sizeof(radio_arg_t) * radios_len, errno_str());
+		status = -1;
+		goto cleanup;
+	}
+
 	for (uint8_t index = 0; index < radios_len; index++) {
-		radio_arg_t arg = {.radio = &radios[index], .devices = devices, .devices_len = devices_len};
-		radio_spawn(&threads[index], radio_thread, &arg);
+		args[index].radio = &radios[index];
+		args[index].devices = devices;
+		args[index].devices_len = devices_len;
+		radio_spawn(&threads[index], radio_thread, &args[index]);
 	}
 
 	info("spawned %hhu radio threads\n", radios_len);
@@ -176,7 +185,7 @@ cleanup:
 int radio_spawn(pthread_t *thread, void *(*function)(void *), radio_arg_t *arg) {
 	trace("spawning radio thread %02x%02x\n", (*arg->radio->id)[0], (*arg->radio->id)[1]);
 
-	int spawn_error = pthread_create(thread, NULL, function, (void *)&arg);
+	int spawn_error = pthread_create(thread, NULL, function, (void *)arg);
 	if (spawn_error != 0) {
 		errno = spawn_error;
 		fatal("failed to spawn uplink thread because %s\n", errno_str());
