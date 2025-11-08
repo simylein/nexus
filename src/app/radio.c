@@ -6,6 +6,7 @@
 #include "../lib/logger.h"
 #include "airtime.h"
 #include "radio.h"
+#include "spi.h"
 #include "sx1278.h"
 #include <errno.h>
 #include <sqlite3.h>
@@ -168,10 +169,18 @@ int radio_init(sqlite3 *database) {
 	}
 
 	for (uint8_t index = 0; index < radios_len; index++) {
+		char device[64];
+		sprintf(device, "%.*s", (int)radios[index].device_len, radios[index].device);
+		if ((args[index].fd = spi_init(device, 0, 8 * 1000 * 1000, 8)) == -1) {
+			return -1;
+		}
+
 		args[index].radio = &radios[index];
 		args[index].devices = devices;
 		args[index].devices_len = devices_len;
-		radio_spawn(&threads[index], radio_thread, &args[index]);
+		if (radio_spawn(&threads[index], radio_thread, &args[index]) == -1) {
+			return -1;
+		}
 	}
 
 	info("spawned %hhu radio threads\n", radios_len);
