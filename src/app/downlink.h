@@ -2,6 +2,7 @@
 
 #include "../api/host.h"
 #include "../lib/strn.h"
+#include "auth.h"
 #include <pthread.h>
 #include <stdint.h>
 #include <time.h>
@@ -42,4 +43,4 @@ int downlink_spawn(pthread_t *thread, void *(*function)(void *), downlink_arg_t 
 
 void *downlink_thread(void *args);
 
-int downlink_create(downlink_t *downlink, host_t *host, strn8_t *cookie);
+int downlink_create(downlink_t *downlink, host_t *host, cookie_t *cookie);

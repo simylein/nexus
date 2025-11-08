@@ -5,7 +5,7 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include "../lib/strn.h"
+#include "auth.h"
 #include "http.h"
 #include <errno.h>
 #include <pthread.h>
@@ -156,7 +156,7 @@ void *uplink_thread(void *args) {
 	uplink_arg_t *arg = (uplink_arg_t *)args;
 
 	char buffer[128];
-	strn8_t cookie = {.ptr = (char *)&buffer, .len = 0, .cap = sizeof(buffer)};
+	cookie_t cookie = {.ptr = (char *)&buffer, .len = 0, .cap = sizeof(buffer), .age = 0};
 
 	while (true) {
 		pthread_mutex_lock(&uplinks.lock);
@@ -172,15 +172,22 @@ void *uplink_thread(void *args) {
 			host_t *host = NULL;
 			if (arg->hosts_len == 0) {
 				warn("%hhu host connections to forward to\n", arg->hosts_len);
-				sleep(8);
-				continue;
+				goto sleep;
 			}
 			host = &arg->hosts[rand() % arg->hosts_len];
+
+			if (cookie.age + 3600 < time(NULL)) {
+				debug("refreshing auth cookie with age %lu\n", cookie.age);
+				if (auth(host, &cookie) == -1) {
+					goto sleep;
+				}
+			}
 
 			if (uplink_create(&uplink, host, &cookie) != -1) {
 				break;
 			}
 
+		sleep:
 			sleep(8);
 		}
 
@@ -193,7 +200,7 @@ void *uplink_thread(void *args) {
 	}
 }
 
-int uplink_create(uplink_t *uplink, host_t *host, strn8_t *cookie) {
+int uplink_create(uplink_t *uplink, host_t *host, cookie_t *cookie) {
 	request_t request;
 	response_t response;
 

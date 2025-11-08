@@ -2,6 +2,7 @@
 
 #include "../api/host.h"
 #include "../lib/strn.h"
+#include "auth.h"
 #include <pthread.h>
 #include <stdint.h>
 #include <time.h>
@@ -44,4 +45,4 @@ int uplink_spawn(pthread_t *thread, void *(*function)(void *), uplink_arg_t *arg
 
 void *uplink_thread(void *args);
 
-int uplink_create(uplink_t *uplink, host_t *host, strn8_t *cookie);
+int uplink_create(uplink_t *uplink, host_t *host, cookie_t *cookie);
