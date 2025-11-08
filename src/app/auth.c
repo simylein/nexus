@@ -63,7 +63,7 @@ int auth(host_t *host, cookie_t *cookie) {
 	}
 
 	const char key[] = "set-cookie";
-	const char *set_cookie = strncasestrn(response.header.ptr, request.header.len, key, sizeof(key) - 1);
+	const char *set_cookie = strncasestrn(response.header.ptr, response.header.len, key, sizeof(key) - 1);
 	const size_t set_cookie_len = response.header.len - (size_t)(set_cookie - (const char *)response.header.ptr);
 
 	if (set_cookie == NULL) {
