@@ -103,7 +103,7 @@ int fetch(const char *address, uint16_t port, request_t *request, response_t *re
 	}
 
 	const size_t header_index = index;
-	while ((stage >= 3 && stage <= 5) && index < 2048 && index < response_length) {
+	while ((stage >= 3 && stage <= 5) && index < response->header.cap && index < response_length) {
 		char *byte = &response_buffer[index];
 		if (*byte >= 'A' && *byte <= 'Z') {
 			*byte += 32;
@@ -115,7 +115,7 @@ int fetch(const char *address, uint16_t port, request_t *request, response_t *re
 		}
 		index++;
 	}
-	response->header.ptr = &response_buffer[header_index];
+	memcpy(response->header.ptr, &response_buffer[header_index], response->header.len);
 
 	if (stage != 6) {
 		error("failed to parse response\n");

@@ -216,13 +216,25 @@ int downlink_create(downlink_t *downlink, host_t *host, cookie_t *cookie) {
 	request.protocol.ptr = protocol;
 	request.protocol.len = sizeof(protocol) - 1;
 
-	char header[128];
-	request.header.ptr = header;
+	char request_header[256];
+	request.header.ptr = request_header;
 	request.header.len = (uint16_t)sprintf(request.header.ptr, "cookie:auth=%.*s\r\n", cookie->len, cookie->ptr);
+	request.header.cap = sizeof(request_header);
 
-	char body[512];
-	request.body.ptr = body;
+	char request_body[512];
+	request.body.ptr = request_body;
 	request.body.len = 0;
+	request.body.cap = sizeof(request_body);
+
+	char response_header[256];
+	response.header.ptr = response_header;
+	response.header.len = 0;
+	response.header.cap = sizeof(response_header);
+
+	char response_body[512];
+	response.body.ptr = response_body;
+	response.body.len = 0;
+	response.body.cap = sizeof(response_body);
 
 	memcpy(&request.body.ptr[request.body.len], &downlink->kind, sizeof(downlink->kind));
 	request.body.len += sizeof(downlink->kind);
