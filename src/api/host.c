@@ -1,5 +1,6 @@
 #include "host.h"
 #include "../lib/endian.h"
+#include "../lib/format.h"
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
@@ -87,6 +88,122 @@ cleanup:
 	return status;
 }
 
+int host_parse(host_t *host, request_t *request) {
+	request->body.pos = 0;
+
+	uint8_t stage = 0;
+
+	host->address_len = 0;
+	const uint8_t address_index = (uint8_t)request->body.pos;
+	while (stage == 0 && host->address_len < 32 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 1;
+		} else {
+			host->address_len++;
+		}
+	}
+	host->address = &request->body.ptr[address_index];
+	if (stage != 1) {
+		debug("found address with %hhu bytes\n", host->address_len);
+		return -1;
+	}
+
+	if (request->body.len < request->body.pos + sizeof(host->port)) {
+		debug("missing port on host\n");
+		return -1;
+	}
+	memcpy(&host->port, body_read(request, sizeof(host->port)), sizeof(host->port));
+	host->port = ntoh16(host->port);
+
+	host->username_len = 0;
+	const uint8_t username_index = (uint8_t)request->body.pos;
+	while (stage == 1 && host->username_len < 16 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 2;
+		} else {
+			host->username_len++;
+		}
+	}
+	host->username = &request->body.ptr[username_index];
+	if (stage != 2) {
+		debug("found username with %hhu bytes\n", host->username_len);
+		return -1;
+	}
+
+	host->password_len = 0;
+	const uint8_t password_index = (uint8_t)request->body.pos;
+	while (stage == 2 && host->password_len < 64 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 3;
+		} else {
+			host->password_len++;
+		}
+	}
+	host->password = &request->body.ptr[password_index];
+	if (stage != 3) {
+		debug("found password with %hhu bytes\n", host->password_len);
+		return -1;
+	}
+
+	return 0;
+}
+
+int host_validate(host_t *host) {
+	if (host->address_len < 4) {
+		return -1;
+	}
+
+	if (host->port < 1 || host->port > 65535) {
+		debug("invalid port %u on host\n", host->port);
+		return -1;
+	}
+
+	if (host->username_len < 4) {
+		return -1;
+	}
+
+	uint8_t username_index = 0;
+	while (username_index < host->username_len) {
+		char *byte = &host->username[username_index];
+		if (*byte < 'a' || *byte > 'z') {
+			debug("username contains invalid character %02x\n", *byte);
+			return -1;
+		}
+		username_index++;
+	}
+
+	if (host->password_len < 4) {
+		return -1;
+	}
+
+	bool lower = false;
+	bool upper = false;
+	bool digit = false;
+
+	uint8_t password_index = 0;
+	while (password_index < host->password_len) {
+		char *byte = &host->password[password_index];
+		if (*byte >= '0' && *byte <= '9') {
+			digit = true;
+		} else if (*byte >= 'a' && *byte <= 'z') {
+			lower = true;
+		} else if (*byte >= 'A' && *byte <= 'Z') {
+			upper = true;
+		}
+		password_index++;
+	}
+
+	if (!lower || !upper || !digit) {
+		debug("password contains lower %s upper %s digit %s \n", human_bool(lower), human_bool(upper), human_bool(digit));
+		return -1;
+	}
+
+	return 0;
+}
+
 uint16_t host_insert(sqlite3 *database, host_t *host) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -153,4 +270,27 @@ void host_find(sqlite3 *database, request_t *request, response_t *response) {
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu hosts\n", hosts_len);
 	response->status = 200;
+}
+
+void host_create(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	host_t host = {.id = &id};
+	if (request->body.len == 0 || host_parse(&host, request) == -1 || host_validate(&host) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = host_insert(database, &host);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("created host %02x%02x\n", (*host.id)[0], (*host.id)[1]);
+	response->status = 201;
 }
