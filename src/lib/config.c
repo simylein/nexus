@@ -183,6 +183,10 @@ int configure(int argc, char *argv[], uint8_t *cmds) {
 			*cmds |= 0x10;
 		} else if (match_arg(flag, "--seed", "-s")) {
 			*cmds |= 0x20;
+		} else if (match_arg(flag, "--wipe", "-w")) {
+			*cmds |= 0x40;
+		} else if (match_arg(flag, "--drop", "-d")) {
+			*cmds |= 0x80;
 		} else if (match_arg(flag, "--name", "-n")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "name", 2, 8, &name);
