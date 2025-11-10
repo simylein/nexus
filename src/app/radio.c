@@ -316,6 +316,17 @@ void *radio_thread(void *args) {
 		pthread_cond_signal(&uplinks.filled);
 		pthread_mutex_unlock(&uplinks.lock);
 
+		if (sx1278_standby(arg->fd) == -1) {
+			error("failed to enable standby mode\n");
+		}
+
+		if (arg->radio->tx_power != ((rx_data[2] >> 4) & 0x0f) + 2) {
+			arg->radio->tx_power = ((rx_data[2] >> 4) & 0x0f) + 2;
+			if (sx1278_tx_power(arg->fd, arg->radio->tx_power) == -1) {
+				error("failed to set radio tx power\n");
+			}
+		}
+
 		uint8_t tx_data[256];
 		uint8_t tx_data_len = 0;
 
