@@ -278,6 +278,7 @@ void *radio_thread(void *args) {
 		for (uint8_t ind = 0; ind < arg->devices_len; ind++) {
 			if (memcmp(&rx_data[0], arg->devices[ind].tag, sizeof(*arg->devices[ind].tag)) == 0) {
 				device = &arg->devices[ind];
+				break;
 			}
 		}
 
