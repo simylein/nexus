@@ -20,7 +20,18 @@ typedef struct downlink_t {
 	uint8_t device_id[16];
 } downlink_t;
 
+typedef struct downlink_arg_t {
+	host_t *hosts;
+	uint8_t hosts_len;
+} downlink_arg_t;
+
+typedef struct downlink_worker_t {
+	pthread_t thread;
+	downlink_arg_t arg;
+} downlink_worker_t;
+
 typedef struct downlinks_t {
+	downlink_worker_t worker;
 	downlink_t *ptr;
 	uint8_t head;
 	uint8_t tail;
@@ -29,11 +40,6 @@ typedef struct downlinks_t {
 	pthread_cond_t filled;
 	pthread_cond_t available;
 } downlinks_t;
-
-typedef struct downlink_arg_t {
-	host_t *hosts;
-	uint8_t hosts_len;
-} downlink_arg_t;
 
 extern struct downlinks_t downlinks;
 

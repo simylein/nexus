@@ -22,7 +22,18 @@ typedef struct uplink_t {
 	uint8_t device_id[16];
 } uplink_t;
 
+typedef struct uplink_arg_t {
+	host_t *hosts;
+	uint8_t hosts_len;
+} uplink_arg_t;
+
+typedef struct uplink_worker_t {
+	pthread_t thread;
+	uplink_arg_t arg;
+} uplink_worker_t;
+
 typedef struct uplinks_t {
+	uplink_worker_t worker;
 	uplink_t *ptr;
 	uint8_t head;
 	uint8_t tail;
@@ -31,11 +42,6 @@ typedef struct uplinks_t {
 	pthread_cond_t filled;
 	pthread_cond_t available;
 } uplinks_t;
-
-typedef struct uplink_arg_t {
-	host_t *hosts;
-	uint8_t hosts_len;
-} uplink_arg_t;
 
 extern struct uplinks_t uplinks;
 

@@ -114,16 +114,9 @@ int downlink_init(sqlite3 *database) {
 		exit(1);
 	}
 
-	pthread_t downlink;
-	downlink_arg_t *arg = malloc(sizeof(downlink_arg_t));
-	if (arg == NULL) {
-		error("failed to allocate %zu bytes for downlink arg because %s\n", sizeof(downlink_arg_t), errno_str());
-		status = -1;
-		goto cleanup;
-	}
-	arg->hosts = hosts;
-	arg->hosts_len = hosts_len;
-	if (downlink_spawn(&downlink, downlink_thread, arg) == -1) {
+	downlinks.worker.arg.hosts = hosts;
+	downlinks.worker.arg.hosts_len = hosts_len;
+	if (downlink_spawn(&downlinks.worker.thread, downlink_thread, &downlinks.worker.arg) == -1) {
 		exit(1);
 	}
 
@@ -139,13 +132,6 @@ int downlink_spawn(pthread_t *thread, void *(*function)(void *), downlink_arg_t 
 	if (spawn_error != 0) {
 		errno = spawn_error;
 		fatal("failed to spawn downlink thread because %s\n", errno_str());
-		return -1;
-	}
-
-	int detach_error = pthread_detach(*thread);
-	if (detach_error != 0) {
-		errno = detach_error;
-		fatal("failed to detach downlink thread because %s\n", errno_str());
 		return -1;
 	}
 
