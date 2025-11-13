@@ -1,4 +1,5 @@
 #include "../api/radio.h"
+#include "../api/database.h"
 #include "../app/downlink.h"
 #include "../app/uplink.h"
 #include "../lib/config.h"
@@ -85,8 +86,7 @@ int radio_init(sqlite3 *database) {
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -145,8 +145,7 @@ int radio_init(sqlite3 *database) {
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}

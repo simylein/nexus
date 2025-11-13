@@ -5,6 +5,7 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "database.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -78,8 +79,7 @@ uint16_t host_select(sqlite3 *database, host_query_t *query, response_t *respons
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -236,8 +236,7 @@ uint16_t host_insert(sqlite3 *database, host_t *host) {
 		memcpy(host->id, id, id_len);
 		status = 0;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -263,8 +262,7 @@ uint16_t host_delete(sqlite3 *database, host_t *host) {
 
 	int result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 

@@ -1,4 +1,5 @@
 #include "downlink.h"
+#include "../api/database.h"
 #include "../lib/config.h"
 #include "../lib/endian.h"
 #include "../lib/error.h"
@@ -102,8 +103,7 @@ int downlink_init(sqlite3 *database) {
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}

@@ -4,6 +4,7 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "database.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -94,8 +95,7 @@ uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *respo
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -241,8 +241,7 @@ uint16_t radio_insert(sqlite3 *database, radio_t *radio) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -269,8 +268,7 @@ uint16_t radio_delete(sqlite3 *database, radio_t *radio) {
 
 	int result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 

@@ -6,6 +6,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/sha256.h"
+#include "database.h"
 #include <sqlite3.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -156,8 +157,7 @@ uint16_t user_insert(sqlite3 *database, user_t *user) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -212,8 +212,7 @@ uint16_t user_update(sqlite3 *database, user_t *user) {
 		status = 401;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
