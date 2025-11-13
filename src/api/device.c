@@ -142,6 +142,44 @@ cleanup:
 	return status;
 }
 
+uint16_t device_update(sqlite3 *database, uint8_t (*id)[16], device_t *device) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "update device "
+										"set id = ?, tag = ? "
+										"where id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, *device->id, sizeof(*device->id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 2, *device->tag, sizeof(*device->tag), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 3, *id, sizeof(*id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		status = database_error(database, result);
+		goto cleanup;
+	}
+
+	if (sqlite3_changes(database) == 0) {
+		warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
+		status = 404;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 uint16_t device_delete(sqlite3 *database, device_t *device) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -224,6 +262,43 @@ void device_create(sqlite3 *database, request_t *request, response_t *response) 
 
 	info("created device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
 	response->status = 201;
+}
+
+void device_modify(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	device_t device;
+	if (request->body.len == 0 || device_parse(&device, request) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = device_update(database, &id, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("updated device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
+	response->status = 200;
 }
 
 void device_remove(sqlite3 *database, request_t *request, response_t *response) {

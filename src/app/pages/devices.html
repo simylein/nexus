@@ -91,9 +91,9 @@
 				<form class="m-4 flex flex-col gap-4" onsubmit="createForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Create device?</h1>
 					<div class="w-full flex flex-col items-start">
-						<label for="device-id" class="mb-2 text-base font-normal">Id</label>
+						<label for="create-id" class="mb-2 text-base font-normal">Id</label>
 						<input
-							id="device-id"
+							id="create-id"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="id"
@@ -101,19 +101,19 @@
 							onchange="createForm.setValue('id', event.target.value)"
 							onblur="createForm.setTouched('id', true)"
 						/>
-						<p id="device-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="device-tag" class="mb-2 text-base font-normal">Tag</label>
+						<label for="create-tag" class="mb-2 text-base font-normal">Tag</label>
 						<input
-							id="device-tag"
+							id="create-tag"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="tag"
 							onchange="createForm.setValue('tag', event.target.value)"
 							onblur="createForm.setTouched('tag', true)"
 						/>
-						<p id="device-tag-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-tag-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
@@ -127,6 +127,52 @@
 							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
 							type="button"
 							onclick="closeCreateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+			<dialog id="update-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Update device?</h1>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-id" class="mb-2 text-base font-normal">Id</label>
+						<input
+							id="update-id"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="id"
+							autofocus
+							onchange="updateForm.setValue('id', event.target.value)"
+							onblur="updateForm.setTouched('id', true)"
+						/>
+						<p id="update-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-tag" class="mb-2 text-base font-normal">Tag</label>
+						<input
+							id="update-tag"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="tag"
+							onchange="updateForm.setValue('tag', event.target.value)"
+							onblur="updateForm.setTouched('tag', true)"
+						/>
+						<p id="update-tag-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="update-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 outline-none cursor-pointer"
+						>
+							Update
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeUpdateDialog()"
 						>
 							Cancel
 						</button>
@@ -181,8 +227,6 @@
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
 		const create = document.getElementById('create');
-		const spreadingFactors = document.getElementById('spreading-factors');
-		const codingRates = document.getElementById('coding-rates');
 		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
 		const columns = {
 			id: document.getElementById('id'),
@@ -215,9 +259,12 @@
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-80', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
-				element.children[ind].children[2].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[2].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[2].children[0].onclick = null;
+				element.children[ind].children[2].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[2].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[2].children[0].children[0].onclick = null;
+				element.children[ind].children[2].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[2].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[2].children[0].children[1].onclick = null;
 			});
 		};
 		const paintDevices = (element, data) => {
@@ -229,9 +276,12 @@
 				if (data[ind]) {
 					paint(element.children[ind].children[0].children[0], [], ['w-80', 'h-4'], data[ind].id);
 					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4'], data[ind].tag);
-					element.children[ind].children[2].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[2].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[2].children[0].onclick = () => openDeleteDialog(data[ind]);
+					element.children[ind].children[2].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[2].children[0].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[2].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[2].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[2].children[0].children[1].classList.add('cursor-pointer');
+					element.children[ind].children[2].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -242,9 +292,12 @@
 			array(element.children.length).forEach((ind) => {
 				error(element.children[ind].children[0].children[0], ['w-80', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
-				element.children[ind].children[2].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[2].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[2].children[0].onclick = null;
+				element.children[ind].children[2].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[2].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[2].children[0].children[0].onclick = null;
+				element.children[ind].children[2].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[2].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[2].children[0].children[1].onclick = null;
 			});
 		};
 		const parseDevices = async (response) => {
@@ -281,16 +334,30 @@
 			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
 		);
 		const createDialog = document.getElementById('create-dialog');
+		const updateDialog = document.getElementById('update-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
 		let device = null;
 		const openCreateDialog = () => {
-			document.getElementById('device-id').value = '';
-			document.getElementById('device-tag').value = '';
+			document.getElementById('create-id').value = '';
+			document.getElementById('create-tag').value = '';
 			createDialog.showModal();
 		};
 		const closeCreateDialog = () => {
 			createForm.reset();
 			createDialog.close();
+		};
+		const openUpdateDialog = (device) => {
+			updateForm.setValue('id', device.id);
+			document.getElementById('update-id').value = device.id;
+			updateForm.setValue('tag', device.tag);
+			document.getElementById('update-tag').value = device.tag;
+			updateForm.setValue('deviceId', device.id);
+			updateForm.setTouched('deviceId', true);
+			updateDialog.showModal();
+		};
+		const closeUpdateDialog = () => {
+			updateForm.reset();
+			updateDialog.close();
 		};
 		const openDeleteDialog = (device) => {
 			deleteForm.setValue('deviceId', device.id);
@@ -304,8 +371,8 @@
 		const createForm = formik(
 			{
 				button: document.getElementById('create-button'),
-				id: document.getElementById('device-id-validation'),
-				tag: document.getElementById('device-tag-validation'),
+				id: document.getElementById('create-id-validation'),
+				tag: document.getElementById('create-tag-validation'),
 			},
 			{
 				id: (value) => {
@@ -336,6 +403,48 @@
 					report(err);
 				}
 				closeCreateDialog();
+			}
+		);
+		const updateForm = formik(
+			{
+				button: document.getElementById('update-button'),
+				id: document.getElementById('update-id-validation'),
+				tag: document.getElementById('update-tag-validation'),
+			},
+			{
+				id: (value) => {
+					if (!value) return 'id is required';
+					if (value.length !== 32) return 'id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
+				},
+				tag: (value) => {
+					if (!value) return 'tag is required';
+					if (value.length !== 4) return 'tag must be 4 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'tag must be lowercase hexadecimal';
+				},
+				deviceId: (value) => {
+					if (!value) return 'device id is required';
+					if (value.length !== 32) return 'device id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(values.id.length / 2 + values.tag.length / 2);
+				for (let ind = 0; ind < values.id.length / 2; ind++) {
+					bytes[ind] = parseInt(values.id.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				for (let ind = 0; ind < values.tag.length / 2; ind++) {
+					bytes[values.id.length / 2 + ind] = parseInt(values.tag.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				const data = new Blob([bytes]);
+				try {
+					await fetcher('patch', `/api/device/${values.deviceId}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully updated device ${values.deviceId.substring(0, 4)}`);
+					loadDevices(true);
+				} catch (err) {
+					report(err);
+				}
+				closeUpdateDialog();
 			}
 		);
 		const deleteForm = formik(
