@@ -154,9 +154,9 @@
 				<form class="m-4 flex flex-col gap-4" onsubmit="createForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Create radio?</h1>
 					<div class="w-full flex flex-col items-start">
-						<label for="radio-device" class="mb-2 text-base font-normal">Device</label>
+						<label for="create-device" class="mb-2 text-base font-normal">Device</label>
 						<input
-							id="radio-device"
+							id="create-device"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="device"
@@ -164,118 +164,118 @@
 							onchange="createForm.setValue('device', event.target.value)"
 							onblur="createForm.setTouched('device', true)"
 						/>
-						<p id="radio-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="radio-frequency" class="mb-2 text-base font-normal">Frequency</label>
+						<label for="create-frequency" class="mb-2 text-base font-normal">Frequency</label>
 						<input
-							id="radio-frequency"
+							id="create-frequency"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="frequency"
 							onchange="createForm.setValue('frequency', event.target.value)"
 							onblur="createForm.setTouched('frequency', true)"
 						/>
-						<p id="radio-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="radio-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
+						<label for="create-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
 						<input
-							id="radio-bandwidth"
+							id="create-bandwidth"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="bandwidth"
 							onchange="createForm.setValue('bandwidth', event.target.value)"
 							onblur="createForm.setTouched('bandwidth', true)"
 						/>
-						<p id="radio-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="spreading-factors" class="mb-2 text-base font-normal">Spreading factor</label>
-						<div id="spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+						<label for="create-spreading-factors" class="mb-2 text-base font-normal">Spreading factor</label>
+						<div id="create-spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(7); createForm.setValue('spreadingFactor', 7); createForm.setTouched('spreadingFactor', true)"
+								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 7); createForm.setValue('spreadingFactor', 7); createForm.setTouched('spreadingFactor', true)"
 							>
 								7
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(8); createForm.setValue('spreadingFactor', 8); createForm.setTouched('spreadingFactor', true)"
+								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 8); createForm.setValue('spreadingFactor', 8); createForm.setTouched('spreadingFactor', true)"
 							>
 								8
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(9); createForm.setValue('spreadingFactor', 9); createForm.setTouched('spreadingFactor', true)"
+								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 9); createForm.setValue('spreadingFactor', 9); createForm.setTouched('spreadingFactor', true)"
 							>
 								9
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(10); createForm.setValue('spreadingFactor', 10); createForm.setTouched('spreadingFactor', true)"
+								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 10); createForm.setValue('spreadingFactor', 10); createForm.setTouched('spreadingFactor', true)"
 							>
 								10
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(11); createForm.setValue('spreadingFactor', 11); createForm.setTouched('spreadingFactor', true)"
+								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 11); createForm.setValue('spreadingFactor', 11); createForm.setTouched('spreadingFactor', true)"
 							>
 								11
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(12); createForm.setValue('spreadingFactor', 12); createForm.setTouched('spreadingFactor', true)"
+								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 12); createForm.setValue('spreadingFactor', 12); createForm.setTouched('spreadingFactor', true)"
 							>
 								12
 							</button>
 						</div>
-						<p id="radio-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
-						<div id="coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+						<label for="create-coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
+						<div id="create-coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(5); createForm.setValue('codingRate', 5); createForm.setTouched('codingRate', true)"
+								onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 5); createForm.setValue('codingRate', 5); createForm.setTouched('codingRate', true)"
 							>
 								4/5
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(6); createForm.setValue('codingRate', 6); createForm.setTouched('codingRate', true)"
+								onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 6); createForm.setValue('codingRate', 6); createForm.setTouched('codingRate', true)"
 							>
 								4/6
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(7); createForm.setValue('codingRate', 7); createForm.setTouched('codingRate', true)"
+								onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 7); createForm.setValue('codingRate', 7); createForm.setTouched('codingRate', true)"
 							>
 								4/7
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(8); createForm.setValue('codingRate', 8); createForm.setTouched('codingRate', true)"
+								onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 8); createForm.setValue('codingRate', 8); createForm.setTouched('codingRate', true)"
 							>
 								4/8
 							</button>
 						</div>
-						<p id="radio-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="radio-tx-power" class="mb-2 text-base font-normal">Tx power</label>
+						<label for="create-tx-power" class="mb-2 text-base font-normal">Tx power</label>
 						<input
-							id="radio-tx-power"
+							id="create-tx-power"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="tx power"
@@ -283,19 +283,19 @@
 							onchange="createForm.setValue('txPower', event.target.value)"
 							onblur="createForm.setTouched('txPower', true)"
 						/>
-						<p id="radio-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="radio-sync-word" class="mb-2 text-base font-normal">Sync word</label>
+						<label for="create-sync-word" class="mb-2 text-base font-normal">Sync word</label>
 						<input
-							id="radio-sync-word"
+							id="create-sync-word"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="sync word"
 							onchange="createForm.setValue('syncWord', event.target.value)"
 							onblur="createForm.setTouched('syncWord', true)"
 						/>
-						<p id="radio-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="create-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
@@ -309,6 +309,171 @@
 							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
 							type="button"
 							onclick="closeCreateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+			<dialog id="update-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Update radio?</h1>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-device" class="mb-2 text-base font-normal">Device</label>
+						<input
+							id="update-device"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="device"
+							autofocus
+							onchange="updateForm.setValue('device', event.target.value)"
+							onblur="updateForm.setTouched('device', true)"
+						/>
+						<p id="update-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-frequency" class="mb-2 text-base font-normal">Frequency</label>
+						<input
+							id="update-frequency"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="frequency"
+							onchange="updateForm.setValue('frequency', event.target.value)"
+							onblur="updateForm.setTouched('frequency', true)"
+						/>
+						<p id="update-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
+						<input
+							id="update-bandwidth"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="bandwidth"
+							onchange="updateForm.setValue('bandwidth', event.target.value)"
+							onblur="updateForm.setTouched('bandwidth', true)"
+						/>
+						<p id="update-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-spreading-factors" class="mb-2 text-base font-normal">Spreading factor</label>
+						<div id="update-spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 7); updateForm.setValue('spreadingFactor', 7); updateForm.setTouched('spreadingFactor', true)"
+							>
+								7
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 8); updateForm.setValue('spreadingFactor', 8); updateForm.setTouched('spreadingFactor', true)"
+							>
+								8
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 9); updateForm.setValue('spreadingFactor', 9); updateForm.setTouched('spreadingFactor', true)"
+							>
+								9
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 10); updateForm.setValue('spreadingFactor', 10); updateForm.setTouched('spreadingFactor', true)"
+							>
+								10
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 11); updateForm.setValue('spreadingFactor', 11); updateForm.setTouched('spreadingFactor', true)"
+							>
+								11
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 12); updateForm.setValue('spreadingFactor', 12); updateForm.setTouched('spreadingFactor', true)"
+							>
+								12
+							</button>
+						</div>
+						<p id="update-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
+						<div id="update-coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 5); updateForm.setValue('codingRate', 5); updateForm.setTouched('codingRate', true)"
+							>
+								4/5
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 6); updateForm.setValue('codingRate', 6); updateForm.setTouched('codingRate', true)"
+							>
+								4/6
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 7); updateForm.setValue('codingRate', 7); updateForm.setTouched('codingRate', true)"
+							>
+								4/7
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 8); updateForm.setValue('codingRate', 8); updateForm.setTouched('codingRate', true)"
+							>
+								4/8
+							</button>
+						</div>
+						<p id="update-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-tx-power" class="mb-2 text-base font-normal">Tx power</label>
+						<input
+							id="update-tx-power"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="tx power"
+							autofocus
+							onchange="updateForm.setValue('txPower', event.target.value)"
+							onblur="updateForm.setTouched('txPower', true)"
+						/>
+						<p id="update-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-sync-word" class="mb-2 text-base font-normal">Sync word</label>
+						<input
+							id="update-sync-word"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="sync word"
+							onchange="updateForm.setValue('syncWord', event.target.value)"
+							onblur="updateForm.setTouched('syncWord', true)"
+						/>
+						<p id="update-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="update-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 outline-none cursor-pointer"
+						>
+							Update
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeUpdateDialog()"
 						>
 							Cancel
 						</button>
@@ -363,8 +528,6 @@
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
 		const create = document.getElementById('create');
-		const spreadingFactors = document.getElementById('spreading-factors');
-		const codingRates = document.getElementById('coding-rates');
 		const radios = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('radios') };
 		const columns = {
 			id: document.getElementById('id'),
@@ -414,9 +577,12 @@
 				loading(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
 				loading(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
 				loading(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
-				element.children[ind].children[9].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[9].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[9].children[0].onclick = null;
+				element.children[ind].children[9].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[9].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[9].children[0].children[0].onclick = null;
+				element.children[ind].children[9].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[9].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[9].children[0].children[1].onclick = null;
 			});
 		};
 		const paintRadios = (element, data) => {
@@ -441,9 +607,12 @@
 					colorTxPower(element.children[ind].children[6].children[0], data[ind].txPower);
 					paint(element.children[ind].children[7].children[0], [], ['w-5', 'h-4'], data[ind].syncWord);
 					paint(element.children[ind].children[8].children[0], [], ['w-8', 'h-4'], data[ind].checksum);
-					element.children[ind].children[9].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[9].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[9].children[0].onclick = () => openDeleteDialog(data[ind]);
+					element.children[ind].children[9].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[9].children[0].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[9].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[9].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[9].children[0].children[1].classList.add('cursor-pointer');
+					element.children[ind].children[9].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -464,9 +633,12 @@
 				error(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
 				error(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
 				error(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
-				element.children[ind].children[9].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[9].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[9].children[0].onclick = null;
+				element.children[ind].children[9].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[9].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[9].children[0].children[0].onclick = null;
+				element.children[ind].children[9].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[9].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[9].children[0].children[1].onclick = null;
 			});
 		};
 		const parseRadios = async (response) => {
@@ -509,78 +681,101 @@
 			(context) => window.requestAnimationFrame(() => paintRadios(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorRadios(context.element))
 		);
-		const highlightSpreadingFactor = (spreadingFactor) => {
-			array(spreadingFactors.children.length).forEach((ind) => {
-				fade(spreadingFactors.children[ind]);
-				spreadingFactors.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+		const highlightSpreadingFactor = (element, spreadingFactor) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
 			});
 			switch (spreadingFactor) {
 				case 7:
-					fade(spreadingFactors.children[0]);
-					spreadingFactors.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					fade(element.children[0]);
+					element.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
 					break;
 				case 8:
-					fade(spreadingFactors.children[1]);
-					spreadingFactors.children[1].classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-100', 'dark:background-lime-900');
+					fade(element.children[1]);
+					element.children[1].classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-100', 'dark:background-lime-900');
 					break;
 				case 9:
-					fade(spreadingFactors.children[2]);
-					spreadingFactors.children[2].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
+					fade(element.children[2]);
+					element.children[2].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
 					break;
 				case 10:
-					fade(spreadingFactors.children[3]);
-					spreadingFactors.children[3].classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-100', 'dark:background-amber-900');
+					fade(element.children[3]);
+					element.children[3].classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-100', 'dark:background-amber-900');
 					break;
 				case 11:
-					fade(spreadingFactors.children[4]);
-					spreadingFactors.children[4].classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-100', 'dark:background-orange-900');
+					fade(element.children[4]);
+					element.children[4].classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-100', 'dark:background-orange-900');
 					break;
 				case 12:
-					fade(spreadingFactors.children[5]);
-					spreadingFactors.children[5].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
+					fade(element.children[5]);
+					element.children[5].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
 					break;
 			}
 		};
-		const highlightCodingRate = (codingRate) => {
-			array(codingRates.children.length).forEach((ind) => {
-				fade(codingRates.children[ind]);
-				codingRates.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+		const highlightCodingRate = (element, codingRate) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
 			});
 			switch (codingRate) {
 				case 5:
-					fade(codingRates.children[0]);
-					codingRates.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					fade(element.children[0]);
+					element.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
 					break;
 				case 6:
-					fade(codingRates.children[1]);
-					codingRates.children[1].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
+					fade(element.children[1]);
+					element.children[1].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
 					break;
 				case 7:
-					fade(codingRates.children[2]);
-					codingRates.children[2].classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-100', 'dark:background-orange-900');
+					fade(element.children[2]);
+					element.children[2].classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-100', 'dark:background-orange-900');
 					break;
 				case 8:
-					fade(codingRates.children[3]);
-					codingRates.children[3].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
+					fade(element.children[3]);
+					element.children[3].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
 					break;
 			}
 		};
 		const createDialog = document.getElementById('create-dialog');
+		const updateDialog = document.getElementById('update-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
 		let radio = null;
 		const openCreateDialog = () => {
-			document.getElementById('radio-device').value = '';
-			document.getElementById('radio-frequency').value = '';
-			document.getElementById('radio-bandwidth').value = '';
-			highlightSpreadingFactor(0);
-			highlightCodingRate(0);
-			document.getElementById('radio-tx-power').value = '';
-			document.getElementById('radio-sync-word').value = '';
+			document.getElementById('create-device').value = '';
+			document.getElementById('create-frequency').value = '';
+			document.getElementById('create-bandwidth').value = '';
+			highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 0);
+			highlightCodingRate(document.getElementById('create-coding-rates'), 0);
+			document.getElementById('create-tx-power').value = '';
+			document.getElementById('create-sync-word').value = '';
 			createDialog.showModal();
 		};
 		const closeCreateDialog = () => {
 			createForm.reset();
 			createDialog.close();
+		};
+		const openUpdateDialog = (radio) => {
+			updateForm.setValue('id', radio.id);
+			updateForm.setValue('device', `${radio.device}`);
+			document.getElementById('update-device').value = radio.device;
+			updateForm.setValue('frequency', `${radio.frequency}`);
+			document.getElementById('update-frequency').value = radio.frequency;
+			updateForm.setValue('bandwidth', `${radio.bandwidth}`);
+			document.getElementById('update-bandwidth').value = radio.bandwidth;
+			updateForm.setValue('spreadingFactor', radio.spreadingFactor);
+			highlightSpreadingFactor(document.getElementById('update-spreading-factors'), radio.spreadingFactor);
+			updateForm.setValue('codingRate', radio.codingRate);
+			highlightCodingRate(document.getElementById('update-coding-rates'), radio.codingRate);
+			updateForm.setValue('txPower', `${radio.txPower}`);
+			document.getElementById('update-tx-power').value = radio.txPower;
+			updateForm.setValue('syncWord', `${radio.syncWord}`);
+			document.getElementById('update-sync-word').value = radio.syncWord;
+			updateDialog.showModal();
+		};
+		const closeUpdateDialog = () => {
+			updateForm.reset();
+			updateDialog.close();
 		};
 		const openDeleteDialog = (radio) => {
 			deleteForm.setValue('radioId', radio.id);
@@ -594,13 +789,13 @@
 		const createForm = formik(
 			{
 				button: document.getElementById('create-button'),
-				device: document.getElementById('radio-device-validation'),
-				frequency: document.getElementById('radio-frequency-validation'),
-				bandwidth: document.getElementById('radio-bandwidth-validation'),
-				spreadingFactor: document.getElementById('radio-spreading-factor-validation'),
-				codingRate: document.getElementById('radio-coding-rate-validation'),
-				txPower: document.getElementById('radio-tx-power-validation'),
-				syncWord: document.getElementById('radio-sync-word-validation'),
+				device: document.getElementById('create-device-validation'),
+				frequency: document.getElementById('create-frequency-validation'),
+				bandwidth: document.getElementById('create-bandwidth-validation'),
+				spreadingFactor: document.getElementById('create-spreading-factor-validation'),
+				codingRate: document.getElementById('create-coding-rate-validation'),
+				txPower: document.getElementById('create-tx-power-validation'),
+				syncWord: document.getElementById('create-sync-word-validation'),
 			},
 			{
 				device: (value) => {
@@ -661,6 +856,83 @@
 					report(err);
 				}
 				closeCreateDialog();
+			}
+		);
+		const updateForm = formik(
+			{
+				button: document.getElementById('update-button'),
+				device: document.getElementById('update-device-validation'),
+				frequency: document.getElementById('update-frequency-validation'),
+				bandwidth: document.getElementById('update-bandwidth-validation'),
+				spreadingFactor: document.getElementById('update-spreading-factor-validation'),
+				codingRate: document.getElementById('update-coding-rate-validation'),
+				txPower: document.getElementById('update-tx-power-validation'),
+				syncWord: document.getElementById('update-sync-word-validation'),
+			},
+			{
+				id: (value) => {
+					if (!value) return 'id is required';
+					if (value.length !== 32) return 'id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
+				},
+				device: (value) => {
+					if (!value) return 'device is required';
+					if (value.length < 8) return 'device must be at least 8 characters';
+					if (value.length > 32) return 'device must be at most 32 characters';
+					if (!value.match(/^[/a-z0-9.]+$/)) return 'device must be a valid unix path';
+				},
+				frequency: (value) => {
+					if (!value) return 'frequency is required';
+					if (!value.match(/^[0-9]+$/)) return 'frequency must be a number';
+					if (+value < 430000000) return 'frequency must be min 430000000';
+					if (+value > 440000000) return 'frequency must be max 440000000';
+				},
+				bandwidth: (value) => {
+					if (!value) return 'bandwidth is required';
+					if (!value.match(/^[0-9]+$/)) return 'bandwidth must be a number';
+					if (+value < 7800) return 'bandwidth must be min 7800';
+					if (+value > 500000) return 'bandwidth must be max 500000';
+				},
+				spreadingFactor: (value) => {
+					if (!value) return 'spreading factor is required';
+					if (value < 7) return 'spreading factor must be min 7';
+					if (value > 12) return 'spreading factor must be max 12';
+				},
+				codingRate: (value) => {
+					if (!value) return 'coding rate is required';
+					if (value < 5) return 'coding rate must be min 5';
+					if (value > 8) return 'coding rate must be max 8';
+				},
+				txPower: (value) => {
+					if (!value) return 'tx power is required';
+					if (!value.match(/^[0-9]+$/)) return 'tx power must be a number';
+					if (+value < 2) return 'tx power must be min 2';
+					if (+value > 17) return 'tx power must be max 17';
+				},
+				syncWord: (value) => {
+					if (!value) return 'sync word is required';
+					if (value.length !== 2) return 'sync word must be 2 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'sync word must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(12);
+				const view = new DataView(bytes.buffer);
+				view.setUint32(0, +values.frequency);
+				view.setUint32(4, +values.bandwidth);
+				view.setUint8(8, values.spreadingFactor);
+				view.setUint8(9, values.codingRate);
+				view.setUint8(10, values.txPower);
+				view.setUint8(11, parseInt(values.syncWord, 16));
+				const data = new Blob([values.device, '\0', view]);
+				try {
+					await fetcher('patch', `/api/radio/${values.id}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully updated radio ${values.id.substring(0, 4)}`);
+					loadRadios(true);
+				} catch (err) {
+					report(err);
+				}
+				closeUpdateDialog();
 			}
 		);
 		const deleteForm = formik(

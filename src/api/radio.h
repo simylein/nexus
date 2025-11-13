@@ -31,8 +31,10 @@ extern const char *radio_schema;
 
 uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *response, uint8_t *radios_len);
 uint16_t radio_insert(sqlite3 *database, radio_t *radio);
+uint16_t radio_update(sqlite3 *database, radio_t *radio);
 uint16_t radio_delete(sqlite3 *database, radio_t *radio);
 
 void radio_find(sqlite3 *database, request_t *request, response_t *response);
 void radio_create(sqlite3 *database, request_t *request, response_t *response);
+void radio_modify(sqlite3 *database, request_t *request, response_t *response);
 void radio_remove(sqlite3 *database, request_t *request, response_t *response);

@@ -250,6 +250,52 @@ cleanup:
 	return status;
 }
 
+uint16_t radio_update(sqlite3 *database, radio_t *radio) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "update radio "
+										"set device = ?, frequency = ?, bandwidth = ?, "
+										"spreading_factor = ?, coding_rate = ?, tx_power = ?, "
+										"sync_word = ?, checksum = ? "
+										"where id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_text(stmt, 1, radio->device, radio->device_len, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 2, (int)radio->frequency);
+	sqlite3_bind_int(stmt, 3, (int)radio->bandwidth);
+	sqlite3_bind_int(stmt, 4, radio->spreading_factor);
+	sqlite3_bind_int(stmt, 5, radio->coding_rate);
+	sqlite3_bind_int(stmt, 6, radio->tx_power);
+	sqlite3_bind_int(stmt, 7, radio->sync_word);
+	sqlite3_bind_int(stmt, 8, radio->checksum);
+	sqlite3_bind_blob(stmt, 9, *radio->id, sizeof(*radio->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		status = database_error(database, result);
+		goto cleanup;
+	}
+
+	if (sqlite3_changes(database) == 0) {
+		warn("radio %02x%02x not found\n", (*radio->id)[0], (*radio->id)[1]);
+		status = 404;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 uint16_t radio_delete(sqlite3 *database, radio_t *radio) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -333,6 +379,43 @@ void radio_create(sqlite3 *database, request_t *request, response_t *response) {
 
 	info("created radio %02x%02x\n", (*radio.id)[0], (*radio.id)[1]);
 	response->status = 201;
+}
+
+void radio_modify(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 11, &uuid_len);
+	if (uuid_len != sizeof(*((radio_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((radio_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	radio_t radio = {.id = &id};
+	if (request->body.len == 0 || radio_parse(&radio, request) == -1 || radio_validate(&radio) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = radio_update(database, &radio);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("updated radio %02x%02x\n", (*radio.id)[0], (*radio.id)[1]);
+	response->status = 200;
 }
 
 void radio_remove(sqlite3 *database, request_t *request, response_t *response) {
