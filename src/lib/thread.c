@@ -21,8 +21,11 @@ thread_pool_t thread_pool = {
 		.size = 0,
 		.load = 0,
 		.lock = PTHREAD_MUTEX_INITIALIZER,
+		.scale = PTHREAD_COND_INITIALIZER,
 		.available = PTHREAD_COND_INITIALIZER,
 };
+
+void cancel(void *lock) { pthread_mutex_unlock((pthread_mutex_t *)lock); }
 
 int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 					void (*logger)(const char *message, ...) __attribute__((format(printf, 1, 2)))) {
@@ -55,33 +58,51 @@ int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 		return -1;
 	}
 
-	int spawn_error = pthread_create(&worker->thread, NULL, function, (void *)&worker->arg);
-	if (spawn_error != 0) {
-		errno = spawn_error;
+	if ((errno = pthread_create(&worker->thread, NULL, function, (void *)&worker->arg)) != 0) {
 		logger("failed to spawn worker thread %hhu because %s\n", worker->arg.id, errno_str());
-		return -1;
-	}
-
-	int detach_error = pthread_detach(worker->thread);
-	if (detach_error != 0) {
-		errno = detach_error;
-		logger("failed to detach worker thread %hhu because %s\n", worker->arg.id, errno_str());
 		return -1;
 	}
 
 	return 0;
 }
 
+int join(worker_t *worker, uint8_t id) {
+	trace("joining worker thread %hhu\n", id);
+
+	if (pthread_cancel(worker->thread) == -1) {
+		error("failed to cancel worker thread %hhu because %s\n", id, errno_str());
+		return -1;
+	};
+
+	if (pthread_join(worker->thread, NULL) == -1) {
+		error("failed to join worker thread %hhu because %s\n", id, errno_str());
+		return -1;
+	}
+
+	if (sqlite3_close_v2(worker->arg.database) != SQLITE_OK) {
+		error("failed to close %s because %s\n", database_file, sqlite3_errmsg(worker->arg.database));
+		return -1;
+	}
+
+	free(worker->arg.request_buffer);
+	free(worker->arg.response_buffer);
+
+	return 0;
+}
+
 void *thread(void *args) {
-	bool exit = false;
 	arg_t *arg = (arg_t *)args;
 
 	while (true) {
 		pthread_mutex_lock(&queue.lock);
+		pthread_cleanup_push(cancel, &queue.lock);
 
 		while (queue.size == 0) {
 			pthread_cond_wait(&queue.filled, &queue.lock);
 		}
+
+		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &arg->state);
+		pthread_cleanup_pop(false);
 
 		task_t task = queue.tasks[queue.head];
 		queue.head = (uint8_t)((queue.head + 1) % queue_size);
@@ -100,24 +121,40 @@ void *thread(void *args) {
 		pthread_mutex_lock(&thread_pool.lock);
 		thread_pool.load--;
 		trace("worker thread %hhu decreased thread pool load to %hhu\n", arg->id, thread_pool.load);
-		if (thread_pool.load <= thread_pool.size / 2 && arg->id >= least_workers && arg->id + 1 == thread_pool.size) {
-			debug("half worker threads currently idle\n");
-			if (sqlite3_close_v2(arg->database) != SQLITE_OK) {
-				error("failed to close %s because %s\n", database_file, sqlite3_errmsg(arg->database));
-			}
-			free(arg->request_buffer);
-			free(arg->response_buffer);
-			uint8_t new_size = thread_pool.size - 1;
-			info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
-			thread_pool.size = new_size;
-			exit = true;
-		}
 		pthread_cond_signal(&thread_pool.available);
 		pthread_mutex_unlock(&thread_pool.lock);
 
-		if (exit == true) {
-			trace("killing worker thread %hhu\n", arg->id);
-			pthread_exit(0);
+		pthread_setcancelstate(arg->state, NULL);
+		pthread_testcancel();
+	}
+}
+
+void *scaler(void *args) {
+	(void)args;
+
+	while (true) {
+		pthread_mutex_lock(&thread_pool.lock);
+		pthread_cond_wait(&thread_pool.scale, &thread_pool.lock);
+		pthread_mutex_unlock(&thread_pool.lock);
+
+		if (thread_pool.load >= thread_pool.size) {
+			debug("all worker threads currently busy\n");
+			uint8_t new_size = thread_pool.size + 1;
+			if (new_size <= most_workers && spawn(&thread_pool.workers[thread_pool.size], thread_pool.size, &thread, &error) == 0) {
+				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
+				thread_pool.size = new_size;
+			}
 		}
+
+		if (thread_pool.load <= thread_pool.size / 2 && thread_pool.size > least_workers) {
+			debug("half worker threads currently idle\n");
+			uint8_t new_size = thread_pool.size - 1;
+			if (join(&thread_pool.workers[new_size], new_size) == 0) {
+				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
+				thread_pool.size = new_size;
+			}
+		}
+
+		pthread_mutex_unlock(&thread_pool.lock);
 	}
 }

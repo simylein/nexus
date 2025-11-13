@@ -12,13 +12,18 @@
 #include "lib/logger.h"
 #include "lib/thread.h"
 #include <arpa/inet.h>
+#include <errno.h>
+#include <pthread.h>
 #include <signal.h>
 #include <sqlite3.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+bool stopping = false;
 
 int server_sock;
 struct sockaddr_in server_addr;
@@ -27,98 +32,11 @@ void stop(int sig) {
 	signal(sig, SIG_DFL);
 	trace("received signal %d\n", sig);
 
+	stopping = true;
+
 	if (close(server_sock) == -1) {
 		error("failed to close socket because %s\n", errno_str());
 	}
-
-	pthread_mutex_lock(&thread_pool.lock);
-
-	if (thread_pool.load > 0) {
-		info("waiting for %hhu threads...\n", thread_pool.load);
-	}
-	while (thread_pool.load > 0) {
-		trace("waiting for %hhu connections to close\n", thread_pool.load);
-		pthread_cond_wait(&thread_pool.available, &thread_pool.lock);
-	}
-
-	pthread_mutex_unlock(&thread_pool.lock);
-
-	for (uint8_t index = 0; index < thread_pool.size; index++) {
-		if (sqlite3_close_v2(thread_pool.workers[index].arg.database) != SQLITE_OK) {
-			error("failed to close %s because %s\n", database_file, sqlite3_errmsg(thread_pool.workers[index].arg.database));
-		}
-		free(thread_pool.workers[index].arg.request_buffer);
-		free(thread_pool.workers[index].arg.response_buffer);
-	}
-
-	free(queue.tasks);
-	free(thread_pool.workers);
-
-	for (uint8_t index = 0; index < comms.radios_len; index++) {
-		if (pthread_cancel(comms.workers[index].thread) == -1) {
-			error("failed to cancel radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
-		};
-		trace("waiting for radio %02x%02x to finish\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
-		if (pthread_join(comms.workers[index].thread, NULL) == -1) {
-			error("failed to join radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
-		}
-		if (close(comms.workers[index].arg.fd) == -1) {
-			error("failed to close ioctl because %s\n", errno_str());
-		}
-		free(comms.radios[index].id);
-		free(comms.radios[index].device);
-	}
-
-	for (uint8_t index = 0; index < comms.devices_len; index++) {
-		free(comms.devices[index].id);
-		free(comms.devices[index].tag);
-	}
-
-	free(comms.workers);
-	free(comms.radios);
-	free(comms.devices);
-
-	if (uplinks.size > 0) {
-		info("waiting for %hhu uplinks...\n", uplinks.size);
-	}
-	while (uplinks.size > 0) {
-		trace("waiting for %hhu uplinks in queue\n", uplinks.size);
-		pthread_cond_wait(&uplinks.available, &uplinks.lock);
-	}
-
-	if (pthread_cancel(uplinks.worker.thread) == -1) {
-		error("failed to cancel uplink thread\n");
-	};
-	if (pthread_join(uplinks.worker.thread, NULL) == -1) {
-		error("failed to join uplink thread\n");
-	}
-
-	free(uplinks.worker.arg.hosts);
-	free(uplinks.ptr);
-
-	if (downlinks.size > 0) {
-		info("waiting for %hhu downlinks...\n", downlinks.size);
-	}
-	while (downlinks.size > 0) {
-		trace("waiting for %hhu downlinks in queue\n", downlinks.size);
-		pthread_cond_wait(&downlinks.available, &downlinks.lock);
-	}
-
-	if (pthread_cancel(downlinks.worker.thread) == -1) {
-		error("failed to cancel downlink thread\n");
-	};
-	if (pthread_join(downlinks.worker.thread, NULL) == -1) {
-		error("failed to join downlink thread\n");
-	}
-
-	free(downlinks.worker.arg.hosts);
-	free(downlinks.ptr);
-
-	page_close();
-	page_free();
-
-	info("graceful shutdown complete\n");
-	exit(0);
 }
 
 int main(int argc, char *argv[]) {
@@ -212,6 +130,11 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	if ((errno = pthread_create(&thread_pool.scaler, NULL, &scaler, NULL)) != 0) {
+		fatal("failed to spawn scaler thread because %s\n", errno_str());
+		exit(1);
+	}
+
 	thread_pool.workers = malloc(most_workers * sizeof(*thread_pool.workers));
 	if (thread_pool.workers == NULL) {
 		fatal("failed to allocate %zu bytes for workers because %s\n", most_workers * sizeof(*thread_pool.workers), errno_str());
@@ -291,18 +214,21 @@ int main(int argc, char *argv[]) {
 		pthread_mutex_lock(&thread_pool.lock);
 
 		if (thread_pool.load >= thread_pool.size) {
-			debug("all worker threads currently busy\n");
-			uint8_t new_size = thread_pool.size + 1;
-			if (new_size <= most_workers && spawn(&thread_pool.workers[thread_pool.size], thread_pool.size, &thread, &error) == 0) {
-				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
-				thread_pool.size = new_size;
-			}
+			pthread_cond_signal(&thread_pool.scale);
+		}
+
+		if (thread_pool.load <= thread_pool.size / 2 && thread_pool.size > least_workers) {
+			pthread_cond_signal(&thread_pool.scale);
 		}
 
 		pthread_mutex_unlock(&thread_pool.lock);
 
 		struct sockaddr_in client_addr;
 		int client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &(socklen_t){sizeof(client_addr)});
+
+		if (stopping == true) {
+			break;
+		}
 
 		if (client_sock == -1) {
 			error("failed to accept client because %s\n", errno_str());
@@ -320,4 +246,89 @@ int main(int argc, char *argv[]) {
 		pthread_cond_signal(&queue.filled);
 		pthread_mutex_unlock(&queue.lock);
 	}
+
+	pthread_mutex_lock(&thread_pool.lock);
+
+	if (thread_pool.load > 0) {
+		info("waiting for %hhu threads...\n", thread_pool.load);
+	}
+	while (thread_pool.load > 0) {
+		trace("waiting for %hhu connections to close\n", thread_pool.load);
+		pthread_cond_wait(&thread_pool.available, &thread_pool.lock);
+	}
+
+	pthread_mutex_unlock(&thread_pool.lock);
+
+	for (uint8_t index = 0; index < thread_pool.size; index++) {
+		join(&thread_pool.workers[index], index);
+	}
+
+	free(queue.tasks);
+	free(thread_pool.workers);
+
+	page_close();
+	page_free();
+
+	for (uint8_t index = 0; index < comms.radios_len; index++) {
+		if (pthread_cancel(comms.workers[index].thread) == -1) {
+			error("failed to cancel radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
+		};
+		trace("waiting for radio %02x%02x to finish\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
+		if (pthread_join(comms.workers[index].thread, NULL) == -1) {
+			error("failed to join radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
+		}
+		if (close(comms.workers[index].arg.fd) == -1) {
+			error("failed to close ioctl because %s\n", errno_str());
+		}
+		free(comms.radios[index].id);
+		free(comms.radios[index].device);
+	}
+
+	for (uint8_t index = 0; index < comms.devices_len; index++) {
+		free(comms.devices[index].id);
+		free(comms.devices[index].tag);
+	}
+
+	free(comms.workers);
+	free(comms.radios);
+	free(comms.devices);
+
+	if (uplinks.size > 0) {
+		info("waiting for %hhu uplinks...\n", uplinks.size);
+	}
+	while (uplinks.size > 0) {
+		trace("waiting for %hhu uplinks in queue\n", uplinks.size);
+		pthread_cond_wait(&uplinks.available, &uplinks.lock);
+	}
+
+	if (pthread_cancel(uplinks.worker.thread) == -1) {
+		error("failed to cancel uplink thread\n");
+	};
+	if (pthread_join(uplinks.worker.thread, NULL) == -1) {
+		error("failed to join uplink thread\n");
+	}
+
+	free(uplinks.worker.arg.hosts);
+	free(uplinks.ptr);
+
+	if (downlinks.size > 0) {
+		info("waiting for %hhu downlinks...\n", downlinks.size);
+	}
+	while (downlinks.size > 0) {
+		trace("waiting for %hhu downlinks in queue\n", downlinks.size);
+		pthread_cond_wait(&downlinks.available, &downlinks.lock);
+	}
+
+	if (pthread_cancel(downlinks.worker.thread) == -1) {
+		error("failed to cancel downlink thread\n");
+	};
+	if (pthread_join(downlinks.worker.thread, NULL) == -1) {
+		error("failed to join downlink thread\n");
+	}
+
+	free(downlinks.worker.arg.hosts);
+	free(downlinks.ptr);
+
+	info("graceful shutdown complete\n");
+	exit(0);
 }

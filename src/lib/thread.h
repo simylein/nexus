@@ -24,6 +24,7 @@ extern struct queue_t queue;
 
 typedef struct arg_t {
 	uint8_t id;
+	int state;
 	sqlite3 *database;
 	char *request_buffer;
 	char *response_buffer;
@@ -35,10 +36,12 @@ typedef struct worker_t {
 } worker_t;
 
 typedef struct thread_pool_t {
+	pthread_t scaler;
 	worker_t *workers;
 	uint8_t size;
 	uint8_t load;
 	pthread_mutex_t lock;
+	pthread_cond_t scale;
 	pthread_cond_t available;
 } thread_pool_t;
 
@@ -47,4 +50,8 @@ extern struct thread_pool_t thread_pool;
 int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 					void (*logger)(const char *message, ...) __attribute__((format(printf, 1, 2))));
 
+int join(worker_t *worker, uint8_t id);
+
 void *thread(void *args);
+
+void *scaler(void *args);
