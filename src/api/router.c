@@ -268,7 +268,13 @@ respond:
 	if (response->status == 500) {
 		serve(&page_internal_server_error, response);
 	}
+	if (response->status == 503) {
+		serve(&page_service_unavailable, response);
+	}
 	if (response->status == 505) {
 		serve(&page_http_version_not_supported, response);
+	}
+	if (response->status == 507) {
+		serve(&page_insufficient_storage, response);
 	}
 }

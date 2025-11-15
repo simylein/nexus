@@ -22,7 +22,9 @@ file_t page_method_not_allowed = {.path = "./src/app/pages/405.html", .lock = PT
 file_t page_uri_too_long = {.path = "./src/app/pages/414.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_request_header_fields_too_large = {.path = "./src/app/pages/431.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_internal_server_error = {.path = "./src/app/pages/500.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_service_unavailable = {.path = "./src/app/pages/503.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_http_version_not_supported = {.path = "./src/app/pages/505.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_insufficient_storage = {.path = "./src/app/pages/507.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 
 file_t *pages[] = {
 		&page_home,
@@ -40,7 +42,9 @@ file_t *pages[] = {
 		&page_uri_too_long,
 		&page_request_header_fields_too_large,
 		&page_internal_server_error,
+		&page_service_unavailable,
 		&page_http_version_not_supported,
+		&page_insufficient_storage,
 };
 
 void page_init(void) {
