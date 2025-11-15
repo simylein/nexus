@@ -111,13 +111,13 @@ int downlink_init(sqlite3 *database) {
 	downlinks.ptr = malloc(downlinks_size * sizeof(*downlinks.ptr));
 	if (downlinks.ptr == NULL) {
 		fatal("failed to allocate %zu bytes for downlinks because %s\n", downlinks_size * sizeof(*downlinks.ptr), errno_str());
-		exit(1);
+		return -1;
 	}
 
 	downlinks.worker.arg.hosts = hosts;
 	downlinks.worker.arg.hosts_len = hosts_len;
 	if (downlink_spawn(&downlinks.worker.thread, downlink_thread, &downlinks.worker.arg) == -1) {
-		exit(1);
+		return -1;
 	}
 
 cleanup:

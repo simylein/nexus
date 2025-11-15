@@ -111,13 +111,13 @@ int uplink_init(sqlite3 *database) {
 	uplinks.ptr = malloc(uplinks_size * sizeof(*uplinks.ptr));
 	if (uplinks.ptr == NULL) {
 		fatal("failed to allocate %zu bytes for uplinks because %s\n", uplinks_size * sizeof(*uplinks.ptr), errno_str());
-		exit(1);
+		return -1;
 	}
 
 	uplinks.worker.arg.hosts = hosts;
 	uplinks.worker.arg.hosts_len = hosts_len;
 	if (uplink_spawn(&uplinks.worker.thread, uplink_thread, &uplinks.worker.arg) == -1) {
-		exit(1);
+		return -1;
 	}
 
 cleanup:
