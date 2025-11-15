@@ -224,7 +224,7 @@ int sx1278_bandwidth(int fd, uint32_t bandwidth) {
 		return -1;
 	}
 
-	modem_config_1 = (modem_config_1 & 0x0f) | (bw_bits << 4);
+	modem_config_1 = (modem_config_1 & 0x0f) | (uint8_t)(bw_bits << 4);
 
 	if (spi_write_register(fd, reg_modem_config_1, modem_config_1) == -1) {
 		return -1;
@@ -250,7 +250,7 @@ int sx1278_spreading_factor(int fd, uint8_t sf) {
 		return -1;
 	}
 
-	modem_config_2 = (modem_config_2 & 0x0f) | (sf << 4);
+	modem_config_2 = (modem_config_2 & 0x0f) | (uint8_t)(sf << 4);
 
 	if (spi_write_register(fd, reg_modem_config_2, modem_config_2) == -1) {
 		return -1;
@@ -271,7 +271,7 @@ int sx1278_checksum(int fd, bool crc) {
 		return -1;
 	}
 
-	modem_config_2 = (modem_config_2 & (uint8_t)~0x04) | ((crc & 1) << 2);
+	modem_config_2 = (modem_config_2 & (uint8_t)~0x04) | (uint8_t)((crc & 1) << 2);
 
 	if (spi_write_register(fd, reg_modem_config_2, modem_config_2) == -1) {
 		return -1;
