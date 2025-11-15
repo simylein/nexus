@@ -15,8 +15,9 @@ extern uint8_t most_workers;
 
 extern uint8_t uplinks_size;
 extern uint8_t downlinks_size;
+extern uint8_t schedules_size;
 
-extern char *bwt_key;
+extern const char *bwt_key;
 extern uint32_t bwt_ttl;
 
 extern const char *database_file;

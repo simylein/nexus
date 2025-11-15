@@ -7,6 +7,7 @@
 #include "../lib/logger.h"
 #include "airtime.h"
 #include "radio.h"
+#include "schedule.h"
 #include "spi.h"
 #include "sx1278.h"
 #include <errno.h>
@@ -319,13 +320,21 @@ void *radio_thread(void *args) {
 		uint8_t tx_data_len = 0;
 
 		tx_data[tx_data_len] = rx_data[0];
-		tx_data_len += 1;
+		tx_data_len += sizeof(rx_data[0]);
 		tx_data[tx_data_len] = rx_data[1];
-		tx_data_len += 1;
+		tx_data_len += sizeof(rx_data[1]);
 		tx_data[tx_data_len] = (uint8_t)((arg->radio->tx_power - 2) << 4) & 0xf0;
-		tx_data_len += 1;
-		tx_data[tx_data_len] = 0x00;
-		tx_data_len += 1;
+		tx_data_len += sizeof(uint8_t);
+		schedule_t schedule;
+		if (schedule_find(&schedule, (uint8_t (*)[2])(&rx_data[0])) == 0) {
+			tx_data[tx_data_len] = schedule.kind;
+			tx_data_len += sizeof(schedule.kind);
+			memcpy(&tx_data[tx_data_len], schedule.data, schedule.data_len);
+			tx_data_len += schedule.data_len;
+		} else {
+			tx_data[tx_data_len] = 0x00;
+			tx_data_len += sizeof(uint8_t);
+		}
 
 		if (sx1278_transmit(arg->fd, &tx_data, tx_data_len) == -1) {
 			error("failed to transmit packet\n");

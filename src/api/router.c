@@ -7,6 +7,7 @@
 #include "device.h"
 #include "host.h"
 #include "radio.h"
+#include "schedule.h"
 #include "user.h"
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -217,6 +218,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			host_remove(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "post", "/api/schedule", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			schedule_create(request, response);
 		}
 	}
 

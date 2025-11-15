@@ -5,6 +5,7 @@
 #include "app/downlink.h"
 #include "app/page.h"
 #include "app/radio.h"
+#include "app/schedule.h"
 #include "app/uplink.h"
 #include "lib/config.h"
 #include "lib/error.h"
@@ -175,6 +176,10 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	if (schedule_init() == -1) {
+		exit(1);
+	}
+
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
 		fatal("failed to create socket because %s\n", errno_str());
 		exit(1);
@@ -328,6 +333,8 @@ int main(int argc, char *argv[]) {
 
 	free(downlinks.worker.arg.hosts);
 	free(downlinks.ptr);
+
+	free(schedules.ptr);
 
 	info("graceful shutdown complete\n");
 	exit(0);
