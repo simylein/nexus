@@ -12,6 +12,8 @@ const report = (err) => {
 				return 'Forbidden';
 			case 404:
 				return 'Not Found';
+			case 409:
+				return 'Conflict';
 			case 405:
 				return 'Method Not Allowed';
 			case 414:
