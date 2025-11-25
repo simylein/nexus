@@ -20,10 +20,12 @@ typedef struct radio_t {
 } radio_t;
 
 typedef struct radio_query_t {
-	char *order;
-	uint8_t order_len;
-	char *sort;
-	uint8_t sort_len;
+	const char *order;
+	size_t order_len;
+	const char *sort;
+	size_t sort_len;
+	uint8_t limit;
+	uint32_t offset;
 } radio_query_t;
 
 extern const char *radio_table;

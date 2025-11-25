@@ -37,7 +37,8 @@ uint16_t host_select(sqlite3 *database, host_query_t *query, response_t *respons
 										"case when ?1 = 'username' and ?2 = 'asc' then host.username end asc, "
 										"case when ?1 = 'username' and ?2 = 'desc' then host.username end desc, "
 										"case when ?1 = 'password' and ?2 = 'asc' then host.password end asc, "
-										"case when ?1 = 'password' and ?2 = 'desc' then host.password end desc";
+										"case when ?1 = 'password' and ?2 = 'desc' then host.password end desc "
+										"limit ?3 offset ?4";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -46,8 +47,10 @@ uint16_t host_select(sqlite3 *database, host_query_t *query, response_t *respons
 		goto cleanup;
 	}
 
-	sqlite3_bind_text(stmt, 1, query->order, query->order_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, query->sort, query->sort_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 1, query->order, (uint8_t)query->order_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, query->sort, (uint8_t)query->sort_len, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 3, query->limit);
+	sqlite3_bind_int64(stmt, 4, query->offset);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -280,15 +283,13 @@ cleanup:
 }
 
 void host_find(sqlite3 *database, request_t *request, response_t *response) {
-	host_query_t query;
-	if (strnfind(request->search.ptr, request->search.len, "order=", "&", (const char **)&query.order, (size_t *)&query.order_len,
-							 16) == -1) {
+	host_query_t query = {.limit = 16, .offset = 0};
+	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
 		response->status = 400;
 		return;
 	}
 
-	if (strnfind(request->search.ptr, request->search.len, "sort=", "", (const char **)&query.sort, (size_t *)&query.sort_len,
-							 8) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "sort=", "", &query.sort, &query.sort_len, 8) == -1) {
 		response->status = 400;
 		return;
 	}

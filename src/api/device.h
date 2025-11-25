@@ -11,10 +11,12 @@ typedef struct device_t {
 } device_t;
 
 typedef struct device_query_t {
-	char *order;
-	uint8_t order_len;
-	char *sort;
-	uint8_t sort_len;
+	const char *order;
+	size_t order_len;
+	const char *sort;
+	size_t sort_len;
+	uint8_t limit;
+	uint32_t offset;
 } device_query_t;
 
 extern const char *device_table;

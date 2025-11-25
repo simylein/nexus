@@ -17,10 +17,12 @@ typedef struct host_t {
 } host_t;
 
 typedef struct host_query_t {
-	char *order;
-	uint8_t order_len;
-	char *sort;
-	uint8_t sort_len;
+	const char *order;
+	size_t order_len;
+	const char *sort;
+	size_t sort_len;
+	uint8_t limit;
+	uint32_t offset;
 } host_query_t;
 
 extern const char *host_table;
