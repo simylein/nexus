@@ -25,17 +25,7 @@
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
 			<div class="flex items-center justify-between">
 				<div></div>
-				<svg
-					id="create"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed"
-				>
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-				</svg>
+				<icon-create ref="./src/app/components/icon-create.html" id="create" class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed" />
 			</div>
 			<div class="overflow-x-auto scrollbar-none">
 				<table class="w-full text-nowrap border-collapse">
@@ -50,10 +40,8 @@
 								onclick="paintSorting('id'); loadHosts()"
 							>
 								Id
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3 w-3">
-									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-								</svg>
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="address"
@@ -61,8 +49,8 @@
 								onclick="paintSorting('address'); loadHosts()"
 							>
 								Address
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="port"
@@ -70,8 +58,8 @@
 								onclick="paintSorting('port'); loadHosts()"
 							>
 								Port
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="username"
@@ -79,8 +67,8 @@
 								onclick="paintSorting('username'); loadHosts()"
 							>
 								Username
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="password"
@@ -88,8 +76,8 @@
 								onclick="paintSorting('password'); loadHosts()"
 							>
 								Password
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
 						</tr>

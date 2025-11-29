@@ -37,20 +37,56 @@ recursion:
 		}
 
 		if (tag && !quote && *byte == ' ' && asset_ind + 6 < asset->len && memcmp(byte + 1, "ref=\"", 5) == 0) {
-			char path[65];
-			uint8_t path_len = 0;
+			char ref[65];
+			uint8_t ref_len = 0;
 			byte += 6;
 			asset_ind += 6;
-			char *start = byte;
+			char *ref_start = byte;
 			while (asset_ind < asset->len) {
-				if (*byte == '"' || path_len >= sizeof(path) - 1) {
+				if (*byte == '"' || ref_len >= sizeof(ref) - 1) {
 					break;
 				}
 				byte += 1;
-				path_len += 1;
+				ref_len += 1;
 				asset_ind += 1;
 			}
+			char id[32];
+			uint8_t id_len = 0;
+			char *id_start;
+			char class[128];
+			uint8_t class_len = 0;
+			char *class_start;
 			while (asset_ind < asset->len) {
+				if (*byte == ' ' && asset_ind + 5 < asset->len && memcmp(byte + 1, "id=\"", 4) == 0) {
+					byte += 5;
+					asset_ind += 5;
+					id_start = byte;
+					while (asset_ind < asset->len) {
+						if (*byte == '"' || id_len >= sizeof(id) - 1) {
+							break;
+						}
+						byte += 1;
+						id_len += 1;
+						asset_ind += 1;
+					}
+					memcpy(id, id_start, id_len);
+				}
+
+				if (*byte == ' ' && asset_ind + 8 < asset->len && memcmp(byte + 1, "class=\"", 7) == 0) {
+					byte += 8;
+					asset_ind += 8;
+					class_start = byte;
+					while (asset_ind < asset->len) {
+						if (*byte == '"' || class_len >= sizeof(class) - 1) {
+							break;
+						}
+						byte += 1;
+						class_len += 1;
+						asset_ind += 1;
+					}
+					memcpy(class, class_start, class_len);
+				}
+
 				if (*byte == '>') {
 					break;
 				}
@@ -58,14 +94,14 @@ recursion:
 				asset_ind += 1;
 			}
 
-			sprintf(path, "%.*s", path_len, start);
-			file_t component = {.fd = -1, .ptr = NULL, .path = path, .lock = PTHREAD_RWLOCK_INITIALIZER};
+			sprintf(ref, "%.*s", ref_len, ref_start);
+			file_t component = {.fd = -1, .ptr = NULL, .path = ref, .lock = PTHREAD_RWLOCK_INITIALIZER};
 			if (file(&component) == -1) {
 				return -1;
 			}
 
 			if (assemble_ind + component.len >= assemble_len) {
-				assemble_len += component.len;
+				assemble_len += component.len + id_len + class_len + 1;
 				char *assemble_ptr_new = realloc(assemble_ptr, assemble_len);
 				if (assemble_ptr_new == NULL) {
 					close(component.fd);
@@ -76,12 +112,50 @@ recursion:
 				assemble_ptr = assemble_ptr_new;
 			}
 
-			while (assemble_ind > 0 && assemble_ptr[assemble_ind] != '<') {
+			while (assemble_ind > 1 && assemble_ptr[assemble_ind - 1] != '<') {
 				assemble_ind -= 1;
 			}
+			assemble_ind -= 1;
 
-			memcpy(&assemble_ptr[assemble_ind], component.ptr, component.len);
-			assemble_ind += component.len;
+			bool id_done = false;
+			bool class_done = false;
+			size_t component_ind = 0;
+			while (component_ind < component.len) {
+				char *component_byte = &component.ptr[component_ind];
+
+				if (id_done == false && *component_byte == ' ' && component_ind + 5 < component.len &&
+						memcmp(component_byte + 1, "id=\"", 4) == 0) {
+					memcpy(&assemble_ptr[assemble_ind], component_byte, 5);
+					assemble_ind += 5;
+					component_ind += 5;
+					component_byte += 5;
+
+					memcpy(&assemble_ptr[assemble_ind], id_start, id_len);
+					assemble_ind += id_len;
+
+					id_done = true;
+				} else if (class_done == false && *component_byte == ' ' && component_ind + 8 < component.len &&
+									 memcmp(component_byte + 1, "class=\"", 7) == 0) {
+					memcpy(&assemble_ptr[assemble_ind], component_byte, 8);
+					assemble_ind += 8;
+					component_ind += 8;
+					component_byte += 8;
+
+					memcpy(&assemble_ptr[assemble_ind], class_start, class_len);
+					assemble_ind += class_len;
+
+					if (*component_byte != '"') {
+						assemble_ptr[assemble_ind] = ' ';
+						assemble_ind += 1;
+					}
+
+					class_done = true;
+				} else {
+					assemble_ptr[assemble_ind] = *component_byte;
+					assemble_ind += 1;
+					component_ind += 1;
+				}
+			}
 
 			for (size_t ind = 0; ind + 6 <= component.len; ind++) {
 				if (component.ptr[ind] == ' ' && memcmp(&component.ptr[ind + 1], "ref=\"", 5) == 0) {

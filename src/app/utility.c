@@ -74,6 +74,7 @@ void common(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 			 .val_len = 103},
 			{.key = "box-border", .key_len = 10, .val = "box-sizing:border-box", .val_len = 21},
 			{.key = "box-content", .key_len = 11, .val = "box-sizing:content-box", .val_len = 22},
+			{.key = "scheme-light-dark", .key_len = 17, .val = "color-scheme:light dark", .val_len = 23},
 	};
 
 	for (uint8_t index = 0; index < sizeof(commons) / sizeof(keymap_t); index++) {
