@@ -98,6 +98,15 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
+								id="preamble-len"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('preambleLen'); loadRadios()"
+							>
+								Preamble len
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th
 								id="sync-word"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="paintSorting('syncWord'); loadRadios()"
@@ -274,6 +283,19 @@
 						<p id="create-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
+						<label for="create-preamble-len" class="mb-2 text-base font-normal">Preamble len</label>
+						<input
+							id="create-preamble-len"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="preamble len"
+							autofocus
+							onchange="createForm.setValue('preambleLen', event.target.value)"
+							onblur="createForm.setTouched('preambleLen', true)"
+						/>
+						<p id="create-preamble-len-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
 						<label for="create-sync-word" class="mb-2 text-base font-normal">Sync word</label>
 						<input
 							id="create-sync-word"
@@ -439,6 +461,19 @@
 						<p id="update-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
+						<label for="update-preamble-len" class="mb-2 text-base font-normal">Preamble len</label>
+						<input
+							id="update-preamble-len"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="preamble len"
+							autofocus
+							onchange="updateForm.setValue('preambleLen', event.target.value)"
+							onblur="updateForm.setTouched('preambleLen', true)"
+						/>
+						<p id="update-preamble-len-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
 						<label for="update-sync-word" class="mb-2 text-base font-normal">Sync word</label>
 						<input
 							id="update-sync-word"
@@ -525,6 +560,7 @@
 			spreadingFactor: document.getElementById('spreading-factor'),
 			codingRate: document.getElementById('coding-rate'),
 			txPower: document.getElementById('tx-power'),
+			preambleLen: document.getElementById('preamble-len'),
 			syncWord: document.getElementById('sync-word'),
 			checksum: document.getElementById('checksum'),
 		};
@@ -564,13 +600,14 @@
 				fade(element.children[ind].children[6].children[0]);
 				loading(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
 				loading(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
-				loading(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
-				element.children[ind].children[9].children[0].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[9].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[9].children[0].children[0].onclick = null;
-				element.children[ind].children[9].children[0].children[1].classList.remove('cursor-pointer');
-				element.children[ind].children[9].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[9].children[0].children[1].onclick = null;
+				loading(element.children[ind].children[8].children[0], ['w-5', 'h-4'], [], '');
+				loading(element.children[ind].children[9].children[0], ['w-8', 'h-4'], [], '');
+				element.children[ind].children[10].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[10].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[10].children[0].children[0].onclick = null;
+				element.children[ind].children[10].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[10].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[10].children[0].children[1].onclick = null;
 			});
 		};
 		const paintRadios = (element, data) => {
@@ -593,14 +630,15 @@
 					paint(element.children[ind].children[6].children[0], [], ['w-5', 'h-4'], data[ind].txPower);
 					fade(element.children[ind].children[6].children[0]);
 					colorTxPower(element.children[ind].children[6].children[0], data[ind].txPower);
-					paint(element.children[ind].children[7].children[0], [], ['w-5', 'h-4'], data[ind].syncWord);
-					paint(element.children[ind].children[8].children[0], [], ['w-8', 'h-4'], data[ind].checksum);
-					element.children[ind].children[9].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[9].children[0].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[9].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
-					element.children[ind].children[9].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[9].children[0].children[1].classList.add('cursor-pointer');
-					element.children[ind].children[9].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
+					paint(element.children[ind].children[7].children[0], [], ['w-5', 'h-4'], data[ind].preambleLen);
+					paint(element.children[ind].children[8].children[0], [], ['w-5', 'h-4'], data[ind].syncWord);
+					paint(element.children[ind].children[9].children[0], [], ['w-8', 'h-4'], data[ind].checksum);
+					element.children[ind].children[10].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[10].children[0].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[10].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[10].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[10].children[0].children[1].classList.add('cursor-pointer');
+					element.children[ind].children[10].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -620,13 +658,14 @@
 				fade(element.children[ind].children[6].children[0]);
 				error(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
 				error(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
-				error(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
-				element.children[ind].children[9].children[0].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[9].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[9].children[0].children[0].onclick = null;
-				element.children[ind].children[9].children[0].children[1].classList.remove('cursor-pointer');
-				element.children[ind].children[9].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[9].children[0].children[1].onclick = null;
+				error(element.children[ind].children[8].children[0], ['w-5', 'h-4'], [], '');
+				error(element.children[ind].children[9].children[0], ['w-8', 'h-4'], [], '');
+				element.children[ind].children[10].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[10].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[10].children[0].children[0].onclick = null;
+				element.children[ind].children[10].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[10].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[10].children[0].children[1].onclick = null;
 			});
 		};
 		const parseRadios = async (response) => {
@@ -642,6 +681,7 @@
 					spreadingFactor: null,
 					codingRate: null,
 					txPower: null,
+					preambleLen: null,
 					syncWord: null,
 					checksum: null,
 				};
@@ -652,6 +692,7 @@
 				radio.spreadingFactor = binary.uint(8);
 				radio.codingRate = binary.uint(8);
 				radio.txPower = binary.uint(8);
+				radio.preambleLen = binary.uint(8);
 				radio.syncWord = binary.hex(1);
 				radio.checksum = binary.bool();
 				radios.push(radio);
@@ -736,6 +777,7 @@
 			highlightSpreadingFactor(document.getElementById('create-spreading-factors'), null);
 			highlightCodingRate(document.getElementById('create-coding-rates'), null);
 			document.getElementById('create-tx-power').value = '';
+			document.getElementById('create-preamble-len').value = '';
 			document.getElementById('create-sync-word').value = '';
 			createDialog.showModal();
 		};
@@ -757,6 +799,8 @@
 			highlightCodingRate(document.getElementById('update-coding-rates'), radio.codingRate);
 			updateForm.setValue('txPower', `${radio.txPower}`);
 			document.getElementById('update-tx-power').value = radio.txPower;
+			updateForm.setValue('preambleLen', `${radio.preambleLen}`);
+			document.getElementById('update-preamble-len').value = radio.preambleLen;
 			updateForm.setValue('syncWord', `${radio.syncWord}`);
 			document.getElementById('update-sync-word').value = radio.syncWord;
 			updateDialog.showModal();
@@ -783,6 +827,7 @@
 				spreadingFactor: document.getElementById('create-spreading-factor-validation'),
 				codingRate: document.getElementById('create-coding-rate-validation'),
 				txPower: document.getElementById('create-tx-power-validation'),
+				preambleLen: document.getElementById('create-preamble-len-validation'),
 				syncWord: document.getElementById('create-sync-word-validation'),
 			},
 			{
@@ -820,6 +865,12 @@
 					if (+value < 2) return 'tx power must be min 2';
 					if (+value > 17) return 'tx power must be max 17';
 				},
+				preambleLen: (value) => {
+					if (!value) return 'preamble len is required';
+					if (!value.match(/^[0-9]+$/)) return 'preamble len must be a number';
+					if (+value < 1) return 'preamble len must be min 1';
+					if (+value > 16) return 'preamble len must be max 16';
+				},
 				syncWord: (value) => {
 					if (!value) return 'sync word is required';
 					if (value.length !== 2) return 'sync word must be 2 characters';
@@ -827,14 +878,15 @@
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(12);
+				const bytes = new Uint8Array(13);
 				const view = new DataView(bytes.buffer);
 				view.setUint32(0, +values.frequency);
 				view.setUint32(4, +values.bandwidth);
 				view.setUint8(8, values.spreadingFactor);
 				view.setUint8(9, values.codingRate);
 				view.setUint8(10, values.txPower);
-				view.setUint8(11, parseInt(values.syncWord, 16));
+				view.setUint8(11, values.preambleLen);
+				view.setUint8(12, parseInt(values.syncWord, 16));
 				const data = new Blob([values.device, '\0', view]);
 				try {
 					await fetcher('post', '/api/radio', data, { headers: { 'content-type': 'application/octet-stream' } });
@@ -855,6 +907,7 @@
 				spreadingFactor: document.getElementById('update-spreading-factor-validation'),
 				codingRate: document.getElementById('update-coding-rate-validation'),
 				txPower: document.getElementById('update-tx-power-validation'),
+				preambleLen: document.getElementById('update-preamble-len-validation'),
 				syncWord: document.getElementById('update-sync-word-validation'),
 			},
 			{
@@ -897,6 +950,12 @@
 					if (+value < 2) return 'tx power must be min 2';
 					if (+value > 17) return 'tx power must be max 17';
 				},
+				preambleLen: (value) => {
+					if (!value) return 'preamble len is required';
+					if (!value.match(/^[0-9]+$/)) return 'preamble len must be a number';
+					if (+value < 1) return 'preamble len must be min 1';
+					if (+value > 16) return 'preamble len must be max 16';
+				},
 				syncWord: (value) => {
 					if (!value) return 'sync word is required';
 					if (value.length !== 2) return 'sync word must be 2 characters';
@@ -904,14 +963,15 @@
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(12);
+				const bytes = new Uint8Array(13);
 				const view = new DataView(bytes.buffer);
 				view.setUint32(0, +values.frequency);
 				view.setUint32(4, +values.bandwidth);
 				view.setUint8(8, values.spreadingFactor);
 				view.setUint8(9, values.codingRate);
 				view.setUint8(10, values.txPower);
-				view.setUint8(11, parseInt(values.syncWord, 16));
+				view.setUint8(11, values.preambleLen);
+				view.setUint8(12, parseInt(values.syncWord, 16));
 				const data = new Blob([values.device, '\0', view]);
 				try {
 					await fetcher('patch', `/api/radio/${values.id}`, data, { headers: { 'content-type': 'application/octet-stream' } });
