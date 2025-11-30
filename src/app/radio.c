@@ -293,7 +293,7 @@ void *radio_thread(void *args) {
 		uplink.snr = snr;
 		uplink.spreading_factor = arg->radio->spreading_factor;
 		uplink.tx_power = ((rx_data[2] >> 4) & 0x0f) + 2;
-		uplink.preamble_len = (rx_data[2] & 0x0f) + 1;
+		uplink.preamble_len = (rx_data[2] & 0x0f) + 6;
 		uplink.received_at = time(NULL);
 		memcpy(uplink.device_id, device->id, sizeof(*device->id));
 
@@ -323,8 +323,8 @@ void *radio_thread(void *args) {
 			}
 		}
 
-		if (arg->radio->preamble_len != (rx_data[2] & 0x0f) + 1) {
-			arg->radio->preamble_len = (rx_data[2] & 0x0f) + 1;
+		if (arg->radio->preamble_len != (rx_data[2] & 0x0f) + 6) {
+			arg->radio->preamble_len = (rx_data[2] & 0x0f) + 6;
 			if (sx1278_preamble_length(arg->fd, arg->radio->preamble_len) == -1) {
 				error("failed to set radio preamble length\n");
 			}
@@ -337,7 +337,7 @@ void *radio_thread(void *args) {
 		tx_data_len += sizeof(rx_data[0]);
 		tx_data[tx_data_len] = rx_data[1];
 		tx_data_len += sizeof(rx_data[1]);
-		tx_data[tx_data_len] = (uint8_t)((((arg->radio->tx_power - 2) << 4) & 0xf0) | ((arg->radio->preamble_len - 1) & 0x0f));
+		tx_data[tx_data_len] = (uint8_t)((((arg->radio->tx_power - 2) << 4) & 0xf0) | ((arg->radio->preamble_len - 6) & 0x0f));
 		tx_data_len += sizeof(tx_data[tx_data_len]);
 		schedule_t schedule;
 		if (schedule_find(&schedule, (uint8_t (*)[2])(&rx_data[0])) == 0) {
@@ -367,7 +367,7 @@ void *radio_thread(void *args) {
 		downlink.bandwidth = arg->radio->bandwidth;
 		downlink.spreading_factor = arg->radio->spreading_factor;
 		downlink.tx_power = ((tx_data[2] >> 4) & 0x0f) + 2;
-		downlink.preamble_len = (tx_data[2] & 0x0f) + 1;
+		downlink.preamble_len = (tx_data[2] & 0x0f) + 6;
 		downlink.sent_at = time(NULL);
 		memcpy(downlink.device_id, device->id, sizeof(*device->id));
 

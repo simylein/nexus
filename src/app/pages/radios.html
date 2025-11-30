@@ -868,8 +868,8 @@
 				preambleLen: (value) => {
 					if (!value) return 'preamble len is required';
 					if (!value.match(/^[0-9]+$/)) return 'preamble len must be a number';
-					if (+value < 1) return 'preamble len must be min 1';
-					if (+value > 16) return 'preamble len must be max 16';
+					if (+value < 6) return 'preamble len must be min 6';
+					if (+value > 21) return 'preamble len must be max 21';
 				},
 				syncWord: (value) => {
 					if (!value) return 'sync word is required';
@@ -953,8 +953,8 @@
 				preambleLen: (value) => {
 					if (!value) return 'preamble len is required';
 					if (!value.match(/^[0-9]+$/)) return 'preamble len must be a number';
-					if (+value < 1) return 'preamble len must be min 1';
-					if (+value > 16) return 'preamble len must be max 16';
+					if (+value < 6) return 'preamble len must be min 6';
+					if (+value > 21) return 'preamble len must be max 21';
 				},
 				syncWord: (value) => {
 					if (!value) return 'sync word is required';
