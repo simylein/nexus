@@ -19,6 +19,7 @@ const char *radio_schema = "create table radio ("
 													 "spreading_factor integer not null, "
 													 "coding_rate integer not null, "
 													 "tx_power integer not null, "
+													 "preamble_len integer not null, "
 													 "sync_word integer not null, "
 													 "checksum boolean not null"
 													 ")";
@@ -29,7 +30,8 @@ uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *respo
 
 	const char *sql = "select "
 										"radio.id, radio.device, radio.frequency, radio.bandwidth, "
-										"radio.spreading_factor, radio.coding_rate, radio.tx_power, radio.sync_word, radio.checksum "
+										"radio.spreading_factor, radio.coding_rate, radio.tx_power, "
+										"radio.preamble_len, radio.sync_word, radio.checksum "
 										"from radio "
 										"order by "
 										"case when ?1 = 'id' and ?2 = 'asc' then radio.id end asc, "
@@ -46,6 +48,8 @@ uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *respo
 										"case when ?1 = 'codingRate' and ?2 = 'desc' then radio.coding_rate end desc, "
 										"case when ?1 = 'txPower' and ?2 = 'asc' then radio.tx_power end asc, "
 										"case when ?1 = 'txPower' and ?2 = 'desc' then radio.tx_power end desc, "
+										"case when ?1 = 'preambleLen' and ?2 = 'asc' then radio.preamble_len end asc, "
+										"case when ?1 = 'preambleLen' and ?2 = 'desc' then radio.preamble_len end desc, "
 										"case when ?1 = 'syncWord' and ?2 = 'asc' then radio.sync_word end asc, "
 										"case when ?1 = 'syncWord' and ?2 = 'desc' then radio.sync_word end desc, "
 										"case when ?1 = 'checksum' and ?2 = 'asc' then radio.checksum end asc, "
@@ -81,8 +85,9 @@ uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *respo
 			const uint8_t spreading_factor = (uint8_t)sqlite3_column_int(stmt, 4);
 			const uint8_t coding_rate = (uint8_t)sqlite3_column_int(stmt, 5);
 			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 6);
-			const uint8_t sync_word = (uint8_t)sqlite3_column_int(stmt, 7);
-			const bool checksum = (bool)sqlite3_column_int(stmt, 8);
+			const uint8_t preamble_len = (uint8_t)sqlite3_column_int(stmt, 7);
+			const uint8_t sync_word = (uint8_t)sqlite3_column_int(stmt, 8);
+			const bool checksum = (bool)sqlite3_column_int(stmt, 9);
 			body_write(response, id, id_len);
 			body_write(response, device, device_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
@@ -91,6 +96,7 @@ uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *respo
 			body_write(response, &spreading_factor, sizeof(spreading_factor));
 			body_write(response, &coding_rate, sizeof(coding_rate));
 			body_write(response, &tx_power, sizeof(tx_power));
+			body_write(response, &preamble_len, sizeof(preamble_len));
 			body_write(response, &sync_word, sizeof(sync_word));
 			body_write(response, &checksum, sizeof(checksum));
 			*radios_len += 1;
@@ -161,6 +167,12 @@ int radio_parse(radio_t *radio, request_t *request) {
 	}
 	radio->tx_power = *(uint8_t *)body_read(request, sizeof(radio->tx_power));
 
+	if (request->body.len < request->body.pos + sizeof(radio->preamble_len)) {
+		debug("missing preamble len on radio\n");
+		return -1;
+	}
+	radio->preamble_len = *(uint8_t *)body_read(request, sizeof(radio->preamble_len));
+
 	if (request->body.len < request->body.pos + sizeof(radio->sync_word)) {
 		debug("missing sync word on radio\n");
 		return -1;
@@ -201,6 +213,11 @@ int radio_validate(radio_t *radio) {
 		return -1;
 	}
 
+	if (radio->preamble_len < 1 || radio->preamble_len > 16) {
+		debug("invalid preamble len %hhu on radio\n", radio->preamble_len);
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -209,8 +226,8 @@ uint16_t radio_insert(sqlite3 *database, radio_t *radio) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "insert into radio (id, device, frequency, bandwidth, "
-										"spreading_factor, coding_rate, tx_power, sync_word, checksum) "
-										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?) returning id";
+										"spreading_factor, coding_rate, tx_power, preamble_len, sync_word, checksum) "
+										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -225,8 +242,9 @@ uint16_t radio_insert(sqlite3 *database, radio_t *radio) {
 	sqlite3_bind_int(stmt, 4, radio->spreading_factor);
 	sqlite3_bind_int(stmt, 5, radio->coding_rate);
 	sqlite3_bind_int(stmt, 6, radio->tx_power);
-	sqlite3_bind_int(stmt, 7, radio->sync_word);
-	sqlite3_bind_int(stmt, 8, radio->checksum);
+	sqlite3_bind_int(stmt, 7, radio->preamble_len);
+	sqlite3_bind_int(stmt, 8, radio->sync_word);
+	sqlite3_bind_int(stmt, 9, radio->checksum);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
@@ -259,7 +277,7 @@ uint16_t radio_update(sqlite3 *database, radio_t *radio) {
 
 	const char *sql = "update radio "
 										"set device = ?, frequency = ?, bandwidth = ?, "
-										"spreading_factor = ?, coding_rate = ?, tx_power = ?, "
+										"spreading_factor = ?, coding_rate = ?, tx_power = ?, preamble_len = ?, "
 										"sync_word = ?, checksum = ? "
 										"where id = ?";
 	debug("%s\n", sql);
@@ -276,9 +294,10 @@ uint16_t radio_update(sqlite3 *database, radio_t *radio) {
 	sqlite3_bind_int(stmt, 4, radio->spreading_factor);
 	sqlite3_bind_int(stmt, 5, radio->coding_rate);
 	sqlite3_bind_int(stmt, 6, radio->tx_power);
-	sqlite3_bind_int(stmt, 7, radio->sync_word);
-	sqlite3_bind_int(stmt, 8, radio->checksum);
-	sqlite3_bind_blob(stmt, 9, *radio->id, sizeof(*radio->id), SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 7, radio->preamble_len);
+	sqlite3_bind_int(stmt, 8, radio->sync_word);
+	sqlite3_bind_int(stmt, 9, radio->checksum);
+	sqlite3_bind_blob(stmt, 10, *radio->id, sizeof(*radio->id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {

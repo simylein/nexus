@@ -8,6 +8,7 @@ int sx1278_standby(int fd);
 
 int sx1278_frequency(int fd, uint32_t frequency);
 int sx1278_tx_power(int fd, uint8_t power);
+int sx1278_preamble_length(int fd, uint16_t len);
 int sx1278_coding_rate(int fd, uint8_t cr);
 int sx1278_bandwidth(int fd, uint32_t bandwidth);
 int sx1278_spreading_factor(int fd, uint8_t sf);

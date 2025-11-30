@@ -31,7 +31,8 @@ int radio_init(sqlite3 *database) {
 
 	const char *sql_radio = "select "
 													"radio.id, radio.device, radio.frequency, radio.bandwidth, "
-													"radio.spreading_factor, radio.coding_rate, radio.tx_power, radio.sync_word, radio.checksum "
+													"radio.spreading_factor, radio.coding_rate, radio.tx_power, "
+													"radio.preamble_len, radio.sync_word, radio.checksum "
 													"from radio "
 													"order by device asc";
 	debug("%s\n", sql_radio);
@@ -80,8 +81,9 @@ int radio_init(sqlite3 *database) {
 			comms.radios[comms.radios_len].spreading_factor = (uint8_t)sqlite3_column_int(stmt_radio, 4);
 			comms.radios[comms.radios_len].coding_rate = (uint8_t)sqlite3_column_int(stmt_radio, 5);
 			comms.radios[comms.radios_len].tx_power = (uint8_t)sqlite3_column_int(stmt_radio, 6);
-			comms.radios[comms.radios_len].sync_word = (uint8_t)sqlite3_column_int(stmt_radio, 7);
-			comms.radios[comms.radios_len].checksum = (bool)sqlite3_column_int(stmt_radio, 8);
+			comms.radios[comms.radios_len].preamble_len = (uint8_t)sqlite3_column_int(stmt_radio, 7);
+			comms.radios[comms.radios_len].sync_word = (uint8_t)sqlite3_column_int(stmt_radio, 8);
+			comms.radios[comms.radios_len].checksum = (bool)sqlite3_column_int(stmt_radio, 9);
 			comms.radios_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -215,6 +217,10 @@ void *radio_thread(void *args) {
 		error("failed to set radio tx power\n");
 	}
 
+	if (sx1278_preamble_length(arg->fd, arg->radio->preamble_len) == -1) {
+		error("failed to set radio preamble length\n");
+	}
+
 	if (sx1278_coding_rate(arg->fd, arg->radio->coding_rate) == -1) {
 		error("failed to set radio coding rate\n");
 	}
@@ -287,6 +293,7 @@ void *radio_thread(void *args) {
 		uplink.snr = snr;
 		uplink.spreading_factor = arg->radio->spreading_factor;
 		uplink.tx_power = ((rx_data[2] >> 4) & 0x0f) + 2;
+		uplink.preamble_len = (rx_data[2] & 0x0f) + 1;
 		uplink.received_at = time(NULL);
 		memcpy(uplink.device_id, device->id, sizeof(*device->id));
 
@@ -316,6 +323,13 @@ void *radio_thread(void *args) {
 			}
 		}
 
+		if (arg->radio->preamble_len != (rx_data[2] & 0x0f) + 1) {
+			arg->radio->preamble_len = (rx_data[2] & 0x0f) + 1;
+			if (sx1278_preamble_length(arg->fd, arg->radio->preamble_len) == -1) {
+				error("failed to set radio preamble length\n");
+			}
+		}
+
 		uint8_t tx_data[256];
 		uint8_t tx_data_len = 0;
 
@@ -323,8 +337,8 @@ void *radio_thread(void *args) {
 		tx_data_len += sizeof(rx_data[0]);
 		tx_data[tx_data_len] = rx_data[1];
 		tx_data_len += sizeof(rx_data[1]);
-		tx_data[tx_data_len] = (uint8_t)((arg->radio->tx_power - 2) << 4) & 0xf0;
-		tx_data_len += sizeof(uint8_t);
+		tx_data[tx_data_len] = (uint8_t)((((arg->radio->tx_power - 2) << 4) & 0xf0) | ((arg->radio->preamble_len - 1) & 0x0f));
+		tx_data_len += sizeof(tx_data[tx_data_len]);
 		schedule_t schedule;
 		if (schedule_find(&schedule, (uint8_t (*)[2])(&rx_data[0])) == 0) {
 			tx_data[tx_data_len] = schedule.kind;
@@ -353,6 +367,7 @@ void *radio_thread(void *args) {
 		downlink.bandwidth = arg->radio->bandwidth;
 		downlink.spreading_factor = arg->radio->spreading_factor;
 		downlink.tx_power = ((tx_data[2] >> 4) & 0x0f) + 2;
+		downlink.preamble_len = (tx_data[2] & 0x0f) + 1;
 		downlink.sent_at = time(NULL);
 		memcpy(downlink.device_id, device->id, sizeof(*device->id));
 

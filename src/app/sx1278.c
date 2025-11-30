@@ -19,6 +19,8 @@ const uint8_t reg_irq_flags = 0x12;
 const uint8_t reg_packet_len = 0x13;
 const uint8_t reg_packet_snr = 0x19;
 const uint8_t reg_packet_rssi = 0x1a;
+const uint8_t reg_preamble_msb = 0x20;
+const uint8_t reg_preamble_lsb = 0x21;
 const uint8_t reg_payload_len = 0x22;
 const uint8_t reg_modem_config_1 = 0x1d;
 const uint8_t reg_modem_config_2 = 0x1e;
@@ -151,6 +153,33 @@ int sx1278_tx_power(int fd, uint8_t power) {
 	}
 
 	trace("tx power %hhudbm pa_config 0x%02x\n", power, value);
+	return 0;
+}
+
+int sx1278_preamble_length(int fd, uint16_t len) {
+	if (len < 1 || len > 16) {
+		error("preamble length must be between %d and %d\n", 1, 16);
+		return -1;
+	}
+
+	uint8_t msb = (uint8_t)((len >> 8) & 0xff);
+	uint8_t lsb = (uint8_t)(len & 0xff);
+
+	if (spi_write_register(fd, reg_preamble_msb, msb) == -1) {
+		return -1;
+	}
+	if (spi_write_register(fd, reg_preamble_lsb, lsb) == -1) {
+		return -1;
+	}
+
+	if (spi_read_register(fd, reg_preamble_msb, &msb) == -1) {
+		return -1;
+	}
+	if (spi_read_register(fd, reg_preamble_lsb, &lsb) == -1) {
+		return -1;
+	}
+
+	trace("preamble length %hu preamble 0x%02x%02x\n", len, msb, lsb);
 	return 0;
 }
 

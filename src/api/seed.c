@@ -68,6 +68,7 @@ int seed_radio(sqlite3 *database) {
 				.spreading_factor = 7 + index,
 				.coding_rate = 5,
 				.tx_power = 2,
+				.preamble_len = 8,
 				.sync_word = 0x12,
 				.checksum = true,
 		};

@@ -15,6 +15,7 @@ typedef struct radio_t {
 	uint8_t spreading_factor;
 	uint8_t coding_rate;
 	uint8_t tx_power;
+	uint8_t preamble_len;
 	uint8_t sync_word;
 	bool checksum;
 } radio_t;

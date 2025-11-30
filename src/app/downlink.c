@@ -238,6 +238,8 @@ int downlink_create(downlink_t *downlink, host_t *host, cookie_t *cookie) {
 	request.body.len += sizeof(downlink->spreading_factor);
 	memcpy(&request.body.ptr[request.body.len], &downlink->tx_power, sizeof(downlink->tx_power));
 	request.body.len += sizeof(downlink->tx_power);
+	memcpy(&request.body.ptr[request.body.len], &downlink->preamble_len, sizeof(downlink->preamble_len));
+	request.body.len += sizeof(downlink->preamble_len);
 	memcpy(&request.body.ptr[request.body.len], &(time_t[]){(time_t)hton64((uint64_t)downlink->sent_at)},
 				 sizeof(downlink->sent_at));
 	request.body.len += sizeof(downlink->sent_at);
