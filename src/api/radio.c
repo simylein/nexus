@@ -179,6 +179,12 @@ int radio_parse(radio_t *radio, request_t *request) {
 	}
 	radio->sync_word = *(uint8_t *)body_read(request, sizeof(radio->sync_word));
 
+	if (request->body.len < request->body.pos + sizeof(radio->checksum)) {
+		debug("missing checksum on radio\n");
+		return -1;
+	}
+	radio->checksum = *(bool *)body_read(request, sizeof(radio->checksum));
+
 	if (request->body.len != request->body.pos) {
 		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
 		return -1;
@@ -198,7 +204,7 @@ int radio_validate(radio_t *radio) {
 		return -1;
 	}
 
-	if (radio->spreading_factor < 7 || radio->spreading_factor > 12) {
+	if (radio->spreading_factor < 6 || radio->spreading_factor > 12) {
 		debug("invalid spreading factor %hhu on radio\n", radio->spreading_factor);
 		return -1;
 	}
