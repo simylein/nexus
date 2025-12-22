@@ -17,6 +17,7 @@ typedef struct uplink_t {
 	int16_t rssi;
 	int8_t snr;
 	uint8_t spreading_factor;
+	uint8_t coding_rate;
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	time_t received_at;

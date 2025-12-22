@@ -292,6 +292,7 @@ void *radio_thread(void *args) {
 		uplink.rssi = rssi;
 		uplink.snr = snr;
 		uplink.spreading_factor = arg->radio->spreading_factor;
+		uplink.coding_rate = arg->radio->coding_rate;
 		uplink.tx_power = ((rx_data[2] >> 4) & 0x0f) + 2;
 		uplink.preamble_len = (rx_data[2] & 0x0f) + 6;
 		uplink.received_at = time(NULL);
@@ -366,6 +367,7 @@ void *radio_thread(void *args) {
 		downlink.frequency = arg->radio->frequency;
 		downlink.bandwidth = arg->radio->bandwidth;
 		downlink.spreading_factor = arg->radio->spreading_factor;
+		downlink.coding_rate = arg->radio->coding_rate;
 		downlink.tx_power = ((tx_data[2] >> 4) & 0x0f) + 2;
 		downlink.preamble_len = (tx_data[2] & 0x0f) + 6;
 		downlink.sent_at = time(NULL);

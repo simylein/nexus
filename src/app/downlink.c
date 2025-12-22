@@ -236,6 +236,8 @@ int downlink_create(downlink_t *downlink, host_t *host, cookie_t *cookie) {
 	request.body.len += sizeof(downlink->bandwidth);
 	memcpy(&request.body.ptr[request.body.len], &downlink->spreading_factor, sizeof(downlink->spreading_factor));
 	request.body.len += sizeof(downlink->spreading_factor);
+	memcpy(&request.body.ptr[request.body.len], &downlink->coding_rate, sizeof(downlink->coding_rate));
+	request.body.len += sizeof(downlink->coding_rate);
 	memcpy(&request.body.ptr[request.body.len], &downlink->tx_power, sizeof(downlink->tx_power));
 	request.body.len += sizeof(downlink->tx_power);
 	memcpy(&request.body.ptr[request.body.len], &downlink->preamble_len, sizeof(downlink->preamble_len));
