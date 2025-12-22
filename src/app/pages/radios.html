@@ -597,6 +597,7 @@
 		import './src/app/scripts/color-sf.js';
 		import './src/app/scripts/color-cr.js';
 		import './src/app/scripts/color-tx-power.js';
+		import './src/app/scripts/color-preamble-len.js';
 		import './src/app/scripts/color-checksum.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
@@ -654,6 +655,7 @@
 				loading(element.children[ind].children[5].children[0], ['w-7', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
 				loading(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
 				loading(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
 				loading(element.children[ind].children[8].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[9].children[0]);
@@ -687,6 +689,8 @@
 					fade(element.children[ind].children[6].children[0]);
 					colorTxPower(element.children[ind].children[6].children[0], data[ind].txPower);
 					paint(element.children[ind].children[7].children[0], [], ['w-5', 'h-4'], data[ind].preambleLen);
+					fade(element.children[ind].children[7].children[0]);
+					colorPreambleLen(element.children[ind].children[7].children[0], data[ind].preambleLen);
 					paint(element.children[ind].children[8].children[0], [], ['w-5', 'h-4'], data[ind].syncWord);
 					paint(element.children[ind].children[9].children[0], [], ['w-8', 'h-4'], data[ind].checksum);
 					fade(element.children[ind].children[9].children[0]);
@@ -715,6 +719,7 @@
 				error(element.children[ind].children[5].children[0], ['w-7', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
 				error(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
 				error(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
 				error(element.children[ind].children[8].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[9].children[0]);
