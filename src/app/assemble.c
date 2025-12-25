@@ -144,7 +144,7 @@ recursion:
 					memcpy(&assemble_ptr[assemble_ind], class_start, class_len);
 					assemble_ind += class_len;
 
-					if (*component_byte != '"') {
+					if (class_len != 0 && *component_byte != '"') {
 						assemble_ptr[assemble_ind] = ' ';
 						assemble_ind += 1;
 					}
