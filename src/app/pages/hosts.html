@@ -148,7 +148,7 @@
 						<label for="create-password" class="mb-2 text-base font-normal">Password</label>
 						<input
 							id="create-password"
-							type="text"
+							type="password"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="password"
 							autofocus
@@ -221,7 +221,7 @@
 						<label for="update-password" class="mb-2 text-base font-normal">Password</label>
 						<input
 							id="update-password"
-							type="text"
+							type="password"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="password"
 							autofocus
@@ -353,7 +353,7 @@
 					paint(element.children[ind].children[1].children[0], [], ['w-20', 'h-4'], data[ind].address);
 					paint(element.children[ind].children[2].children[0], [], ['w-12', 'h-4'], data[ind].port);
 					paint(element.children[ind].children[3].children[0], [], ['w-16', 'h-4'], data[ind].username);
-					paint(element.children[ind].children[4].children[0], [], ['w-32', 'h-4'], data[ind].password);
+					paint(element.children[ind].children[4].children[0], [], ['w-32', 'h-4'], data[ind].password.replace(/./g, '*'));
 					element.children[ind].children[5].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
 					element.children[ind].children[5].children[0].children[0].classList.add('cursor-pointer');
 					element.children[ind].children[5].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
