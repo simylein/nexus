@@ -30,8 +30,10 @@ extern const char *host_schema;
 
 uint16_t host_select(sqlite3 *database, host_query_t *query, response_t *response, uint8_t *hosts_len);
 uint16_t host_insert(sqlite3 *database, host_t *host);
+uint16_t host_update(sqlite3 *database, host_t *host);
 uint16_t host_delete(sqlite3 *database, host_t *host);
 
 void host_find(sqlite3 *database, request_t *request, response_t *response);
 void host_create(sqlite3 *database, request_t *request, response_t *response);
+void host_modify(sqlite3 *database, request_t *request, response_t *response);
 void host_remove(sqlite3 *database, request_t *request, response_t *response);
