@@ -2,8 +2,10 @@
 
 #include "../api/device.h"
 #include "../api/radio.h"
+#include "../lib/response.h"
 #include <pthread.h>
 #include <sqlite3.h>
+#include <stdint.h>
 
 typedef struct radio_arg_t {
 	int fd;
@@ -30,3 +32,4 @@ extern struct comms_t comms;
 int radio_init(sqlite3 *database);
 int radio_spawn(pthread_t *thread, void *(*function)(void *), radio_arg_t *arg);
 void *radio_thread(void *args);
+void radio_reload(sqlite3 *database, response_t *response);

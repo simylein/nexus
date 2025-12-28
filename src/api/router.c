@@ -1,4 +1,5 @@
 #include "../app/page.h"
+#include "../app/radio.h"
 #include "../app/serve.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
@@ -148,6 +149,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			radio_find(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "reload", "/api/radios", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			radio_reload(database, response);
 		}
 	}
 

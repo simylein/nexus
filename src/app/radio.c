@@ -5,17 +5,20 @@
 #include "../lib/config.h"
 #include "../lib/error.h"
 #include "../lib/logger.h"
+#include "../lib/response.h"
 #include "airtime.h"
 #include "radio.h"
 #include "schedule.h"
 #include "spi.h"
 #include "sx1278.h"
 #include <errno.h>
+#include <pthread.h>
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 comms_t comms = {
 		.radios = NULL,
@@ -388,4 +391,43 @@ void *radio_thread(void *args) {
 		pthread_cond_signal(&downlinks.filled);
 		pthread_mutex_unlock(&downlinks.lock);
 	}
+}
+
+void radio_reload(sqlite3 *database, response_t *response) {
+	for (uint8_t index = 0; index < comms.radios_len; index++) {
+		if (pthread_cancel(comms.workers[index].thread) == -1) {
+			error("failed to cancel radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
+		};
+		trace("waiting for radio %02x%02x to finish\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
+		if (pthread_join(comms.workers[index].thread, NULL) == -1) {
+			error("failed to join radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
+		}
+		if (close(comms.workers[index].arg.fd) == -1) {
+			error("failed to close ioctl because %s\n", errno_str());
+		}
+		free(comms.radios[index].id);
+		free(comms.radios[index].device);
+	}
+
+	for (uint8_t index = 0; index < comms.devices_len; index++) {
+		free(comms.devices[index].id);
+		free(comms.devices[index].tag);
+	}
+
+	free(comms.workers);
+	comms.workers = NULL;
+	free(comms.radios);
+	comms.radios = NULL;
+	comms.radios_len = 0;
+	free(comms.devices);
+	comms.devices = NULL;
+	comms.devices_len = 0;
+
+	if (radio_init(database) == -1) {
+		response->status = 500;
+		return;
+	}
+
+	info("reloaded radios\n");
+	response->status = 200;
 }
