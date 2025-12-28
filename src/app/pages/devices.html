@@ -475,6 +475,7 @@
 				},
 				data: (value) => {
 					if (value && value.length > 32) return 'data is too long';
+					if (value && value.length % 2 !== 0) return 'data must be even number of characters';
 					if (value && !value.match(/^[0-9a-f]+$/)) return 'data must be lowercase hexadecimal';
 				},
 				deviceId: (value) => {
