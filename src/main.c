@@ -313,6 +313,12 @@ int main(int argc, char *argv[]) {
 		error("failed to join uplink thread\n");
 	}
 
+	for (uint8_t index = 0; index < uplinks.worker.arg.hosts_len; index++) {
+		free(uplinks.worker.arg.hosts[index].id);
+		free(uplinks.worker.arg.hosts[index].address);
+		free(uplinks.worker.arg.hosts[index].username);
+		free(uplinks.worker.arg.hosts[index].password);
+	}
 	free(uplinks.worker.arg.hosts);
 	free(uplinks.ptr);
 
@@ -331,6 +337,12 @@ int main(int argc, char *argv[]) {
 		error("failed to join downlink thread\n");
 	}
 
+	for (uint8_t index = 0; index < downlinks.worker.arg.hosts_len; index++) {
+		free(downlinks.worker.arg.hosts[index].id);
+		free(downlinks.worker.arg.hosts[index].address);
+		free(downlinks.worker.arg.hosts[index].username);
+		free(downlinks.worker.arg.hosts[index].password);
+	}
 	free(downlinks.worker.arg.hosts);
 	free(downlinks.ptr);
 
