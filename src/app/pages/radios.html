@@ -25,7 +25,10 @@
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
 			<div class="flex items-center justify-between">
 				<div></div>
-				<icon-create ref="./src/app/components/icon-create.html" id="create" class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed" />
+				<div class="flex gap-2 sm:gap-3 lg:gap-4">
+					<icon-create ref="./src/app/components/icon-create.html" id="create" class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed" />
+					<icon-arrow-path ref="./src/app/components/icon-arrow-path.html" id="reload" class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed" />
+				</div>
 			</div>
 			<div class="overflow-x-auto scrollbar-none">
 				<table class="w-full text-nowrap border-collapse">
@@ -352,6 +355,27 @@
 					</div>
 				</form>
 			</dialog>
+			<dialog id="reload-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="reloadForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Reload radios?</h1>
+					<p class="m-0 text-base font-normal">Reloading all radios will make radio and device configuration changes take effect.</p>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="reload-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 outline-none cursor-pointer"
+						>
+							Reload
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeReloadDialog()"
+						>
+							Cancel
+						</button>
+				</form>
+			</dialog>
 			<dialog id="update-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
 				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Update radio?</h1>
@@ -607,6 +631,7 @@
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
 		const create = document.getElementById('create');
+		const reload = document.getElementById('reload');
 		const radios = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('radios') };
 		const columns = {
 			id: document.getElementById('id'),
@@ -644,6 +669,9 @@
 			create.classList.remove('cursor-pointer');
 			create.classList.add('opacity-50', 'cursor-not-allowed');
 			create.onclick = null;
+			reload.classList.remove('cursor-pointer');
+			reload.classList.add('opacity-50', 'cursor-not-allowed');
+			reload.onclick = null;
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
@@ -672,6 +700,9 @@
 			create.classList.remove('opacity-50', 'cursor-not-allowed');
 			create.classList.add('cursor-pointer');
 			create.onclick = () => openCreateDialog();
+			reload.classList.remove('opacity-50', 'cursor-not-allowed');
+			reload.classList.add('cursor-pointer');
+			reload.onclick = () => openReloadDialog();
 			resize(element, data.length > 0 ? data.length : 1);
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
@@ -708,6 +739,9 @@
 			create.classList.remove('cursor-pointer');
 			create.classList.add('opacity-50', 'cursor-not-allowed');
 			create.onclick = null;
+			reload.classList.remove('cursor-pointer');
+			reload.classList.add('opacity-50', 'cursor-not-allowed');
+			reload.onclick = null;
 			array(element.children.length).forEach((ind) => {
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
@@ -851,6 +885,7 @@
 			}
 		};
 		const createDialog = document.getElementById('create-dialog');
+		const reloadDialog = document.getElementById('reload-dialog');
 		const updateDialog = document.getElementById('update-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
 		let radio = null;
@@ -869,6 +904,12 @@
 		const closeCreateDialog = () => {
 			createForm.reset();
 			createDialog.close();
+		};
+		const openReloadDialog = () => {
+			reloadDialog.showModal();
+		};
+		const closeReloadDialog = () => {
+			reloadDialog.close();
 		};
 		const openUpdateDialog = (radio) => {
 			updateForm.setValue('id', radio.id);
@@ -989,6 +1030,21 @@
 					report(err);
 				}
 				closeCreateDialog();
+			}
+		);
+		const reloadForm = formik(
+			{
+				button: document.getElementById('reload-button'),
+			},
+			{},
+			async (values) => {
+				try {
+					await fetcher('reload', '/api/radios', null, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully reloaded radios');
+				} catch (err) {
+					report(err);
+				}
+				closeReloadDialog();
 			}
 		);
 		const updateForm = formik(
