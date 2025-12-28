@@ -121,6 +121,53 @@
 					</div>
 				</form>
 			</dialog>
+			<dialog id="downlink-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="downlinkForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Send downlink to device?</h1>
+					<div class="w-full flex flex-col items-start">
+						<label for="downlink-kind" class="mb-2 text-base font-normal">Kind</label>
+						<input
+							id="downlink-kind"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="kind"
+							autofocus
+							onchange="downlinkForm.setValue('kind', event.target.value)"
+							onblur="downlinkForm.setTouched('kind', true)"
+						/>
+						<p id="downlink-kind-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="downlink-data" class="mb-2 text-base font-normal">Data</label>
+						<input
+							id="downlink-data"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="data"
+							autofocus
+							onchange="downlinkForm.setValue('data', event.target.value)"
+							onblur="downlinkForm.setTouched('data', true)"
+						/>
+						<p id="downlink-data-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="downlink-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-green-300 dark:background-green-700 outline-none cursor-pointer"
+						>
+							Send
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeDownlinkDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
 			<dialog id="update-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
 				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Update device?</h1>
@@ -253,6 +300,9 @@
 				element.children[ind].children[2].children[0].children[1].classList.remove('cursor-pointer');
 				element.children[ind].children[2].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
 				element.children[ind].children[2].children[0].children[1].onclick = null;
+				element.children[ind].children[2].children[0].children[2].classList.remove('cursor-pointer');
+				element.children[ind].children[2].children[0].children[2].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[2].children[0].children[2].onclick = null;
 			});
 		};
 		const paintDevices = (element, data) => {
@@ -266,10 +316,13 @@
 					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4'], data[ind].tag);
 					element.children[ind].children[2].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
 					element.children[ind].children[2].children[0].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[2].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[2].children[0].children[0].onclick = () => openDownlinkDialog(data[ind]);
 					element.children[ind].children[2].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
 					element.children[ind].children[2].children[0].children[1].classList.add('cursor-pointer');
-					element.children[ind].children[2].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
+					element.children[ind].children[2].children[0].children[1].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[2].children[0].children[2].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[2].children[0].children[2].classList.add('cursor-pointer');
+					element.children[ind].children[2].children[0].children[2].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -286,6 +339,9 @@
 				element.children[ind].children[2].children[0].children[1].classList.remove('cursor-pointer');
 				element.children[ind].children[2].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
 				element.children[ind].children[2].children[0].children[1].onclick = null;
+				element.children[ind].children[2].children[0].children[2].classList.remove('cursor-pointer');
+				element.children[ind].children[2].children[0].children[2].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[2].children[0].children[2].onclick = null;
 			});
 		};
 		const parseDevices = async (response) => {
@@ -322,6 +378,7 @@
 			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
 		);
 		const createDialog = document.getElementById('create-dialog');
+		const downlinkDialog = document.getElementById('downlink-dialog');
 		const updateDialog = document.getElementById('update-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
 		let device = null;
@@ -333,6 +390,17 @@
 		const closeCreateDialog = () => {
 			createForm.reset();
 			createDialog.close();
+		};
+		const openDownlinkDialog = (device) => {
+			document.getElementById('downlink-kind').value = '';
+			document.getElementById('downlink-data').value = '';
+			downlinkForm.setValue('deviceId', device.id);
+			downlinkForm.setTouched('deviceId', true);
+			downlinkDialog.showModal();
+		};
+		const closeDownlinkDialog = () => {
+			downlinkForm.reset();
+			downlinkDialog.close();
 		};
 		const openUpdateDialog = (device) => {
 			updateForm.setValue('id', device.id);
@@ -391,6 +459,48 @@
 					report(err);
 				}
 				closeCreateDialog();
+			}
+		);
+		const downlinkForm = formik(
+			{
+				button: document.getElementById('downlink-button'),
+				kind: document.getElementById('downlink-kind-validation'),
+				data: document.getElementById('downlink-data-validation'),
+			},
+			{
+				kind: (value) => {
+					if (!value) return 'kind is required';
+					if (value.length !== 2) return 'kind must be 2 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'kind must be lowercase hexadecimal';
+				},
+				data: (value) => {
+					if (value && value.length > 32) return 'data is too long';
+					if (value && !value.match(/^[0-9a-f]+$/)) return 'data must be lowercase hexadecimal';
+				},
+				deviceId: (value) => {
+					if (!value) return 'device id is required';
+					if (value.length !== 32) return 'device id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(1 + 1 + (values.data?.length ?? 0) / 2 + values.deviceId.length / 2);
+				bytes[0] = parseInt(values.kind, 16);
+				bytes[1] = (values.data?.length ?? 0) / 2;
+				for (let ind = 0; ind < (values.data?.length ?? 0) / 2; ind++) {
+					bytes[1 + 1 + ind] = parseInt(values.data.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				for (let ind = 0; ind < values.deviceId.length / 2; ind++) {
+					bytes[1 + 1 + (values.data?.length ?? 0) / 2 + ind] = parseInt(values.deviceId.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				const data = new Blob([bytes]);
+				try {
+					await fetcher('post', '/api/schedule', data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully created downlink for device ${values.deviceId.substring(0, 4)}`);
+				} catch (err) {
+					report(err);
+				}
+				closeDownlinkDialog();
 			}
 		);
 		const updateForm = formik(
