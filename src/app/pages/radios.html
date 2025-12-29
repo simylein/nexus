@@ -150,192 +150,198 @@
 					</tbody>
 				</table>
 			</div>
-			<dialog id="create-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+			<dialog id="create-dialog" class="w-full max-w-96 lg:max-w-md p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
 				<form class="m-4 flex flex-col gap-4" onsubmit="createForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Create radio?</h1>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-device" class="mb-2 text-base font-normal">Device</label>
-						<input
-							id="create-device"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="device"
-							autofocus
-							onchange="createForm.setValue('device', event.target.value)"
-							onblur="createForm.setTouched('device', true)"
-						/>
-						<p id="create-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-frequency" class="mb-2 text-base font-normal">Frequency</label>
-						<input
-							id="create-frequency"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="frequency"
-							onchange="createForm.setValue('frequency', event.target.value)"
-							onblur="createForm.setTouched('frequency', true)"
-						/>
-						<p id="create-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
-						<input
-							id="create-bandwidth"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="bandwidth"
-							onchange="createForm.setValue('bandwidth', event.target.value)"
-							onblur="createForm.setTouched('bandwidth', true)"
-						/>
-						<p id="create-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-spreading-factors" class="mb-2 text-base font-normal">Spreading factor</label>
-						<div id="create-spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 6); updateForm.setValue('spreadingFactor', 6); updateForm.setTouched('spreadingFactor', true)"
-							>
-								6
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 7); createForm.setValue('spreadingFactor', 7); createForm.setTouched('spreadingFactor', true)"
-							>
-								7
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 8); createForm.setValue('spreadingFactor', 8); createForm.setTouched('spreadingFactor', true)"
-							>
-								8
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 9); createForm.setValue('spreadingFactor', 9); createForm.setTouched('spreadingFactor', true)"
-							>
-								9
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 10); createForm.setValue('spreadingFactor', 10); createForm.setTouched('spreadingFactor', true)"
-							>
-								10
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 11); createForm.setValue('spreadingFactor', 11); createForm.setTouched('spreadingFactor', true)"
-							>
-								11
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 12); createForm.setValue('spreadingFactor', 12); createForm.setTouched('spreadingFactor', true)"
-							>
-								12
-							</button>
+					<div class="flex flex-col lg:flex-row gap-4">
+						<div class="w-full flex flex-col gap-4">
+							<div class="w-full flex flex-col items-start">
+								<label for="create-device" class="mb-2 text-base font-normal">Device</label>
+								<input
+									id="create-device"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="device"
+									autofocus
+									onchange="createForm.setValue('device', event.target.value)"
+									onblur="createForm.setTouched('device', true)"
+								/>
+								<p id="create-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="create-frequency" class="mb-2 text-base font-normal">Frequency</label>
+								<input
+									id="create-frequency"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="frequency"
+									onchange="createForm.setValue('frequency', event.target.value)"
+									onblur="createForm.setTouched('frequency', true)"
+								/>
+								<p id="create-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="create-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
+								<input
+									id="create-bandwidth"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="bandwidth"
+									onchange="createForm.setValue('bandwidth', event.target.value)"
+									onblur="createForm.setTouched('bandwidth', true)"
+								/>
+								<p id="create-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="create-spreading-factors" class="mb-2 text-base font-normal">Spreading factor</label>
+								<div id="create-spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 6); updateForm.setValue('spreadingFactor', 6); updateForm.setTouched('spreadingFactor', true)"
+									>
+										6
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 7); createForm.setValue('spreadingFactor', 7); createForm.setTouched('spreadingFactor', true)"
+									>
+										7
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 8); createForm.setValue('spreadingFactor', 8); createForm.setTouched('spreadingFactor', true)"
+									>
+										8
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 9); createForm.setValue('spreadingFactor', 9); createForm.setTouched('spreadingFactor', true)"
+									>
+										9
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 10); createForm.setValue('spreadingFactor', 10); createForm.setTouched('spreadingFactor', true)"
+									>
+										10
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 11); createForm.setValue('spreadingFactor', 11); createForm.setTouched('spreadingFactor', true)"
+									>
+										11
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 12); createForm.setValue('spreadingFactor', 12); createForm.setTouched('spreadingFactor', true)"
+									>
+										12
+									</button>
+								</div>
+								<p id="create-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="create-coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
+								<div id="create-coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 5); createForm.setValue('codingRate', 5); createForm.setTouched('codingRate', true)"
+									>
+										4/5
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 6); createForm.setValue('codingRate', 6); createForm.setTouched('codingRate', true)"
+									>
+										4/6
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 7); createForm.setValue('codingRate', 7); createForm.setTouched('codingRate', true)"
+									>
+										4/7
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 8); createForm.setValue('codingRate', 8); createForm.setTouched('codingRate', true)"
+									>
+										4/8
+									</button>
+								</div>
+								<p id="create-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
 						</div>
-						<p id="create-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
-						<div id="create-coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 5); createForm.setValue('codingRate', 5); createForm.setTouched('codingRate', true)"
-							>
-								4/5
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 6); createForm.setValue('codingRate', 6); createForm.setTouched('codingRate', true)"
-							>
-								4/6
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 7); createForm.setValue('codingRate', 7); createForm.setTouched('codingRate', true)"
-							>
-								4/7
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 8); createForm.setValue('codingRate', 8); createForm.setTouched('codingRate', true)"
-							>
-								4/8
-							</button>
+						<div class="w-full flex flex-col gap-4">
+							<div class="w-full flex flex-col items-start">
+								<label for="create-tx-power" class="mb-2 text-base font-normal">Tx power</label>
+								<input
+									id="create-tx-power"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="tx power"
+									autofocus
+									onchange="createForm.setValue('txPower', event.target.value)"
+									onblur="createForm.setTouched('txPower', true)"
+								/>
+								<p id="create-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="create-preamble-len" class="mb-2 text-base font-normal">Preamble len</label>
+								<input
+									id="create-preamble-len"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="preamble len"
+									autofocus
+									onchange="createForm.setValue('preambleLen', event.target.value)"
+									onblur="createForm.setTouched('preambleLen', true)"
+								/>
+								<p id="create-preamble-len-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="create-sync-word" class="mb-2 text-base font-normal">Sync word</label>
+								<input
+									id="create-sync-word"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="sync word"
+									onchange="createForm.setValue('syncWord', event.target.value)"
+									onblur="createForm.setTouched('syncWord', true)"
+								/>
+								<p id="create-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="create-checksum" class="mb-2 text-base font-normal">Checksum</label>
+								<div id="create-checksum" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightChecksum(document.getElementById('create-checksum'), false); createForm.setValue('checksum', false); createForm.setTouched('checksum', true)"
+									>
+										false
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightChecksum(document.getElementById('create-checksum'), true); createForm.setValue('checksum', true); createForm.setTouched('checksum', true)"
+									>
+										true
+									</button>
+								</div>
+								<p id="create-checksum-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
 						</div>
-						<p id="create-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-tx-power" class="mb-2 text-base font-normal">Tx power</label>
-						<input
-							id="create-tx-power"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="tx power"
-							autofocus
-							onchange="createForm.setValue('txPower', event.target.value)"
-							onblur="createForm.setTouched('txPower', true)"
-						/>
-						<p id="create-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-preamble-len" class="mb-2 text-base font-normal">Preamble len</label>
-						<input
-							id="create-preamble-len"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="preamble len"
-							autofocus
-							onchange="createForm.setValue('preambleLen', event.target.value)"
-							onblur="createForm.setTouched('preambleLen', true)"
-						/>
-						<p id="create-preamble-len-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-sync-word" class="mb-2 text-base font-normal">Sync word</label>
-						<input
-							id="create-sync-word"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="sync word"
-							onchange="createForm.setValue('syncWord', event.target.value)"
-							onblur="createForm.setTouched('syncWord', true)"
-						/>
-						<p id="create-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="create-checksum" class="mb-2 text-base font-normal">Checksum</label>
-						<div id="create-checksum" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightChecksum(document.getElementById('create-checksum'), false); createForm.setValue('checksum', false); createForm.setTouched('checksum', true)"
-							>
-								false
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightChecksum(document.getElementById('create-checksum'), true); createForm.setValue('checksum', true); createForm.setTouched('checksum', true)"
-							>
-								true
-							</button>
-						</div>
-						<p id="create-checksum-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
@@ -374,194 +380,201 @@
 						>
 							Cancel
 						</button>
+					</div>
 				</form>
 			</dialog>
-			<dialog id="update-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+			<dialog id="update-dialog" class="w-full max-w-96 lg:max-w-md p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
 				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Update radio?</h1>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-device" class="mb-2 text-base font-normal">Device</label>
-						<input
-							id="update-device"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="device"
-							autofocus
-							onchange="updateForm.setValue('device', event.target.value)"
-							onblur="updateForm.setTouched('device', true)"
-						/>
-						<p id="update-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-frequency" class="mb-2 text-base font-normal">Frequency</label>
-						<input
-							id="update-frequency"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="frequency"
-							onchange="updateForm.setValue('frequency', event.target.value)"
-							onblur="updateForm.setTouched('frequency', true)"
-						/>
-						<p id="update-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
-						<input
-							id="update-bandwidth"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="bandwidth"
-							onchange="updateForm.setValue('bandwidth', event.target.value)"
-							onblur="updateForm.setTouched('bandwidth', true)"
-						/>
-						<p id="update-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-spreading-factors" class="mb-2 text-base font-normal">Spreading factor</label>
-						<div id="update-spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 6); updateForm.setValue('spreadingFactor', 6); updateForm.setTouched('spreadingFactor', true)"
-							>
-								6
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 7); updateForm.setValue('spreadingFactor', 7); updateForm.setTouched('spreadingFactor', true)"
-							>
-								7
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 8); updateForm.setValue('spreadingFactor', 8); updateForm.setTouched('spreadingFactor', true)"
-							>
-								8
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 9); updateForm.setValue('spreadingFactor', 9); updateForm.setTouched('spreadingFactor', true)"
-							>
-								9
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 10); updateForm.setValue('spreadingFactor', 10); updateForm.setTouched('spreadingFactor', true)"
-							>
-								10
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 11); updateForm.setValue('spreadingFactor', 11); updateForm.setTouched('spreadingFactor', true)"
-							>
-								11
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 12); updateForm.setValue('spreadingFactor', 12); updateForm.setTouched('spreadingFactor', true)"
-							>
-								12
-							</button>
+					<div class="flex flex-col lg:flex-row gap-4">
+						<div class="w-full flex flex-col gap-4">
+							<div class="w-full flex flex-col items-start">
+								<label for="update-device" class="mb-2 text-base font-normal">Device</label>
+								<input
+									id="update-device"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="device"
+									autofocus
+									onchange="updateForm.setValue('device', event.target.value)"
+									onblur="updateForm.setTouched('device', true)"
+								/>
+								<p id="update-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-frequency" class="mb-2 text-base font-normal">Frequency</label>
+								<input
+									id="update-frequency"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="frequency"
+									onchange="updateForm.setValue('frequency', event.target.value)"
+									onblur="updateForm.setTouched('frequency', true)"
+								/>
+								<p id="update-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
+								<input
+									id="update-bandwidth"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="bandwidth"
+									onchange="updateForm.setValue('bandwidth', event.target.value)"
+									onblur="updateForm.setTouched('bandwidth', true)"
+								/>
+								<p id="update-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-spreading-factors" class="mb-2 text-base font-normal">Spreading factor</label>
+								<div id="update-spreading-factors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 6); updateForm.setValue('spreadingFactor', 6); updateForm.setTouched('spreadingFactor', true)"
+									>
+										6
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 7); updateForm.setValue('spreadingFactor', 7); updateForm.setTouched('spreadingFactor', true)"
+									>
+										7
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 8); updateForm.setValue('spreadingFactor', 8); updateForm.setTouched('spreadingFactor', true)"
+									>
+										8
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 9); updateForm.setValue('spreadingFactor', 9); updateForm.setTouched('spreadingFactor', true)"
+									>
+										9
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 10); updateForm.setValue('spreadingFactor', 10); updateForm.setTouched('spreadingFactor', true)"
+									>
+										10
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 11); updateForm.setValue('spreadingFactor', 11); updateForm.setTouched('spreadingFactor', true)"
+									>
+										11
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 12); updateForm.setValue('spreadingFactor', 12); updateForm.setTouched('spreadingFactor', true)"
+									>
+										12
+									</button>
+								</div>
+								<p id="update-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
+								<div id="update-coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 5); updateForm.setValue('codingRate', 5); updateForm.setTouched('codingRate', true)"
+									>
+										4/5
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 6); updateForm.setValue('codingRate', 6); updateForm.setTouched('codingRate', true)"
+									>
+										4/6
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 7); updateForm.setValue('codingRate', 7); updateForm.setTouched('codingRate', true)"
+									>
+										4/7
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 8); updateForm.setValue('codingRate', 8); updateForm.setTouched('codingRate', true)"
+									>
+										4/8
+									</button>
+								</div>
+								<p id="update-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
 						</div>
-						<p id="update-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
-						<div id="update-coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 5); updateForm.setValue('codingRate', 5); updateForm.setTouched('codingRate', true)"
-							>
-								4/5
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 6); updateForm.setValue('codingRate', 6); updateForm.setTouched('codingRate', true)"
-							>
-								4/6
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 7); updateForm.setValue('codingRate', 7); updateForm.setTouched('codingRate', true)"
-							>
-								4/7
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 8); updateForm.setValue('codingRate', 8); updateForm.setTouched('codingRate', true)"
-							>
-								4/8
-							</button>
+						<div class="w-full flex flex-col gap-4">
+							<div class="w-full flex flex-col items-start">
+								<label for="update-tx-power" class="mb-2 text-base font-normal">Tx power</label>
+								<input
+									id="update-tx-power"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="tx power"
+									autofocus
+									onchange="updateForm.setValue('txPower', event.target.value)"
+									onblur="updateForm.setTouched('txPower', true)"
+								/>
+								<p id="update-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-preamble-len" class="mb-2 text-base font-normal">Preamble len</label>
+								<input
+									id="update-preamble-len"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="preamble len"
+									autofocus
+									onchange="updateForm.setValue('preambleLen', event.target.value)"
+									onblur="updateForm.setTouched('preambleLen', true)"
+								/>
+								<p id="update-preamble-len-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-sync-word" class="mb-2 text-base font-normal">Sync word</label>
+								<input
+									id="update-sync-word"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="sync word"
+									onchange="updateForm.setValue('syncWord', event.target.value)"
+									onblur="updateForm.setTouched('syncWord', true)"
+								/>
+								<p id="update-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-checksum" class="mb-2 text-base font-normal">Checksum</label>
+								<div id="update-checksum" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightChecksum(document.getElementById('update-checksum'), false); updateForm.setValue('checksum', false); updateForm.setTouched('checksum', true)"
+									>
+										false
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightChecksum(document.getElementById('update-checksum'), true); updateForm.setValue('checksum', true); updateForm.setTouched('checksum', true)"
+									>
+										true
+									</button>
+								</div>
+								<p id="update-checksum-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
 						</div>
-						<p id="update-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-tx-power" class="mb-2 text-base font-normal">Tx power</label>
-						<input
-							id="update-tx-power"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="tx power"
-							autofocus
-							onchange="updateForm.setValue('txPower', event.target.value)"
-							onblur="updateForm.setTouched('txPower', true)"
-						/>
-						<p id="update-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-preamble-len" class="mb-2 text-base font-normal">Preamble len</label>
-						<input
-							id="update-preamble-len"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="preamble len"
-							autofocus
-							onchange="updateForm.setValue('preambleLen', event.target.value)"
-							onblur="updateForm.setTouched('preambleLen', true)"
-						/>
-						<p id="update-preamble-len-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-sync-word" class="mb-2 text-base font-normal">Sync word</label>
-						<input
-							id="update-sync-word"
-							type="text"
-							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="sync word"
-							onchange="updateForm.setValue('syncWord', event.target.value)"
-							onblur="updateForm.setTouched('syncWord', true)"
-						/>
-						<p id="update-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
-					</div>
-					<div class="w-full flex flex-col items-start">
-						<label for="update-checksum" class="mb-2 text-base font-normal">Checksum</label>
-						<div id="update-checksum" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightChecksum(document.getElementById('update-checksum'), false); updateForm.setValue('checksum', false); updateForm.setTouched('checksum', true)"
-							>
-								false
-							</button>
-							<button
-								type="button"
-								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightChecksum(document.getElementById('update-checksum'), true); updateForm.setValue('checksum', true); updateForm.setTouched('checksum', true)"
-							>
-								true
-							</button>
-						</div>
-						<p id="update-checksum-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
