@@ -1,16 +1,17 @@
 #include "../api/radio.h"
 #include "../api/database.h"
-#include "../app/downlink.h"
-#include "../app/uplink.h"
+#include "../api/transmission.h"
 #include "../lib/config.h"
 #include "../lib/error.h"
 #include "../lib/logger.h"
 #include "../lib/response.h"
 #include "airtime.h"
+#include "downlink.h"
 #include "radio.h"
 #include "schedule.h"
 #include "spi.h"
 #include "sx1278.h"
+#include "uplink.h"
 #include <errno.h>
 #include <pthread.h>
 #include <sqlite3.h>
@@ -316,6 +317,36 @@ void *radio_thread(void *args) {
 		pthread_cond_signal(&uplinks.filled);
 		pthread_mutex_unlock(&uplinks.lock);
 
+		transmission_t transmission;
+		transmission.timestamp = uplink.received_at;
+		memcpy(transmission.radio_id, arg->radio->id, sizeof(*arg->radio->id));
+		memcpy(transmission.type, "rx", sizeof(transmission.type));
+		memcpy(transmission.device_id, uplink.device_id, sizeof(uplink.device_id));
+		transmission.kind = uplink.kind;
+		memcpy(transmission.data, uplink.data, uplink.data_len);
+		transmission.data_len = uplink.data_len;
+		transmission.rssi = uplink.rssi;
+		transmission.snr = uplink.snr;
+		transmission.sf = uplink.spreading_factor;
+		transmission.cr = uplink.coding_rate;
+		transmission.tx_power = uplink.tx_power;
+		transmission.preamble_len = uplink.preamble_len;
+
+		pthread_mutex_lock(&transmissions.lock);
+
+		while (transmissions.size >= transmissions_size) {
+			warn("waiting for transmissions size %hhu to decrease\n", transmissions.size);
+			pthread_cond_wait(&transmissions.available, &transmissions.lock);
+		}
+
+		memcpy(&transmissions.ptr[transmissions.tail], &transmission, sizeof(transmission));
+		transmissions.tail = (uint8_t)((transmissions.tail + 1) % transmissions_size);
+		transmissions.size++;
+		trace("radio thread increased transmissions size to %hhu\n", transmissions.size);
+
+		pthread_cond_signal(&transmissions.filled);
+		pthread_mutex_unlock(&transmissions.lock);
+
 		if (sx1278_standby(arg->fd) == -1) {
 			error("failed to enable standby mode\n");
 		}
@@ -390,6 +421,35 @@ void *radio_thread(void *args) {
 
 		pthread_cond_signal(&downlinks.filled);
 		pthread_mutex_unlock(&downlinks.lock);
+
+		transmission.timestamp = downlink.sent_at;
+		memcpy(transmission.radio_id, arg->radio->id, sizeof(*arg->radio->id));
+		memcpy(transmission.type, "tx", sizeof(transmission.type));
+		memcpy(transmission.device_id, downlink.device_id, sizeof(downlink.device_id));
+		transmission.kind = downlink.kind;
+		memcpy(transmission.data, downlink.data, downlink.data_len);
+		transmission.data_len = downlink.data_len;
+		transmission.rssi = -256;
+		transmission.snr = -128;
+		transmission.sf = downlink.spreading_factor;
+		transmission.cr = downlink.coding_rate;
+		transmission.tx_power = downlink.tx_power;
+		transmission.preamble_len = downlink.preamble_len;
+
+		pthread_mutex_lock(&transmissions.lock);
+
+		while (transmissions.size >= transmissions_size) {
+			warn("waiting for transmissions size %hhu to decrease\n", transmissions.size);
+			pthread_cond_wait(&transmissions.available, &transmissions.lock);
+		}
+
+		memcpy(&transmissions.ptr[transmissions.tail], &transmission, sizeof(transmission));
+		transmissions.tail = (uint8_t)((transmissions.tail + 1) % transmissions_size);
+		transmissions.size++;
+		trace("radio thread increased transmissions size to %hhu\n", transmissions.size);
+
+		pthread_cond_signal(&transmissions.filled);
+		pthread_mutex_unlock(&transmissions.lock);
 	}
 }
 
