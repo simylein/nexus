@@ -7,7 +7,10 @@
 		<title>Nexus home</title>
 		<style></style>
 	</head>
-	<body class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black">
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		onload="loadTransmissions()"
+	>
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -18,7 +21,48 @@
 				<a href="/hosts" class="no-underline text-black dark:text-white">Hosts</a>
 			</nav>
 		</header>
-		<main class="flex flex-col grow gap-2 sm:gap-3 lg:gap-4 m-4 sm:m-6 lg:m-8"></main>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<div class="overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Timestamp</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Radio id</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Type</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Device id</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Kind</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Data</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Rssi</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Snr</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Sf</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Cr</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Tx power</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Preamble len</th>
+						</tr>
+					</thead>
+					<tbody id="transmissions">
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+						<transmission-row ref="./src/app/components/transmission-row.html" />
+					</tbody>
+				</table>
+			</div>
+		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
 				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
@@ -28,4 +72,144 @@
 			</div>
 		</footer>
 	</body>
+	<script>
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/resize.js';
+		import './src/app/scripts/timestamp.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
+		import './src/app/scripts/color-signal.js';
+		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/color-cr.js';
+		import './src/app/scripts/color-tx-power.js';
+		import './src/app/scripts/color-preamble-len.js';
+		import './src/app/scripts/paginate.js';
+		const transmissions = { data: null, element: document.getElementById('transmissions') };
+		const loadingTransmissions = (element) => {
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-10', 'h-4'], [], '');
+				loading(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				loading(element.children[ind].children[5].children[0], ['w-56', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-9', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
+				loading(element.children[ind].children[7].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
+				loading(element.children[ind].children[8].children[0], ['w-4', 'h-4'], [], '');
+				fade(element.children[ind].children[9].children[0]);
+				loading(element.children[ind].children[9].children[0], ['w-3', 'h-4'], [], '');
+				fade(element.children[ind].children[10].children[0]);
+				loading(element.children[ind].children[10].children[0], ['w-4', 'h-4'], [], '');
+				fade(element.children[ind].children[11].children[0]);
+				loading(element.children[ind].children[11].children[0], ['w-4', 'h-4'], [], '');
+			});
+		};
+		const paintTransmissions = (element, data) => {
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].timestamp));
+					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4'], data[ind].radioId);
+					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4'], data[ind].type);
+					paint(element.children[ind].children[3].children[0], [], ['w-10', 'h-4'], data[ind].deviceId);
+					paint(element.children[ind].children[4].children[0], [], ['w-5', 'h-4'], data[ind].kind);
+					if (data[ind].data.length !== 0) {
+						paint(element.children[ind].children[5].children[0], [], ['w-56', 'h-4'], data[ind].data);
+						fade(element.children[ind].children[5].children[0]);
+					} else {
+						paint(element.children[ind].children[5].children[0], [], ['w-56', 'h-4'], 'null');
+						colorNull(element.children[ind].children[5].children[0]);
+					}
+					if (data[ind].rssi != -256) {
+						paint(element.children[ind].children[6].children[0], [], ['w-9', 'h-4'], data[ind].rssi);
+						fade(element.children[ind].children[6].children[0]);
+						colorRssi(element.children[ind].children[6].children[0], data[ind].rssi, data[ind].sf);
+					} else {
+						paint(element.children[ind].children[6].children[0], [], ['w-9', 'h-4'], 'null');
+						colorNull(element.children[ind].children[6].children[0]);
+					}
+					if (data[ind].snr != -32) {
+						paint(element.children[ind].children[7].children[0], [], ['w-12', 'h-4'], data[ind].snr);
+						fade(element.children[ind].children[7].children[0]);
+						colorSnr(element.children[ind].children[7].children[0], data[ind].snr, data[ind].sf);
+					} else {
+						paint(element.children[ind].children[7].children[0], [], ['w-12', 'h-4'], 'null');
+						colorNull(element.children[ind].children[7].children[0]);
+					}
+					paint(element.children[ind].children[8].children[0], [], ['w-4', 'h-4'], data[ind].sf);
+					fade(element.children[ind].children[8].children[0]);
+					colorSf(element.children[ind].children[8].children[0], data[ind].sf);
+					paint(element.children[ind].children[9].children[0], [], ['w-3', 'h-4'], data[ind].cr);
+					fade(element.children[ind].children[9].children[0]);
+					colorCr(element.children[ind].children[9].children[0], data[ind].cr);
+					paint(element.children[ind].children[10].children[0], [], ['w-4', 'h-4'], data[ind].txPower);
+					fade(element.children[ind].children[10].children[0]);
+					colorTxPower(element.children[ind].children[10].children[0], data[ind].txPower);
+					paint(element.children[ind].children[11].children[0], [], ['w-4', 'h-4'], data[ind].preambleLen);
+					fade(element.children[ind].children[11].children[0]);
+					colorPreambleLen(element.children[ind].children[11].children[0], data[ind].preambleLen);
+				}
+			});
+		};
+		const errorTransmissions = (element) => {
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-5', 'h-4'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-10', 'h-4'], [], '');
+				error(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[5].children[0], ['w-56', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-9', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
+				error(element.children[ind].children[7].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
+				error(element.children[ind].children[8].children[0], ['w-4', 'h-4'], [], '');
+				fade(element.children[ind].children[9].children[0]);
+				error(element.children[ind].children[9].children[0], ['w-3', 'h-4'], [], '');
+				fade(element.children[ind].children[10].children[0]);
+				error(element.children[ind].children[10].children[0], ['w-4', 'h-4'], [], '');
+				fade(element.children[ind].children[11].children[0]);
+				error(element.children[ind].children[11].children[0], ['w-4', 'h-4'], [], '');
+			});
+		};
+		const parseTransmission = (data) => {
+			const values = data.split(' ');
+			const transmission = {
+				timestamp: BigInt(values[0]),
+				radioId: values[1],
+				type: values[2],
+				deviceId: values[3],
+				kind: values[4],
+				data: values[5],
+				rssi: +values[6],
+				snr: +values[7] / 4,
+				sf: +values[8],
+				cr: +values[9],
+				txPower: +values[10],
+				preambleLen: +values[11],
+			};
+			return transmission;
+		};
+		const loadTransmissions = () => {
+			transmissions.data = [];
+			const stream = new EventSource('/api/transmissions/sse');
+			stream.onopen = (event) => window.requestAnimationFrame(() => loadingTransmissions(transmissions.element));
+			stream.onerror = (event) => window.requestAnimationFrame(() => errorTransmissions(transmissions.element));
+			stream.onmessage = (event) => {
+				const transmission = parseTransmission(event.data);
+				transmissions.data.unshift(transmission);
+				if (transmissions.data.length > getLimit()) {
+					transmissions.data.pop();
+				}
+				window.requestAnimationFrame(() => paintTransmissions(transmissions.element, transmissions.data));
+			};
+		};
+	</script>
 </html>
