@@ -219,7 +219,7 @@ int radio_validate(radio_t *radio) {
 		return -1;
 	}
 
-	if (radio->preamble_len < 1 || radio->preamble_len > 16) {
+	if (radio->preamble_len < 6 || radio->preamble_len > 21) {
 		debug("invalid preamble len %hhu on radio\n", radio->preamble_len);
 		return -1;
 	}
