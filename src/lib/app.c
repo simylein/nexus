@@ -16,7 +16,7 @@ void handle(sqlite3 *database, char *request_buffer, char *response_buffer, int 
 	struct request_t reqs;
 	struct response_t resp;
 
-	request_init(&reqs);
+	request_init(&reqs, client_sock);
 	response_init(&resp, response_buffer);
 
 	if (setsockopt(*client_sock, SOL_SOCKET, SO_RCVTIMEO, &(struct timeval){.tv_sec = receive_timeout, .tv_usec = 0},
@@ -168,12 +168,12 @@ void handle(sqlite3 *database, char *request_buffer, char *response_buffer, int 
 	trace("sent %zu bytes in %hhu packets to %s:%d\n", sent_bytes, sent_packets, inet_ntoa(client_addr->sin_addr),
 				ntohs(client_addr->sin_port));
 
-	if (shutdown(*client_sock, SHUT_WR) == -1) {
+	if (resp.stream == false && shutdown(*client_sock, SHUT_WR) == -1) {
 		error("failed to shutdown client socket writing because %s\n", errno_str());
 	}
 
 cleanup:
-	if (close(*client_sock) == -1) {
+	if (resp.stream == false && close(*client_sock) == -1) {
 		error("failed to close client socket because %s\n", errno_str());
 	}
 }

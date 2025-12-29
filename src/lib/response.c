@@ -25,6 +25,8 @@ void response_init(response_t *response, char *buffer) {
 	response->body.len = 0;
 	response->body.cap = send_buffer - offset;
 	offset += response->body.cap;
+
+	response->stream = false;
 }
 
 size_t response(request_t *req, response_t *res, char *buffer) {

@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 
-void request_init(request_t *request) {
+void request_init(request_t *request, int *client_sock) {
 	uint32_t offset = 0;
 
 	request->method.len = 0;
@@ -32,6 +32,8 @@ void request_init(request_t *request) {
 	request->body.len = 0;
 	request->body.cap = receive_buffer - offset;
 	offset += request->body.cap;
+
+	request->socket = *client_sock;
 }
 
 void request(char *buffer, size_t length, request_t *req, response_t *res) {

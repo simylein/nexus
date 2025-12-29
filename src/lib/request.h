@@ -13,9 +13,10 @@ typedef struct request_t {
 	strn8_t protocol;
 	strn16_t header;
 	strn32_t body;
+	int socket;
 } request_t;
 
-void request_init(request_t *request);
+void request_init(request_t *request, int *client_sock);
 void request(char *buffer, size_t length, request_t *req, response_t *res);
 
 const char *param_find(request_t *request, uint8_t offset, uint8_t *length);

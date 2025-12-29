@@ -1,6 +1,7 @@
 #pragma once
 
 #include "strn.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -11,6 +12,7 @@ typedef struct response_t {
 	strn8_t head;
 	strn16_t header;
 	strn32_t body;
+	bool stream;
 } response_t;
 
 void response_init(response_t *response, char *buffer);
