@@ -1,6 +1,7 @@
 #include "api/drop.h"
 #include "api/init.h"
 #include "api/seed.h"
+#include "api/transmission.h"
 #include "api/wipe.h"
 #include "app/downlink.h"
 #include "app/page.h"
@@ -151,6 +152,10 @@ int main(int argc, char *argv[]) {
 
 	info("spawned %hhu worker threads\n", least_workers);
 
+	if (transmission_init() == -1) {
+		exit(1);
+	}
+
 	sqlite3 *database;
 	if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
 		fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
@@ -297,6 +302,16 @@ int main(int argc, char *argv[]) {
 	free(comms.workers);
 	free(comms.radios);
 	free(comms.devices);
+
+	if (pthread_cancel(transmissions.worker.thread) == -1) {
+		error("failed to cancel transmission thread\n");
+	};
+	if (pthread_join(transmissions.worker.thread, NULL) == -1) {
+		error("failed to join transmission thread\n");
+	}
+
+	free(streams.ptr);
+	free(transmissions.ptr);
 
 	if (uplinks.size > 0) {
 		info("waiting for %hhu uplinks...\n", uplinks.size);

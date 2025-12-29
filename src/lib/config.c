@@ -14,6 +14,8 @@ uint8_t queue_size = 8;
 uint8_t least_workers = 4;
 uint8_t most_workers = 64;
 
+uint8_t streams_size = 128;
+uint8_t transmissions_size = 64;
 uint8_t uplinks_size = 16;
 uint8_t downlinks_size = 16;
 uint8_t schedules_size = 16;

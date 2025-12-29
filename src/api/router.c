@@ -9,6 +9,7 @@
 #include "host.h"
 #include "radio.h"
 #include "schedule.h"
+#include "transmission.h"
 #include "user.h"
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -143,6 +144,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 
 	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
 		serve(&page_signin, response);
+	}
+
+	if (endpoint(request, "get", "/api/transmissions/sse", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			transmission_stream(request, response);
+		}
 	}
 
 	if (endpoint(request, "get", "/api/radios", &method_found, &pathname_found) == true) {
