@@ -125,17 +125,17 @@
 						paint(element.children[ind].children[5].children[0], [], ['w-56', 'h-4'], 'null');
 						colorNull(element.children[ind].children[5].children[0]);
 					}
+					fade(element.children[ind].children[6].children[0]);
 					if (data[ind].rssi != -256) {
 						paint(element.children[ind].children[6].children[0], [], ['w-9', 'h-4'], data[ind].rssi);
-						fade(element.children[ind].children[6].children[0]);
 						colorRssi(element.children[ind].children[6].children[0], data[ind].rssi, data[ind].sf);
 					} else {
 						paint(element.children[ind].children[6].children[0], [], ['w-9', 'h-4'], 'null');
 						colorNull(element.children[ind].children[6].children[0]);
 					}
+					fade(element.children[ind].children[7].children[0]);
 					if (data[ind].snr != -32) {
 						paint(element.children[ind].children[7].children[0], [], ['w-12', 'h-4'], data[ind].snr);
-						fade(element.children[ind].children[7].children[0]);
 						colorSnr(element.children[ind].children[7].children[0], data[ind].snr, data[ind].sf);
 					} else {
 						paint(element.children[ind].children[7].children[0], [], ['w-12', 'h-4'], 'null');
