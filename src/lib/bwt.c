@@ -18,9 +18,9 @@ int bwt_sign(char (*buffer)[109], uint8_t (*id)[16], uint8_t (*data)[4]) {
 	size_t offset = 0;
 	memcpy(&binary[offset], id, sizeof(*id));
 	offset += sizeof(*id);
-	memcpy(&binary[offset], &(uint64_t[]){hton64((uint64_t)iat)}, sizeof(iat));
+	memcpy(&binary[offset], (uint64_t[]){hton64((uint64_t)iat)}, sizeof(iat));
 	offset += sizeof(iat);
-	memcpy(&binary[offset], &(uint64_t[]){hton64((uint64_t)exp)}, sizeof(exp));
+	memcpy(&binary[offset], (uint64_t[]){hton64((uint64_t)exp)}, sizeof(exp));
 	offset += sizeof(exp);
 	memcpy(&binary[offset], data, sizeof(*data));
 	offset += sizeof(*data);

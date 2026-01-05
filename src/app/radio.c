@@ -267,7 +267,7 @@ void *radio_thread(void *args) {
 			continue;
 		}
 
-		if (rx_data_len < 4) {
+		if (rx_data_len < 6) {
 			debug("received packet without headers\n");
 			continue;
 		}
@@ -284,8 +284,9 @@ void *radio_thread(void *args) {
 			continue;
 		}
 
-		rx("id %02x%02x kind %02x bytes %hhu rssi %hd snr %.2f sf %hhu power %hhu\n", rx_data[0], rx_data[1], rx_data[3],
-			 rx_data_len, rssi, snr / 4.0f, arg->radio->spreading_factor, ((rx_data[2] >> 4) & 0x0f) + 2);
+		rx("id %02x%02x frame %hu kind %02x bytes %hhu rssi %hd snr %.2f sf %hhu power %hhu\n", rx_data[0], rx_data[1],
+			 (uint16_t)(rx_data[2] << 8) | (uint16_t)rx_data[3], rx_data[5], rx_data_len, rssi, snr / 4.0f,
+			 arg->radio->spreading_factor, ((rx_data[4] >> 4) & 0x0f) + 2);
 
 		device_t *device = NULL;
 		for (uint8_t ind = 0; ind < arg->devices_len; ind++) {
@@ -301,10 +302,10 @@ void *radio_thread(void *args) {
 		}
 
 		uplink_t uplink;
-		uplink.frame = 0;
-		uplink.kind = rx_data[3];
-		memcpy(uplink.data, &rx_data[4], rx_data_len - 4);
-		uplink.data_len = rx_data_len - 4;
+		uplink.frame = (uint16_t)(rx_data[2] << 8) | (uint16_t)rx_data[3];
+		uplink.kind = rx_data[5];
+		memcpy(uplink.data, &rx_data[6], rx_data_len - 6);
+		uplink.data_len = rx_data_len - 6;
 		uplink.airtime = airtime_calculate(arg->radio, rx_data_len);
 		uplink.frequency = arg->radio->frequency;
 		uplink.bandwidth = arg->radio->bandwidth;
@@ -312,8 +313,8 @@ void *radio_thread(void *args) {
 		uplink.snr = snr;
 		uplink.spreading_factor = arg->radio->spreading_factor;
 		uplink.coding_rate = arg->radio->coding_rate;
-		uplink.tx_power = ((rx_data[2] >> 4) & 0x0f) + 2;
-		uplink.preamble_len = (rx_data[2] & 0x0f) + 6;
+		uplink.tx_power = ((rx_data[4] >> 4) & 0x0f) + 2;
+		uplink.preamble_len = (rx_data[4] & 0x0f) + 6;
 		uplink.received_at = time(NULL);
 		memcpy(uplink.device_id, device->id, sizeof(*device->id));
 
@@ -367,15 +368,15 @@ void *radio_thread(void *args) {
 			error("failed to enable standby mode\n");
 		}
 
-		if (arg->radio->tx_power != ((rx_data[2] >> 4) & 0x0f) + 2) {
-			arg->radio->tx_power = ((rx_data[2] >> 4) & 0x0f) + 2;
+		if (arg->radio->tx_power != ((rx_data[4] >> 4) & 0x0f) + 2) {
+			arg->radio->tx_power = ((rx_data[4] >> 4) & 0x0f) + 2;
 			if (sx1278_tx_power(arg->fd, arg->radio->tx_power) == -1) {
 				error("failed to set radio tx power\n");
 			}
 		}
 
-		if (arg->radio->preamble_len != (rx_data[2] & 0x0f) + 6) {
-			arg->radio->preamble_len = (rx_data[2] & 0x0f) + 6;
+		if (arg->radio->preamble_len != (rx_data[4] & 0x0f) + 6) {
+			arg->radio->preamble_len = (rx_data[4] & 0x0f) + 6;
 			if (sx1278_preamble_length(arg->fd, arg->radio->preamble_len) == -1) {
 				error("failed to set radio preamble length\n");
 			}
@@ -388,8 +389,12 @@ void *radio_thread(void *args) {
 		tx_data_len += sizeof(rx_data[0]);
 		tx_data[tx_data_len] = rx_data[1];
 		tx_data_len += sizeof(rx_data[1]);
+		tx_data[tx_data_len] = rx_data[2];
+		tx_data_len += sizeof(rx_data[2]);
+		tx_data[tx_data_len] = rx_data[3];
+		tx_data_len += sizeof(rx_data[3]);
 		tx_data[tx_data_len] = (uint8_t)((((arg->radio->tx_power - 2) << 4) & 0xf0) | ((arg->radio->preamble_len - 6) & 0x0f));
-		tx_data_len += sizeof(tx_data[tx_data_len]);
+		tx_data_len += sizeof(tx_data[4]);
 		schedule_t schedule;
 		if (schedule_find(&schedule, (uint8_t (*)[2])(&rx_data[0])) == 0) {
 			tx_data[tx_data_len] = schedule.kind;
@@ -406,21 +411,22 @@ void *radio_thread(void *args) {
 			continue;
 		}
 
-		tx("id %02x%02x kind %02x bytes %hhu sf %hhu power %hhu\n", tx_data[0], tx_data[1], tx_data[3], tx_data_len,
-			 arg->radio->spreading_factor, ((tx_data[2] >> 4) & 0x0f) + 2);
+		tx("id %02x%02x frame %hu kind %02x bytes %hhu sf %hhu power %hhu\n", tx_data[0], tx_data[1],
+			 (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3], tx_data[5], tx_data_len, arg->radio->spreading_factor,
+			 ((tx_data[4] >> 4) & 0x0f) + 2);
 
 		downlink_t downlink;
-		downlink.frame = 0;
-		downlink.kind = tx_data[3];
-		memcpy(downlink.data, &tx_data[4], tx_data_len - 4);
-		downlink.data_len = tx_data_len - 4;
+		downlink.frame = (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3];
+		downlink.kind = tx_data[5];
+		memcpy(downlink.data, &tx_data[6], tx_data_len - 6);
+		downlink.data_len = tx_data_len - 6;
 		downlink.airtime = airtime_calculate(arg->radio, tx_data_len);
 		downlink.frequency = arg->radio->frequency;
 		downlink.bandwidth = arg->radio->bandwidth;
 		downlink.spreading_factor = arg->radio->spreading_factor;
 		downlink.coding_rate = arg->radio->coding_rate;
-		downlink.tx_power = ((tx_data[2] >> 4) & 0x0f) + 2;
-		downlink.preamble_len = (tx_data[2] & 0x0f) + 6;
+		downlink.tx_power = ((tx_data[4] >> 4) & 0x0f) + 2;
+		downlink.preamble_len = (tx_data[4] & 0x0f) + 6;
 		downlink.sent_at = time(NULL);
 		memcpy(downlink.device_id, device->id, sizeof(*device->id));
 
