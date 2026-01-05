@@ -222,19 +222,21 @@ int uplink_create(uplink_t *uplink, host_t *host, cookie_t *cookie) {
 	response.body.len = 0;
 	response.body.cap = sizeof(response_body);
 
+	memcpy(&request.body.ptr[request.body.len], (uint16_t[]){hton16(uplink->frame)}, sizeof(uplink->frame));
+	request.body.len += sizeof(uplink->frame);
 	memcpy(&request.body.ptr[request.body.len], &uplink->kind, sizeof(uplink->kind));
 	request.body.len += sizeof(uplink->kind);
 	memcpy(&request.body.ptr[request.body.len], &uplink->data_len, sizeof(uplink->data_len));
 	request.body.len += sizeof(uplink->data_len);
 	memcpy(&request.body.ptr[request.body.len], uplink->data, uplink->data_len);
 	request.body.len += uplink->data_len;
-	memcpy(&request.body.ptr[request.body.len], &(uint16_t[]){hton16(uplink->airtime)}, sizeof(uplink->airtime));
+	memcpy(&request.body.ptr[request.body.len], (uint16_t[]){hton16(uplink->airtime)}, sizeof(uplink->airtime));
 	request.body.len += sizeof(uplink->airtime);
-	memcpy(&request.body.ptr[request.body.len], &(uint32_t[]){hton32(uplink->frequency)}, sizeof(uplink->frequency));
+	memcpy(&request.body.ptr[request.body.len], (uint32_t[]){hton32(uplink->frequency)}, sizeof(uplink->frequency));
 	request.body.len += sizeof(uplink->frequency);
-	memcpy(&request.body.ptr[request.body.len], &(uint32_t[]){hton32(uplink->bandwidth)}, sizeof(uplink->bandwidth));
+	memcpy(&request.body.ptr[request.body.len], (uint32_t[]){hton32(uplink->bandwidth)}, sizeof(uplink->bandwidth));
 	request.body.len += sizeof(uplink->bandwidth);
-	memcpy(&request.body.ptr[request.body.len], &(uint16_t[]){hton16((uint16_t)uplink->rssi)}, sizeof(uplink->rssi));
+	memcpy(&request.body.ptr[request.body.len], (uint16_t[]){hton16((uint16_t)uplink->rssi)}, sizeof(uplink->rssi));
 	request.body.len += sizeof(uplink->rssi);
 	memcpy(&request.body.ptr[request.body.len], &uplink->snr, sizeof(uplink->snr));
 	request.body.len += sizeof(uplink->snr);
@@ -246,7 +248,7 @@ int uplink_create(uplink_t *uplink, host_t *host, cookie_t *cookie) {
 	request.body.len += sizeof(uplink->tx_power);
 	memcpy(&request.body.ptr[request.body.len], &uplink->preamble_len, sizeof(uplink->preamble_len));
 	request.body.len += sizeof(uplink->preamble_len);
-	memcpy(&request.body.ptr[request.body.len], &(time_t[]){(time_t)hton64((uint64_t)uplink->received_at)},
+	memcpy(&request.body.ptr[request.body.len], (time_t[]){(time_t)hton64((uint64_t)uplink->received_at)},
 				 sizeof(uplink->received_at));
 	request.body.len += sizeof(uplink->received_at);
 	memcpy(&request.body.ptr[request.body.len], uplink->device_id, sizeof(uplink->device_id));

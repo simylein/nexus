@@ -222,17 +222,19 @@ int downlink_create(downlink_t *downlink, host_t *host, cookie_t *cookie) {
 	response.body.len = 0;
 	response.body.cap = sizeof(response_body);
 
+	memcpy(&request.body.ptr[request.body.len], (uint16_t[]){hton16(downlink->frame)}, sizeof(downlink->frame));
+	request.body.len += sizeof(downlink->frame);
 	memcpy(&request.body.ptr[request.body.len], &downlink->kind, sizeof(downlink->kind));
 	request.body.len += sizeof(downlink->kind);
 	memcpy(&request.body.ptr[request.body.len], &downlink->data_len, sizeof(downlink->data_len));
 	request.body.len += sizeof(downlink->data_len);
 	memcpy(&request.body.ptr[request.body.len], downlink->data, downlink->data_len);
 	request.body.len += downlink->data_len;
-	memcpy(&request.body.ptr[request.body.len], &(uint16_t[]){hton16(downlink->airtime)}, sizeof(downlink->airtime));
+	memcpy(&request.body.ptr[request.body.len], (uint16_t[]){hton16(downlink->airtime)}, sizeof(downlink->airtime));
 	request.body.len += sizeof(downlink->airtime);
-	memcpy(&request.body.ptr[request.body.len], &(uint32_t[]){hton32(downlink->frequency)}, sizeof(downlink->frequency));
+	memcpy(&request.body.ptr[request.body.len], (uint32_t[]){hton32(downlink->frequency)}, sizeof(downlink->frequency));
 	request.body.len += sizeof(downlink->frequency);
-	memcpy(&request.body.ptr[request.body.len], &(uint32_t[]){hton32(downlink->bandwidth)}, sizeof(downlink->bandwidth));
+	memcpy(&request.body.ptr[request.body.len], (uint32_t[]){hton32(downlink->bandwidth)}, sizeof(downlink->bandwidth));
 	request.body.len += sizeof(downlink->bandwidth);
 	memcpy(&request.body.ptr[request.body.len], &downlink->spreading_factor, sizeof(downlink->spreading_factor));
 	request.body.len += sizeof(downlink->spreading_factor);
@@ -242,7 +244,7 @@ int downlink_create(downlink_t *downlink, host_t *host, cookie_t *cookie) {
 	request.body.len += sizeof(downlink->tx_power);
 	memcpy(&request.body.ptr[request.body.len], &downlink->preamble_len, sizeof(downlink->preamble_len));
 	request.body.len += sizeof(downlink->preamble_len);
-	memcpy(&request.body.ptr[request.body.len], &(time_t[]){(time_t)hton64((uint64_t)downlink->sent_at)},
+	memcpy(&request.body.ptr[request.body.len], (time_t[]){(time_t)hton64((uint64_t)downlink->sent_at)},
 				 sizeof(downlink->sent_at));
 	request.body.len += sizeof(downlink->sent_at);
 	memcpy(&request.body.ptr[request.body.len], downlink->device_id, sizeof(downlink->device_id));

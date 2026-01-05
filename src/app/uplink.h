@@ -8,6 +8,7 @@
 #include <time.h>
 
 typedef struct uplink_t {
+	uint16_t frame;
 	uint8_t kind;
 	uint8_t data[256];
 	uint8_t data_len;

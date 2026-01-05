@@ -287,6 +287,7 @@ void *radio_thread(void *args) {
 		}
 
 		uplink_t uplink;
+		uplink.frame = 0;
 		uplink.kind = rx_data[3];
 		memcpy(uplink.data, &rx_data[4], rx_data_len - 4);
 		uplink.data_len = rx_data_len - 4;
@@ -394,6 +395,7 @@ void *radio_thread(void *args) {
 			 arg->radio->spreading_factor, ((tx_data[2] >> 4) & 0x0f) + 2);
 
 		downlink_t downlink;
+		downlink.frame = 0;
 		downlink.kind = tx_data[3];
 		memcpy(downlink.data, &tx_data[4], tx_data_len - 4);
 		downlink.data_len = tx_data_len - 4;
