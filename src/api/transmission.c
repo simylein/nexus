@@ -96,6 +96,9 @@ void *transmission_thread(void *args) {
 		}
 		buffer[buffer_len] = ' ';
 		buffer_len += sizeof(char);
+		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hu", transmission.frame);
+		buffer[buffer_len] = ' ';
+		buffer_len += sizeof(char);
 		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%02x", transmission.kind);
 		buffer[buffer_len] = ' ';
 		buffer_len += sizeof(char);
@@ -110,16 +113,16 @@ void *transmission_thread(void *args) {
 		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hhd", transmission.snr);
 		buffer[buffer_len] = ' ';
 		buffer_len += sizeof(char);
-		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hu", transmission.sf);
+		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hhu", transmission.sf);
 		buffer[buffer_len] = ' ';
 		buffer_len += sizeof(char);
-		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hu", transmission.cr);
+		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hhu", transmission.cr);
 		buffer[buffer_len] = ' ';
 		buffer_len += sizeof(char);
-		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hu", transmission.tx_power);
+		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hhu", transmission.tx_power);
 		buffer[buffer_len] = ' ';
 		buffer_len += sizeof(char);
-		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hu", transmission.preamble_len);
+		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%hhu", transmission.preamble_len);
 		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "\n\n");
 
 		for (uint8_t index = 0; index < streams_size; index++) {

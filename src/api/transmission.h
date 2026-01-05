@@ -17,6 +17,7 @@ typedef struct transmission_t {
 	uint8_t radio_id[16];
 	char type[2];
 	uint8_t device_id[16];
+	uint16_t frame;
 	uint8_t kind;
 	uint8_t data[256];
 	uint8_t data_len;

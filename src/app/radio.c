@@ -323,6 +323,7 @@ void *radio_thread(void *args) {
 		memcpy(transmission.radio_id, arg->radio->id, sizeof(*arg->radio->id));
 		memcpy(transmission.type, "rx", sizeof(transmission.type));
 		memcpy(transmission.device_id, uplink.device_id, sizeof(uplink.device_id));
+		transmission.frame = uplink.frame;
 		transmission.kind = uplink.kind;
 		memcpy(transmission.data, uplink.data, uplink.data_len);
 		transmission.data_len = uplink.data_len;
@@ -428,6 +429,7 @@ void *radio_thread(void *args) {
 		memcpy(transmission.radio_id, arg->radio->id, sizeof(*arg->radio->id));
 		memcpy(transmission.type, "tx", sizeof(transmission.type));
 		memcpy(transmission.device_id, downlink.device_id, sizeof(downlink.device_id));
+		transmission.frame = downlink.frame;
 		transmission.kind = downlink.kind;
 		memcpy(transmission.data, downlink.data, downlink.data_len);
 		transmission.data_len = downlink.data_len;
