@@ -405,6 +405,8 @@ void *radio_thread(void *args) {
 			tx_data_len += sizeof(schedule.kind);
 			memcpy(&tx_data[tx_data_len], schedule.data, schedule.data_len);
 			tx_data_len += schedule.data_len;
+			ssc128_encrypt(&tx_data[6], tx_data_len - 6, (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3],
+										 (const uint8_t (*)[16])device->key);
 		} else {
 			tx_data[tx_data_len] = 0x00;
 			tx_data_len += sizeof(uint8_t);
@@ -418,6 +420,9 @@ void *radio_thread(void *args) {
 		tx("id %02x%02x frame %hu kind %02x bytes %hhu sf %hhu power %hhu\n", tx_data[0], tx_data[1],
 			 (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3], tx_data[5], tx_data_len, arg->radio->spreading_factor,
 			 ((tx_data[4] >> 4) & 0x0f) + 2);
+
+		ssc128_decrypt(&tx_data[6], tx_data_len - 6, (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3],
+									 (const uint8_t (*)[16])device->key);
 
 		downlink_t downlink;
 		downlink.frame = (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3];
