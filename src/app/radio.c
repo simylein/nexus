@@ -5,6 +5,7 @@
 #include "../lib/error.h"
 #include "../lib/logger.h"
 #include "../lib/response.h"
+#include "../lib/ssc128.h"
 #include "airtime.h"
 #include "downlink.h"
 #include "radio.h"
@@ -300,6 +301,9 @@ void *radio_thread(void *args) {
 			debug("no registration for device %02x%02x\n", rx_data[0], rx_data[1]);
 			continue;
 		}
+
+		ssc128_decrypt(&rx_data[6], rx_data_len - 6, (uint16_t)(rx_data[2] << 8) | (uint16_t)rx_data[3],
+									 (const uint8_t (*)[16])device->key);
 
 		uplink_t uplink;
 		uplink.frame = (uint16_t)(rx_data[2] << 8) | (uint16_t)rx_data[3];
