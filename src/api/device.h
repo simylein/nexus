@@ -8,6 +8,7 @@
 typedef struct device_t {
 	uint8_t (*id)[16];
 	uint8_t (*tag)[2];
+	uint8_t (*key)[16];
 } device_t;
 
 typedef struct device_query_t {

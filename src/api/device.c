@@ -12,7 +12,8 @@
 const char *device_table = "device";
 const char *device_schema = "create table device ("
 														"id blob primary key, "
-														"tag blob not null unique"
+														"tag blob not null unique, "
+														"key blob not null unique"
 														")";
 
 uint16_t device_select(sqlite3 *database, device_query_t *query, response_t *response, uint8_t *device_len) {
@@ -20,13 +21,15 @@ uint16_t device_select(sqlite3 *database, device_query_t *query, response_t *res
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select "
-										"device.id, device.tag "
+										"device.id, device.tag, device.key "
 										"from device "
 										"order by "
 										"case when ?1 = 'id' and ?2 = 'asc' then device.id end asc, "
 										"case when ?1 = 'id' and ?2 = 'desc' then device.id end desc, "
 										"case when ?1 = 'tag' and ?2 = 'asc' then device.tag end asc, "
-										"case when ?1 = 'tag' and ?2 = 'desc' then device.tag end desc "
+										"case when ?1 = 'tag' and ?2 = 'desc' then device.tag end desc, "
+										"case when ?1 = 'key' and ?2 = 'asc' then device.key end asc, "
+										"case when ?1 = 'key' and ?2 = 'desc' then device.key end desc "
 										"limit ?3 offset ?4";
 	debug("%s\n", sql);
 
@@ -58,8 +61,16 @@ uint16_t device_select(sqlite3 *database, device_query_t *query, response_t *res
 				status = 500;
 				goto cleanup;
 			}
+			const uint8_t *key = sqlite3_column_blob(stmt, 2);
+			const size_t key_len = (size_t)sqlite3_column_bytes(stmt, 2);
+			if (key_len != sizeof(*((device_t *)0)->key)) {
+				error("key length %zu does not match buffer length %zu\n", key_len, sizeof(*((device_t *)0)->key));
+				status = 500;
+				goto cleanup;
+			}
 			body_write(response, id, id_len);
 			body_write(response, tag, tag_len);
+			body_write(response, key, key_len);
 			*device_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -90,6 +101,12 @@ int device_parse(device_t *device, request_t *request) {
 	}
 	device->tag = (uint8_t (*)[2])body_read(request, sizeof(*device->tag));
 
+	if (request->body.len < request->body.pos + sizeof(*device->key)) {
+		debug("missing key on device\n");
+		return -1;
+	}
+	device->key = (uint8_t (*)[16])body_read(request, sizeof(*device->key));
+
 	return 0;
 }
 
@@ -107,8 +124,8 @@ uint16_t device_insert(sqlite3 *database, device_t *device) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into device (id, tag) "
-										"values (?, ?) returning id";
+	const char *sql = "insert into device (id, tag, key) "
+										"values (?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -119,6 +136,7 @@ uint16_t device_insert(sqlite3 *database, device_t *device) {
 
 	sqlite3_bind_blob(stmt, 1, device->id, sizeof(*device->id), SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 2, device->tag, sizeof(*device->tag), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 3, device->key, sizeof(*device->key), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
@@ -150,7 +168,7 @@ uint16_t device_update(sqlite3 *database, uint8_t (*id)[16], device_t *device) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "update device "
-										"set id = ?, tag = ? "
+										"set id = ?, tag = ?, key = ? "
 										"where id = ?";
 	debug("%s\n", sql);
 
@@ -162,7 +180,8 @@ uint16_t device_update(sqlite3 *database, uint8_t (*id)[16], device_t *device) {
 
 	sqlite3_bind_blob(stmt, 1, *device->id, sizeof(*device->id), SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 2, *device->tag, sizeof(*device->tag), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 3, *id, sizeof(*id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 3, *device->key, sizeof(*device->key), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 4, *id, sizeof(*id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {

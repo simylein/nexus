@@ -93,9 +93,14 @@ int seed_device(sqlite3 *database) {
 		for (uint8_t ind = 0; ind < sizeof(*((device_t *)0)->id); ind++) {
 			device_ids[index * sizeof(*((device_t *)0)->id) + ind] = (uint8_t)rand();
 		}
+		uint8_t device_key[16];
+		for (uint8_t ind = 0; ind < sizeof(*((device_t *)0)->key); ind++) {
+			device_key[ind] = (uint8_t)rand();
+		}
 		device_t device = {
 				.id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
 				.tag = (uint8_t (*)[2])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+				.key = &device_key,
 		};
 
 		if (device_insert(database, &device) != 0) {

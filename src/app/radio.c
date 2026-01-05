@@ -99,7 +99,7 @@ int radio_init(sqlite3 *database) {
 	}
 
 	const char *sql_device = "select "
-													 "device.id, device.tag "
+													 "device.id, device.tag, device.key "
 													 "from device "
 													 "order by tag asc";
 	debug("%s\n", sql_device);
@@ -131,6 +131,12 @@ int radio_init(sqlite3 *database) {
 				status = -1;
 				goto cleanup;
 			}
+			comms.devices[comms.devices_len].key = malloc(sizeof(*((device_t *)0)->key));
+			if (comms.devices[comms.devices_len].key == NULL) {
+				error("failed to allocate %zu bytes for key because %s\n", sizeof(*((device_t *)0)->key), errno_str());
+				status = -1;
+				goto cleanup;
+			}
 			const uint8_t *id = sqlite3_column_blob(stmt_device, 0);
 			const size_t id_len = (size_t)sqlite3_column_bytes(stmt_device, 0);
 			if (id_len != sizeof(*((device_t *)0)->id)) {
@@ -141,12 +147,20 @@ int radio_init(sqlite3 *database) {
 			const uint8_t *tag = sqlite3_column_blob(stmt_device, 1);
 			const size_t tag_len = (size_t)sqlite3_column_bytes(stmt_device, 1);
 			if (tag_len != sizeof(*((device_t *)0)->tag)) {
-				error("id length %zu does not match buffer length %zu\n", tag_len, sizeof(*((device_t *)0)->tag));
+				error("tag length %zu does not match buffer length %zu\n", tag_len, sizeof(*((device_t *)0)->tag));
+				status = 500;
+				goto cleanup;
+			}
+			const uint8_t *key = sqlite3_column_blob(stmt_device, 2);
+			const size_t key_len = (size_t)sqlite3_column_bytes(stmt_device, 2);
+			if (key_len != sizeof(*((device_t *)0)->key)) {
+				error("key length %zu does not match buffer length %zu\n", key_len, sizeof(*((device_t *)0)->key));
 				status = 500;
 				goto cleanup;
 			}
 			memcpy(comms.devices[comms.devices_len].id, id, id_len);
 			memcpy(comms.devices[comms.devices_len].tag, tag, tag_len);
+			memcpy(comms.devices[comms.devices_len].key, key, key_len);
 			comms.devices_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -476,6 +490,7 @@ void radio_reload(sqlite3 *database, response_t *response) {
 	for (uint8_t index = 0; index < comms.devices_len; index++) {
 		free(comms.devices[index].id);
 		free(comms.devices[index].tag);
+		free(comms.devices[index].key);
 	}
 
 	free(comms.workers);

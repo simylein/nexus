@@ -52,6 +52,15 @@
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
+							<th
+								id="key"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('key'); loadDevices()"
+							>
+								Key
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
 						</tr>
 					</thead>
@@ -102,6 +111,18 @@
 							onblur="createForm.setTouched('tag', true)"
 						/>
 						<p id="create-tag-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="create-key" class="mb-2 text-base font-normal">Key</label>
+						<input
+							id="create-key"
+							type="password"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="key"
+							onchange="createForm.setValue('key', event.target.value)"
+							onblur="createForm.setTouched('key', true)"
+						/>
+						<p id="create-key-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
@@ -196,6 +217,18 @@
 						/>
 						<p id="update-tag-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-key" class="mb-2 text-base font-normal">Key</label>
+						<input
+							id="update-key"
+							type="password"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="key"
+							onchange="updateForm.setValue('key', event.target.value)"
+							onblur="updateForm.setTouched('key', true)"
+						/>
+						<p id="update-key-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
 							id="update-button"
@@ -266,6 +299,7 @@
 		const columns = {
 			id: document.getElementById('id'),
 			tag: document.getElementById('tag'),
+			key: document.getElementById('key'),
 		};
 		const paintSorting = (column) => {
 			const element = columns[column];
@@ -294,15 +328,16 @@
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-80', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
-				element.children[ind].children[2].children[0].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[2].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[2].children[0].children[0].onclick = null;
-				element.children[ind].children[2].children[0].children[1].classList.remove('cursor-pointer');
-				element.children[ind].children[2].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[2].children[0].children[1].onclick = null;
-				element.children[ind].children[2].children[0].children[2].classList.remove('cursor-pointer');
-				element.children[ind].children[2].children[0].children[2].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[2].children[0].children[2].onclick = null;
+				loading(element.children[ind].children[2].children[0], ['w-80', 'h-4'], [], '');
+				element.children[ind].children[3].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[3].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[3].children[0].children[0].onclick = null;
+				element.children[ind].children[3].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[3].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[3].children[0].children[1].onclick = null;
+				element.children[ind].children[3].children[0].children[2].classList.remove('cursor-pointer');
+				element.children[ind].children[3].children[0].children[2].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[3].children[0].children[2].onclick = null;
 			});
 		};
 		const paintDevices = (element, data) => {
@@ -314,15 +349,16 @@
 				if (data[ind]) {
 					paint(element.children[ind].children[0].children[0], [], ['w-80', 'h-4'], data[ind].id);
 					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4'], data[ind].tag);
-					element.children[ind].children[2].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[2].children[0].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[2].children[0].children[0].onclick = () => openDownlinkDialog(data[ind]);
-					element.children[ind].children[2].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[2].children[0].children[1].classList.add('cursor-pointer');
-					element.children[ind].children[2].children[0].children[1].onclick = () => openUpdateDialog(data[ind]);
-					element.children[ind].children[2].children[0].children[2].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[2].children[0].children[2].classList.add('cursor-pointer');
-					element.children[ind].children[2].children[0].children[2].onclick = () => openDeleteDialog(data[ind]);
+					paint(element.children[ind].children[2].children[0], [], ['w-80', 'h-4'], data[ind].key.replace(/./g, '*'));
+					element.children[ind].children[3].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[3].children[0].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[3].children[0].children[0].onclick = () => openDownlinkDialog(data[ind]);
+					element.children[ind].children[3].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[3].children[0].children[1].classList.add('cursor-pointer');
+					element.children[ind].children[3].children[0].children[1].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[3].children[0].children[2].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[3].children[0].children[2].classList.add('cursor-pointer');
+					element.children[ind].children[3].children[0].children[2].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -333,15 +369,16 @@
 			array(element.children.length).forEach((ind) => {
 				error(element.children[ind].children[0].children[0], ['w-80', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
-				element.children[ind].children[2].children[0].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[2].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[2].children[0].children[0].onclick = null;
-				element.children[ind].children[2].children[0].children[1].classList.remove('cursor-pointer');
-				element.children[ind].children[2].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[2].children[0].children[1].onclick = null;
-				element.children[ind].children[2].children[0].children[2].classList.remove('cursor-pointer');
-				element.children[ind].children[2].children[0].children[2].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[2].children[0].children[2].onclick = null;
+				error(element.children[ind].children[2].children[0], ['w-80', 'h-4'], [], '');
+				element.children[ind].children[3].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[3].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[3].children[0].children[0].onclick = null;
+				element.children[ind].children[3].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[3].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[3].children[0].children[1].onclick = null;
+				element.children[ind].children[3].children[0].children[2].classList.remove('cursor-pointer');
+				element.children[ind].children[3].children[0].children[2].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[3].children[0].children[2].onclick = null;
 			});
 		};
 		const parseDevices = async (response) => {
@@ -349,19 +386,10 @@
 			const binary = new Binary(buffer);
 			const devices = [];
 			while (binary.offset < buffer.byteLength) {
-				const device = {
-					id: null,
-					device: null,
-					frequency: null,
-					bandwidth: null,
-					spreadingFactor: null,
-					codingRate: null,
-					txPower: null,
-					syncWord: null,
-					checksum: null,
-				};
+				const device = { id: null, tag: null, key: null };
 				device.id = binary.uuid();
 				device.tag = binary.hex(2);
+				device.key = binary.hex(16);
 				devices.push(device);
 			}
 			return devices;
@@ -385,6 +413,7 @@
 		const openCreateDialog = () => {
 			document.getElementById('create-id').value = '';
 			document.getElementById('create-tag').value = '';
+			document.getElementById('create-key').value = '';
 			createDialog.showModal();
 		};
 		const closeCreateDialog = () => {
@@ -407,6 +436,8 @@
 			document.getElementById('update-id').value = device.id;
 			updateForm.setValue('tag', device.tag);
 			document.getElementById('update-tag').value = device.tag;
+			updateForm.setValue('key', device.key);
+			document.getElementById('update-key').value = device.key;
 			updateForm.setValue('deviceId', device.id);
 			updateForm.setTouched('deviceId', true);
 			updateDialog.showModal();
@@ -429,6 +460,7 @@
 				button: document.getElementById('create-button'),
 				id: document.getElementById('create-id-validation'),
 				tag: document.getElementById('create-tag-validation'),
+				key: document.getElementById('create-key-validation'),
 			},
 			{
 				id: (value) => {
@@ -441,14 +473,22 @@
 					if (value.length !== 4) return 'tag must be 4 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'tag must be lowercase hexadecimal';
 				},
+				key: (value) => {
+					if (!value) return 'key is required';
+					if (value.length !== 32) return 'key must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'key must be lowercase hexadecimal';
+				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(values.id.length / 2 + values.tag.length / 2);
+				const bytes = new Uint8Array(values.id.length / 2 + values.tag.length / 2 + values.key.length / 2);
 				for (let ind = 0; ind < values.id.length / 2; ind++) {
 					bytes[ind] = parseInt(values.id.substring(ind * 2, ind * 2 + 2), 16);
 				}
 				for (let ind = 0; ind < values.tag.length / 2; ind++) {
 					bytes[values.id.length / 2 + ind] = parseInt(values.tag.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				for (let ind = 0; ind < values.key.length / 2; ind++) {
+					bytes[values.id.length / 2 + values.tag.length / 2 + ind] = parseInt(values.key.substring(ind * 2, ind * 2 + 2), 16);
 				}
 				const data = new Blob([bytes]);
 				try {
@@ -509,6 +549,7 @@
 				button: document.getElementById('update-button'),
 				id: document.getElementById('update-id-validation'),
 				tag: document.getElementById('update-tag-validation'),
+				key: document.getElementById('update-key-validation'),
 			},
 			{
 				id: (value) => {
@@ -521,6 +562,11 @@
 					if (value.length !== 4) return 'tag must be 4 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'tag must be lowercase hexadecimal';
 				},
+				key: (value) => {
+					if (!value) return 'key is required';
+					if (value.length !== 32) return 'key must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'key must be lowercase hexadecimal';
+				},
 				deviceId: (value) => {
 					if (!value) return 'device id is required';
 					if (value.length !== 32) return 'device id must be 32 characters';
@@ -528,12 +574,15 @@
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(values.id.length / 2 + values.tag.length / 2);
+				const bytes = new Uint8Array(values.id.length / 2 + values.tag.length / 2 + values.key.length / 2);
 				for (let ind = 0; ind < values.id.length / 2; ind++) {
 					bytes[ind] = parseInt(values.id.substring(ind * 2, ind * 2 + 2), 16);
 				}
 				for (let ind = 0; ind < values.tag.length / 2; ind++) {
 					bytes[values.id.length / 2 + ind] = parseInt(values.tag.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				for (let ind = 0; ind < values.key.length / 2; ind++) {
+					bytes[values.id.length / 2 + values.tag.length / 2 + ind] = parseInt(values.key.substring(ind * 2, ind * 2 + 2), 16);
 				}
 				const data = new Blob([bytes]);
 				try {

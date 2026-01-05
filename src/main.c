@@ -297,6 +297,7 @@ int main(int argc, char *argv[]) {
 	for (uint8_t index = 0; index < comms.devices_len; index++) {
 		free(comms.devices[index].id);
 		free(comms.devices[index].tag);
+		free(comms.devices[index].key);
 	}
 
 	free(comms.workers);
