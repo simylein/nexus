@@ -92,6 +92,7 @@ int radio_init(octet_t *db) {
 			status = -1;
 			goto cleanup;
 		}
+		memcpy(comms.radios[comms.radios_len].id, id, sizeof(*id));
 		memcpy(comms.radios[comms.radios_len].device, device, device_len);
 		comms.radios[comms.radios_len].device_len = device_len;
 		comms.radios[comms.radios_len].frequency = frequency;
