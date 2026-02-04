@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -29,15 +29,31 @@ typedef struct radio_query_t {
 	uint32_t offset;
 } radio_query_t;
 
-extern const char *radio_table;
-extern const char *radio_schema;
+typedef struct radio_row_t {
+	uint8_t id;
+	uint8_t device_len;
+	uint8_t device;
+	uint8_t frequency;
+	uint8_t bandwidth;
+	uint8_t spreading_factor;
+	uint8_t coding_rate;
+	uint8_t tx_power;
+	uint8_t preamble_len;
+	uint8_t sync_word;
+	uint8_t checksum;
+	uint8_t size;
+} radio_row_t;
 
-uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *response, uint8_t *radios_len);
-uint16_t radio_insert(sqlite3 *database, radio_t *radio);
-uint16_t radio_update(sqlite3 *database, radio_t *radio);
-uint16_t radio_delete(sqlite3 *database, radio_t *radio);
+extern const char *radio_file;
 
-void radio_find(sqlite3 *database, request_t *request, response_t *response);
-void radio_create(sqlite3 *database, request_t *request, response_t *response);
-void radio_modify(sqlite3 *database, request_t *request, response_t *response);
-void radio_remove(sqlite3 *database, request_t *request, response_t *response);
+extern const radio_row_t radio_row;
+
+uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, uint8_t *radios_len);
+uint16_t radio_insert(octet_t *db, radio_t *radio);
+uint16_t radio_update(octet_t *db, radio_t *radio);
+uint16_t radio_delete(octet_t *db, radio_t *radio);
+
+void radio_find(octet_t *db, request_t *request, response_t *response);
+void radio_create(octet_t *db, request_t *request, response_t *response);
+void radio_modify(octet_t *db, request_t *request, response_t *response);
+void radio_remove(octet_t *db, request_t *request, response_t *response);

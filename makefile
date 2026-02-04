@@ -28,11 +28,11 @@ all:
 
 develop: $(objects)
 	@echo "linking $(target) $(version) $(commit)..."
-	@$(cc) $(flags) -o $(target) $(objects) -lm -lsqlite3 -O0 -fsanitize=address
+	@$(cc) $(flags) -o $(target) $(objects) -lm -O0 -fsanitize=address
 
 release: $(objects)
 	@echo "linking $(target) $(version) $(commit)..."
-	@$(cc) $(flags) -o $(target) $(objects) -lm -lsqlite3 -O3 -march=native -flto=full
+	@$(cc) $(flags) -o $(target) $(objects) -lm -O3 -march=native -flto=full
 
 clean:
 	@echo "cleaning up..."

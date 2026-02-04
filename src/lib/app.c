@@ -3,16 +3,16 @@
 #include "error.h"
 #include "format.h"
 #include "logger.h"
+#include "octet.h"
 #include "request.h"
 #include "response.h"
 #include "strn.h"
 #include <arpa/inet.h>
-#include <sqlite3.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 
-void handle(sqlite3 *database, char *request_buffer, char *response_buffer, int *client_sock, struct sockaddr_in *client_addr) {
+void handle(octet_t *db, char *request_buffer, char *response_buffer, int *client_sock, struct sockaddr_in *client_addr) {
 	struct request_t reqs;
 	struct response_t resp;
 
@@ -108,7 +108,7 @@ void handle(sqlite3 *database, char *request_buffer, char *response_buffer, int 
 				reqs.header.len, reqs.body.len);
 	req("%.*s %.*s %s\n", (int)reqs.method.len, reqs.method.ptr, (int)reqs.pathname.len, reqs.pathname.ptr, bytes_buffer);
 
-	route(database, &reqs, &resp);
+	route(db, &reqs, &resp);
 
 	size_t response_length = response(&reqs, &resp, response_buffer);
 

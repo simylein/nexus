@@ -3,92 +3,170 @@
 #include "../lib/endian.h"
 #include "../lib/format.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include "database.h"
-#include <sqlite3.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
-const char *host_table = "host";
-const char *host_schema = "create table host ( "
-													"id blob primary key, "
-													"address text not null, "
-													"port integer not null, "
-													"username text not null, "
-													"password text not null"
-													")";
+const char *host_file = "host";
 
-uint16_t host_select(sqlite3 *database, host_query_t *query, response_t *response, uint8_t *hosts_len) {
+const host_row_t host_row = {
+		.id = 0,
+		.address_len = 16,
+		.address = 17,
+		.port = 49,
+		.username_len = 51,
+		.username = 52,
+		.password_len = 68,
+		.password = 69,
+		.size = 133,
+};
+
+int host_rowcmp(uint8_t *alpha, uint8_t *bravo, host_query_t *query) {
+	if (query->order_len == 2 && memcmp(query->order, "id", query->order_len) == 0) {
+		uint64_t id_alpha = octet_uint64_read(alpha, host_row.id);
+		uint64_t id_bravo = octet_uint64_read(bravo, host_row.id);
+		int result = (id_alpha > id_bravo) - (id_alpha < id_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 7 && memcmp(query->order, "address", query->order_len) == 0) {
+		uint8_t address_len_alpha = octet_uint8_read(alpha, host_row.address_len);
+		char *address_alpha = octet_text_read(alpha, host_row.address);
+		uint8_t address_len_bravo = octet_uint8_read(bravo, host_row.address_len);
+		char *address_bravo = octet_text_read(bravo, host_row.address);
+		int result =
+				memcmp(address_alpha, address_bravo, address_len_alpha < address_len_bravo ? address_len_alpha : address_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 4 && memcmp(query->order, "port", query->order_len) == 0) {
+		uint16_t port_alpha = octet_uint16_read(alpha, host_row.port);
+		uint16_t port_bravo = octet_uint16_read(bravo, host_row.port);
+		int result = (port_alpha > port_bravo) - (port_alpha < port_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 8 && memcmp(query->order, "username", query->order_len) == 0) {
+		uint8_t username_len_alpha = octet_uint8_read(alpha, host_row.username_len);
+		char *username_alpha = octet_text_read(alpha, host_row.username);
+		uint8_t username_len_bravo = octet_uint8_read(bravo, host_row.username_len);
+		char *username_bravo = octet_text_read(bravo, host_row.username);
+		int result = memcmp(username_alpha, username_bravo,
+												username_len_alpha < username_len_bravo ? username_len_alpha : username_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 8 && memcmp(query->order, "password", query->order_len) == 0) {
+		uint8_t password_len_alpha = octet_uint8_read(alpha, host_row.password_len);
+		char *password_alpha = octet_text_read(alpha, host_row.password);
+		uint8_t password_len_bravo = octet_uint8_read(bravo, host_row.password_len);
+		char *password_bravo = octet_text_read(bravo, host_row.password);
+		int result = memcmp(password_alpha, password_bravo,
+												password_len_alpha < password_len_bravo ? password_len_alpha : password_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	return 0;
+}
+
+uint16_t host_select(octet_t *db, host_query_t *query, response_t *response, uint8_t *hosts_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"host.id, host.address, host.port, host.username, host.password "
-										"from host "
-										"order by "
-										"case when ?1 = 'id' and ?2 = 'asc' then host.id end asc, "
-										"case when ?1 = 'id' and ?2 = 'desc' then host.id end desc, "
-										"case when ?1 = 'address' and ?2 = 'asc' then host.address end asc, "
-										"case when ?1 = 'address' and ?2 = 'desc' then host.address end desc, "
-										"case when ?1 = 'port' and ?2 = 'asc' then host.port end asc, "
-										"case when ?1 = 'port' and ?2 = 'desc' then host.port end desc, "
-										"case when ?1 = 'username' and ?2 = 'asc' then host.username end asc, "
-										"case when ?1 = 'username' and ?2 = 'desc' then host.username end desc, "
-										"case when ?1 = 'password' and ?2 = 'asc' then host.password end asc, "
-										"case when ?1 = 'password' and ?2 = 'desc' then host.password end desc "
-										"limit ?3 offset ?4";
-	debug("%s\n", sql);
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_text(stmt, 1, query->order, (uint8_t)query->order_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, query->sort, (uint8_t)query->sort_len, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 3, query->limit);
-	sqlite3_bind_int64(stmt, 4, query->offset);
+	debug("select hosts order by %.*s:%.*s\n", (int)query->order_len, query->order, (int)query->sort_len, query->sort);
 
+	off_t offset = 0;
+	uint32_t table_len = 0;
 	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const uint8_t *id = sqlite3_column_blob(stmt, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-			if (id_len != sizeof(*((host_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((host_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *address = sqlite3_column_text(stmt, 1);
-			const size_t address_len = (size_t)sqlite3_column_bytes(stmt, 1);
-			const uint16_t port = (uint16_t)sqlite3_column_int(stmt, 2);
-			const uint8_t *username = sqlite3_column_text(stmt, 3);
-			const size_t username_len = (size_t)sqlite3_column_bytes(stmt, 3);
-			const uint8_t *password = sqlite3_column_text(stmt, 4);
-			const size_t password_len = (size_t)sqlite3_column_bytes(stmt, 4);
-			body_write(response, id, id_len);
-			body_write(response, address, address_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-			body_write(response, (uint16_t[]){hton16(port)}, sizeof(port));
-			body_write(response, username, username_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-			body_write(response, password, password_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-			*hosts_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (offset >= stmt.stat.st_size) {
 			status = 0;
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (octet_row_read(&stmt, file, offset, &db->table[table_len], host_row.size) == -1) {
+			status = octet_error();
 			goto cleanup;
+		}
+		table_len += host_row.size;
+		offset += host_row.size;
+	}
+
+	if (table_len >= host_row.size * 2) {
+		for (uint8_t index = 0; index < table_len / host_row.size - 1; index++) {
+			for (uint8_t ind = index + 1; ind < table_len / host_row.size; ind++) {
+				if (host_rowcmp(&db->table[index * host_row.size], &db->table[ind * host_row.size], query) > 0) {
+					memcpy(db->row, &db->table[index * host_row.size], host_row.size);
+					memcpy(&db->table[index * host_row.size], &db->table[ind * host_row.size], host_row.size);
+					memcpy(&db->table[ind * host_row.size], db->row, host_row.size);
+				}
+			}
 		}
 	}
 
+	uint32_t index = host_row.size * query->offset;
+	while (true) {
+		if (index >= table_len || *hosts_len >= query->limit) {
+			status = 0;
+			break;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], host_row.id);
+		uint8_t address_len = octet_uint8_read(&db->table[index], host_row.address_len);
+		char *address = octet_text_read(&db->table[index], host_row.address);
+		uint16_t port = octet_uint16_read(&db->table[index], host_row.port);
+		uint8_t username_len = octet_uint8_read(&db->table[index], host_row.username_len);
+		char *username = octet_text_read(&db->table[index], host_row.username);
+		uint8_t password_len = octet_uint8_read(&db->table[index], host_row.password_len);
+		char *password = octet_text_read(&db->table[index], host_row.password);
+		body_write(response, id, sizeof(*id));
+		body_write(response, address, address_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, (uint16_t[]){hton16(port)}, sizeof(port));
+		body_write(response, username, username_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, password, password_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		*hosts_len += 1;
+		index += host_row.size;
+	}
+
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -208,121 +286,182 @@ int host_validate(host_t *host) {
 	return 0;
 }
 
-uint16_t host_insert(sqlite3 *database, host_t *host) {
+uint16_t host_insert(octet_t *db, host_t *host) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into host (id, address, port, username, password) "
-										"values (randomblob(16), ?, ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	for (uint8_t index = 0; index < sizeof(*host->id); index++) {
+		(*host->id)[index] = (uint8_t)(rand() & 0xff);
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 
-	sqlite3_bind_text(stmt, 1, host->address, host->address_len, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 2, host->port);
-	sqlite3_bind_text(stmt, 3, host->username, host->username_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 4, host->password, host->password_len, SQLITE_STATIC);
+	debug("insert host %.*s port %hu\n", host->address_len, host->address, host->port);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*host->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*host->id));
-			status = 500;
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, host_row.size) == -1) {
+			status = octet_error();
 			goto cleanup;
 		}
-		memcpy(host->id, id, id_len);
-		status = 0;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
+		uint8_t address_len = octet_uint8_read(db->row, host_row.address_len);
+		char *address = octet_text_read(db->row, host_row.address);
+		uint16_t port = octet_uint16_read(db->row, host_row.port);
+		if (address_len == host->address_len && memcmp(address, host->address, host->address_len) == 0 && port == host->port) {
+			status = 409;
+			warn("address %.*s and port %hu already taken\n", host->address_len, host->address, host->port);
+			goto cleanup;
+		}
+		offset += host_row.size;
 	}
 
-cleanup:
-	sqlite3_finalize(stmt);
-	return status;
-}
+	octet_blob_write(db->row, host_row.id, (uint8_t *)host->id, sizeof(*host->id));
+	octet_uint8_write(db->row, host_row.address_len, host->address_len);
+	octet_text_write(db->row, host_row.address, host->address, host->address_len);
+	octet_uint16_write(db->row, host_row.port, host->port);
+	octet_uint8_write(db->row, host_row.username_len, host->username_len);
+	octet_text_write(db->row, host_row.username, host->username, host->username_len);
+	octet_uint8_write(db->row, host_row.password_len, host->password_len);
+	octet_text_write(db->row, host_row.password, host->password, host->password_len);
 
-uint16_t host_update(sqlite3 *database, host_t *host) {
-	uint16_t status;
-	sqlite3_stmt *stmt;
-
-	const char *sql = "update host "
-										"set address = ?, port = ?, username = ?, password = ? "
-										"where id = ?";
-	debug("%s\n", sql);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
-		goto cleanup;
-	}
-
-	sqlite3_bind_text(stmt, 1, host->address, host->address_len, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 2, host->port);
-	sqlite3_bind_text(stmt, 3, host->username, host->username_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 4, host->password, host->password_len, SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 5, *host->id, sizeof(*host->id), SQLITE_STATIC);
-
-	int result = sqlite3_step(stmt);
-	if (result != SQLITE_DONE) {
-		status = database_error(database, result);
-		goto cleanup;
-	}
-
-	if (sqlite3_changes(database) == 0) {
-		warn("host %02x%02x not found\n", (*host->id)[0], (*host->id)[1]);
-		status = 404;
+	offset = stmt.stat.st_size;
+	if (octet_row_write(&stmt, file, offset, db->row, host_row.size) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 
 	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
-uint16_t host_delete(sqlite3 *database, host_t *host) {
+uint16_t host_update(octet_t *db, host_t *host) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "delete from host "
-										"where id = ?";
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("update host %02x%02x\n", (*host->id)[0], (*host->id)[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("host %02x%02x not found\n", (*host->id)[0], (*host->id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, host_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, host_row.id);
+		if (memcmp(id, host->id, sizeof(*host->id)) == 0) {
+			octet_uint8_write(db->row, host_row.address_len, host->address_len);
+			octet_text_write(db->row, host_row.address, (char *)host->address, host->address_len);
+			octet_uint16_write(db->row, host_row.port, host->port);
+			octet_uint8_write(db->row, host_row.username_len, host->username_len);
+			octet_text_write(db->row, host_row.username, (char *)host->username, host->username_len);
+			octet_uint8_write(db->row, host_row.password_len, host->password_len);
+			octet_text_write(db->row, host_row.password, (char *)host->password, host->password_len);
+			if (octet_row_write(&stmt, file, offset, db->row, host_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			status = 0;
+			break;
+		}
+		offset += host_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+uint16_t host_delete(octet_t *db, host_t *host) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("delete host %02x%02x\n", (*host->id)[0], (*host->id)[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("user %02x%02x not found\n", (*host->id)[0], (*host->id)[1]);
+			status = 404;
+			goto cleanup;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, host_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, host_row.id);
+		if (memcmp(id, host->id, sizeof(*host->id)) == 0) {
+			break;
+		}
+		offset += host_row.size;
+	}
+
+	off_t index = offset + host_row.size;
+	while (index < stmt.stat.st_size) {
+		if (octet_row_read(&stmt, file, index, db->row, host_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		if (octet_row_write(&stmt, file, index - host_row.size, db->row, host_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		index += host_row.size;
+	}
+
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - host_row.size)) {
 		status = 500;
-		goto cleanup;
-	}
-
-	sqlite3_bind_blob(stmt, 1, host->id, sizeof(*host->id), SQLITE_STATIC);
-
-	int result = sqlite3_step(stmt);
-	if (result != SQLITE_DONE) {
-		status = database_error(database, result);
-		goto cleanup;
-	}
-
-	if (sqlite3_changes(database) == 0) {
-		warn("host %02x%02x not found\n", (*host->id)[0], (*host->id)[1]);
-		status = 404;
 		goto cleanup;
 	}
 
 	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
-void host_find(sqlite3 *database, request_t *request, response_t *response) {
+void host_find(octet_t *db, request_t *request, response_t *response) {
 	host_query_t query = {.limit = 16, .offset = 0};
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
 		response->status = 400;
@@ -335,7 +474,7 @@ void host_find(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	uint8_t hosts_len = 0;
-	uint16_t status = host_select(database, &query, response, &hosts_len);
+	uint16_t status = host_select(db, &query, response, &hosts_len);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -347,7 +486,7 @@ void host_find(sqlite3 *database, request_t *request, response_t *response) {
 	response->status = 200;
 }
 
-void host_create(sqlite3 *database, request_t *request, response_t *response) {
+void host_create(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -360,7 +499,7 @@ void host_create(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint16_t status = host_insert(database, &host);
+	uint16_t status = host_insert(db, &host);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -370,7 +509,7 @@ void host_create(sqlite3 *database, request_t *request, response_t *response) {
 	response->status = 201;
 }
 
-void host_modify(sqlite3 *database, request_t *request, response_t *response) {
+void host_modify(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -397,7 +536,7 @@ void host_modify(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint16_t status = host_update(database, &host);
+	uint16_t status = host_update(db, &host);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -407,7 +546,7 @@ void host_modify(sqlite3 *database, request_t *request, response_t *response) {
 	response->status = 200;
 }
 
-void host_remove(sqlite3 *database, request_t *request, response_t *response) {
+void host_remove(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -429,7 +568,7 @@ void host_remove(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	host_t host = {.id = &id};
-	uint16_t status = host_delete(database, &host);
+	uint16_t status = host_delete(db, &host);
 	if (status != 0) {
 		response->status = status;
 		return;

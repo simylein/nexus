@@ -1,5 +1,5 @@
 #pragma once
 
-#include <sqlite3.h>
+#include "../lib/octet.h"
 
-int drop(sqlite3 *database);
+int drop(octet_t *db);

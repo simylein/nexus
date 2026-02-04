@@ -1,8 +1,8 @@
 #pragma once
 
+#include "octet.h"
 #include <arpa/inet.h>
 #include <pthread.h>
-#include <sqlite3.h>
 #include <stdint.h>
 
 typedef struct task_t {
@@ -25,7 +25,8 @@ extern struct queue_t queue;
 typedef struct arg_t {
 	uint8_t id;
 	int state;
-	sqlite3 *database;
+	octet_t db;
+	char *database_buffer;
 	char *request_buffer;
 	char *response_buffer;
 } arg_t;

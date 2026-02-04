@@ -48,7 +48,7 @@ typedef struct uplinks_t {
 
 extern struct uplinks_t uplinks;
 
-int uplink_init(sqlite3 *database);
+int uplink_init(octet_t *db);
 
 int uplink_spawn(pthread_t *thread, void *(*function)(void *), uplink_arg_t *arg);
 

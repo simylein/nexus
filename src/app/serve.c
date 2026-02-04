@@ -5,7 +5,6 @@
 #include "file.h"
 #include "hydrate.h"
 #include <pthread.h>
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdio.h>
 

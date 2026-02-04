@@ -4,8 +4,8 @@
 #include "error.h"
 #include "logger.h"
 #include <errno.h>
-#include <sqlite3.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 queue_t queue = {
@@ -29,22 +29,50 @@ void cancel(void *lock) { pthread_mutex_unlock((pthread_mutex_t *)lock); }
 
 int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 					void (*logger)(const char *message, ...) __attribute__((format(printf, 1, 2)))) {
-	worker->arg.id = id;
 	trace("spawning worker thread %hhu\n", id);
 
-	int db_error = sqlite3_open_v2(database_file, &worker->arg.database, SQLITE_OPEN_READWRITE, NULL);
-	if (db_error != SQLITE_OK) {
-		logger("failed to open %s because %s\n", database_file, sqlite3_errmsg(worker->arg.database));
+	worker->arg.id = id;
+	worker->arg.db.directory = database_directory;
+
+	worker->arg.database_buffer = malloc(database_buffer * sizeof(char));
+	if (worker->arg.database_buffer == NULL) {
+		logger("failed to allocate %u bytes because %s\n", database_buffer, errno_str());
 		return -1;
 	}
 
-	int exec_error = sqlite3_exec(worker->arg.database, "pragma foreign_keys = on", NULL, NULL, NULL);
-	if (exec_error != SQLITE_OK) {
-		logger("failed to enforce foreign key constraints because %s\n", sqlite3_errmsg(worker->arg.database));
-		return -1;
-	}
+	uint32_t offset = 0;
 
-	sqlite3_busy_timeout(worker->arg.database, database_timeout);
+	worker->arg.db.row = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.row_len = UINT8_MAX;
+	offset += worker->arg.db.row_len;
+
+	worker->arg.db.alpha = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.alpha_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.alpha_len;
+
+	worker->arg.db.bravo = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.bravo_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.bravo_len;
+
+	worker->arg.db.charlie = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.charlie_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.charlie_len;
+
+	worker->arg.db.delta = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.delta_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.delta_len;
+
+	worker->arg.db.echo = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.echo_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.echo_len;
+
+	worker->arg.db.chunk = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.chunk_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.chunk_len;
+
+	worker->arg.db.table = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.table_len = database_buffer - offset;
+	offset += worker->arg.db.table_len;
 
 	worker->arg.request_buffer = malloc(receive_buffer * sizeof(char));
 	if (worker->arg.request_buffer == NULL) {
@@ -79,11 +107,7 @@ int join(worker_t *worker, uint8_t id) {
 		return -1;
 	}
 
-	if (sqlite3_close_v2(worker->arg.database) != SQLITE_OK) {
-		error("failed to close %s because %s\n", database_file, sqlite3_errmsg(worker->arg.database));
-		return -1;
-	}
-
+	free(worker->arg.database_buffer);
 	free(worker->arg.request_buffer);
 	free(worker->arg.response_buffer);
 
@@ -116,7 +140,7 @@ void *thread(void *args) {
 		trace("worker thread %hhu increased thread pool load to %hhu\n", arg->id, thread_pool.load);
 		pthread_mutex_unlock(&thread_pool.lock);
 
-		handle(arg->database, arg->request_buffer, arg->response_buffer, &task.client_sock, &task.client_addr);
+		handle(&arg->db, arg->request_buffer, arg->response_buffer, &task.client_sock, &task.client_addr);
 
 		pthread_mutex_lock(&thread_pool.lock);
 		thread_pool.load--;
@@ -154,7 +178,5 @@ void *scaler(void *args) {
 				thread_pool.size = new_size;
 			}
 		}
-
-		pthread_mutex_unlock(&thread_pool.lock);
 	}
 }

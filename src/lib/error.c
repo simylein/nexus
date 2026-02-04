@@ -134,6 +134,8 @@ const char *errno_str(void) {
 		return "no route to host";
 	case ENOTEMPTY:
 		return "directory not empty";
+	case EDQUOT:
+		return "disk quota exceeded";
 	default:
 		return "???";
 	}

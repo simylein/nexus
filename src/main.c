@@ -12,17 +12,18 @@
 #include "lib/error.h"
 #include "lib/format.h"
 #include "lib/logger.h"
+#include "lib/octet.h"
 #include "lib/thread.h"
 #include <arpa/inet.h>
 #include <errno.h>
 #include <pthread.h>
 #include <signal.h>
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 bool stopping = false;
@@ -42,6 +43,8 @@ void stop(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+	srand((unsigned int)time(NULL));
+
 	signal(SIGINT, &stop);
 	signal(SIGTERM, &stop);
 
@@ -58,8 +61,8 @@ int main(int argc, char *argv[]) {
 		info("--most-workers      -mw  most amount of worker threads    (%hhu)\n", most_workers);
 		info("--bwt-key           -bk  random bytes for bwt signing     (%s)\n", bwt_key);
 		info("--bwt-ttl           -bt  time to live for bwt expiry      (%u)\n", bwt_ttl);
-		info("--database-file     -df  path to sqlite database file     (%s)\n", database_file);
-		info("--database-timeout  -dt  milliseconds to wait for lock    (%hu)\n", database_timeout);
+		info("--database-directory  -dd  path to database directory     (%s)\n", database_directory);
+		info("--database-buffer     -db  most bytes in database buffer  (%u)\n", database_buffer);
 		info("--receive-timeout   -rt  seconds to wait for receiving    (%hhu)\n", receive_timeout);
 		info("--send-timeout      -st  seconds to wait for sending      (%hhu)\n", send_timeout);
 		info("--receive-packets   -rp  most packets allowed to receive  (%hhu)\n", receive_packets);
@@ -88,34 +91,36 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (cmds != 0x00) {
-		sqlite3 *database;
-		if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
-			fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
+		uint8_t row[255];
+		uint8_t chunk[2048];
+		uint8_t table[16384];
+		octet_t db = {
+				.directory = database_directory,
+				.row = row,
+				.row_len = sizeof(row),
+				.chunk = chunk,
+				.chunk_len = sizeof(chunk),
+				.table = table,
+				.table_len = sizeof(table),
+		};
+
+		if (cmds & 0x10 && init(&db) != 0) {
+			fatal("failed to init database\n");
 			exit(1);
 		}
 
-		if (cmds & 0x10 && init(database) != 0) {
-			fatal("failed to initialise database\n");
-			exit(1);
-		}
-
-		if (cmds & 0x20 && seed(database) != 0) {
+		if (cmds & 0x20 && seed(&db) != 0) {
 			fatal("failed to seed database\n");
 			exit(1);
 		}
 
-		if (cmds & 0x40 && wipe(database) != 0) {
+		if (cmds & 0x40 && wipe(&db) != 0) {
 			fatal("failed to wipe database\n");
 			exit(1);
 		}
 
-		if (cmds & 0x80 && drop(database) != 0) {
+		if (cmds & 0x80 && drop(&db) != 0) {
 			fatal("failed to drop database\n");
-			exit(1);
-		}
-
-		if (sqlite3_close_v2(database) != SQLITE_OK) {
-			fatal("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
 			exit(1);
 		}
 
@@ -156,28 +161,30 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	sqlite3 *database;
-	if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
-		fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
+	uint8_t row[255];
+	uint8_t chunk[2048];
+	uint8_t table[16384];
+	octet_t db = {
+			.directory = database_directory,
+			.row = row,
+			.row_len = sizeof(row),
+			.chunk = chunk,
+			.chunk_len = sizeof(chunk),
+			.table = table,
+			.table_len = sizeof(table),
+	};
+
+	if (uplink_init(&db) == -1) {
 		exit(1);
 	}
 
-	if (uplink_init(database) == -1) {
-		exit(1);
-	}
-
-	if (downlink_init(database) == -1) {
+	if (downlink_init(&db) == -1) {
 		exit(1);
 	}
 
 	info("spawned %hhu queue threads\n", 2);
 
-	if (radio_init(database) == -1) {
-		exit(1);
-	}
-
-	if (sqlite3_close_v2(database) != SQLITE_OK) {
-		fatal("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
+	if (radio_init(&db) == -1) {
 		exit(1);
 	}
 
@@ -269,6 +276,8 @@ int main(int argc, char *argv[]) {
 
 	pthread_mutex_unlock(&thread_pool.lock);
 
+	pthread_cancel(thread_pool.scaler);
+	pthread_join(thread_pool.scaler, NULL);
 	for (uint8_t index = 0; index < thread_pool.size; index++) {
 		join(&thread_pool.workers[index], index);
 	}

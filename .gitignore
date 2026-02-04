@@ -11,7 +11,7 @@ obj
 nexus
 
 # database
-nexus.sqlite
+data
 
 # logs
 *.log

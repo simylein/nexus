@@ -1,5 +1,5 @@
 #pragma once
 
-#include <sqlite3.h>
+#include "../lib/octet.h"
 
-int wipe(sqlite3 *database);
+int wipe(octet_t *db);

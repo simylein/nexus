@@ -3,6 +3,10 @@
 
 const char *status_text(uint16_t status) {
 	switch (status) {
+	case 100:
+		return "Continue";
+	case 101:
+		return "Switching Protocols";
 	case 200:
 		return "OK";
 	case 201:
@@ -31,12 +35,16 @@ const char *status_text(uint16_t status) {
 		return "Bad Request";
 	case 401:
 		return "Unauthorized";
+	case 402:
+		return "Payment Required";
 	case 403:
 		return "Forbidden";
 	case 404:
 		return "Not Found";
 	case 405:
 		return "Method Not Allowed";
+	case 406:
+		return "Not Acceptable";
 	case 408:
 		return "Request Timeout";
 	case 409:
@@ -55,6 +63,12 @@ const char *status_text(uint16_t status) {
 		return "I Am A Teapot";
 	case 420:
 		return "Enhance Your Calm";
+	case 423:
+		return "Locked";
+	case 424:
+		return "Failed Dependency";
+	case 426:
+		return "Upgrade Required";
 	case 429:
 		return "Too Many Requests";
 	case 431:

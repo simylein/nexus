@@ -1,9 +1,9 @@
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "device.h"
 #include "host.h"
 #include "radio.h"
 #include "user.h"
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -19,7 +19,7 @@ uint8_t device_ids_len;
 uint8_t *host_ids;
 uint8_t host_ids_len;
 
-int seed_user(sqlite3 *database) {
+int seed_user(octet_t *db) {
 	char *usernames[] = {"alice", "bob", "charlie", "dave"};
 	char *passwords[] = {".go4Alice", ".go4Bob", ".go4Charlie", ".go4Dave"};
 
@@ -30,17 +30,17 @@ int seed_user(sqlite3 *database) {
 	}
 
 	for (uint8_t index = 0; index < user_ids_len; index++) {
-		uint8_t permissions[4];
 		user_t user = {
 				.id = (uint8_t (*)[16])(&user_ids[index * sizeof(*((user_t *)0)->id)]),
 				.username = usernames[index],
 				.username_len = (uint8_t)strlen(usernames[index]),
 				.password = passwords[index],
 				.password_len = (uint8_t)strlen(passwords[index]),
-				.permissions = &permissions,
+				.signup_at = (time_t[]){time(NULL)},
+				.signin_at = (time_t[]){time(NULL)},
 		};
 
-		if (user_insert(database, &user) != 0) {
+		if (user_insert(db, &user) != 0) {
 			return -1;
 		}
 	}
@@ -49,7 +49,7 @@ int seed_user(sqlite3 *database) {
 	return 0;
 }
 
-int seed_radio(sqlite3 *database) {
+int seed_radio(octet_t *db) {
 	char *devices[] = {"/dev/spidev0.0", "/dev/spidev0.1", "/dev/spidev1.0", "/dev/spidev1.1"};
 
 	radio_ids_len = sizeof(devices) / sizeof(*devices);
@@ -73,7 +73,7 @@ int seed_radio(sqlite3 *database) {
 				.checksum = true,
 		};
 
-		if (radio_insert(database, &radio) != 0) {
+		if (radio_insert(db, &radio) != 0) {
 			return -1;
 		}
 	}
@@ -82,7 +82,7 @@ int seed_radio(sqlite3 *database) {
 	return 0;
 }
 
-int seed_device(sqlite3 *database) {
+int seed_device(octet_t *db) {
 	device_ids_len = 8;
 	device_ids = malloc(device_ids_len * sizeof(*((radio_t *)0)->id));
 	if (device_ids == NULL) {
@@ -103,7 +103,7 @@ int seed_device(sqlite3 *database) {
 				.key = &device_key,
 		};
 
-		if (device_insert(database, &device) != 0) {
+		if (device_insert(db, &device) != 0) {
 			return -1;
 		}
 	}
@@ -112,7 +112,7 @@ int seed_device(sqlite3 *database) {
 	return 0;
 }
 
-int seed_host(sqlite3 *database) {
+int seed_host(octet_t *db) {
 	char *addresses[] = {"127.0.0.1", "127.0.0.1"};
 	uint16_t ports[] = {1284, 1285};
 	char *usernames[] = {"nexus", "nexus"};
@@ -136,7 +136,7 @@ int seed_host(sqlite3 *database) {
 				.password_len = (uint8_t)strlen(passwords[index]),
 		};
 
-		if (host_insert(database, &host) != 0) {
+		if (host_insert(db, &host) != 0) {
 			return -1;
 		}
 	}
@@ -145,19 +145,17 @@ int seed_host(sqlite3 *database) {
 	return 0;
 }
 
-int seed(sqlite3 *database) {
-	srand((unsigned int)time(NULL));
-
-	if (seed_user(database) == -1) {
+int seed(octet_t *db) {
+	if (seed_user(db) == -1) {
 		return -1;
 	}
-	if (seed_radio(database) == -1) {
+	if (seed_radio(db) == -1) {
 		return -1;
 	}
-	if (seed_device(database) == -1) {
+	if (seed_device(db) == -1) {
 		return -1;
 	}
-	if (seed_host(database) == -1) {
+	if (seed_host(db) == -1) {
 		return -1;
 	}
 

@@ -2,7 +2,7 @@
 #include "../app/radio.h"
 #include "../app/serve.h"
 #include "../lib/bwt.h"
-#include "../lib/endian.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "device.h"
@@ -11,7 +11,6 @@
 #include "schedule.h"
 #include "transmission.h"
 #include "user.h"
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -85,20 +84,7 @@ bool authenticate(bool redirect, bwt_t *bwt, request_t *request, response_t *res
 	return true;
 }
 
-bool authorize(bwt_t *bwt, uint32_t permission, response_t *response) {
-	uint32_t permissions;
-	memcpy(&permissions, bwt->data, sizeof(bwt->data));
-	permissions = ntoh32(permissions);
-
-	if ((permissions & permission) != permission) {
-		response->status = 403;
-		return false;
-	}
-
-	return true;
-}
-
-void route(sqlite3 *database, request_t *request, response_t *response) {
+void route(octet_t *db, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
 
@@ -156,91 +142,91 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/api/radios", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			radio_find(database, request, response);
+			radio_find(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "reload", "/api/radios", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			radio_reload(database, response);
+			radio_reload(db, response);
 		}
 	}
 
 	if (endpoint(request, "post", "/api/radio", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			radio_create(database, request, response);
+			radio_create(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "patch", "/api/radio/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			radio_modify(database, request, response);
+			radio_modify(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "delete", "/api/radio/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			radio_remove(database, request, response);
+			radio_remove(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			device_find(database, request, response);
+			device_find(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "post", "/api/device", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			device_create(database, request, response);
+			device_create(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "patch", "/api/device/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			device_modify(database, request, response);
+			device_modify(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "delete", "/api/device/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			device_remove(database, request, response);
+			device_remove(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/hosts", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			host_find(database, request, response);
+			host_find(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "post", "/api/host", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			host_create(database, request, response);
+			host_create(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "patch", "/api/host/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			host_modify(database, request, response);
+			host_modify(db, request, response);
 		}
 	}
 
 	if (endpoint(request, "delete", "/api/host/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			host_remove(database, request, response);
+			host_remove(db, request, response);
 		}
 	}
 
@@ -252,7 +238,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
-		user_signin(database, request, response);
+		user_signin(db, request, response);
 	}
 
 respond:

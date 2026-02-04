@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include <sqlite3.h>
 #include <stdint.h>
 
 typedef struct device_t {
@@ -20,15 +20,23 @@ typedef struct device_query_t {
 	uint32_t offset;
 } device_query_t;
 
-extern const char *device_table;
-extern const char *device_schema;
+typedef struct device_row_t {
+	uint8_t id;
+	uint8_t tag;
+	uint8_t key;
+	uint8_t size;
+} device_row_t;
 
-uint16_t device_select(sqlite3 *database, device_query_t *query, response_t *response, uint8_t *device_len);
-uint16_t device_insert(sqlite3 *database, device_t *device);
-uint16_t device_update(sqlite3 *database, uint8_t (*id)[16], device_t *device);
-uint16_t device_delete(sqlite3 *database, device_t *device);
+extern const char *device_file;
 
-void device_find(sqlite3 *database, request_t *request, response_t *response);
-void device_create(sqlite3 *database, request_t *request, response_t *response);
-void device_modify(sqlite3 *database, request_t *request, response_t *response);
-void device_remove(sqlite3 *database, request_t *request, response_t *response);
+extern const device_row_t device_row;
+
+uint16_t device_select(octet_t *db, device_query_t *query, response_t *response, uint8_t *devices_len);
+uint16_t device_insert(octet_t *db, device_t *device);
+uint16_t device_update(octet_t *db, uint8_t (*id)[16], device_t *device);
+uint16_t device_delete(octet_t *db, device_t *device);
+
+void device_find(octet_t *db, request_t *request, response_t *response);
+void device_create(octet_t *db, request_t *request, response_t *response);
+void device_modify(octet_t *db, request_t *request, response_t *response);
+void device_remove(octet_t *db, request_t *request, response_t *response);

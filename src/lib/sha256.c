@@ -116,7 +116,7 @@ void sha256_final(sha256_ctx *ctx, uint8_t (*hash)[32]) {
 		while (index < 64)
 			ctx->data[index++] = 0x00;
 		sha256_transform(ctx, ctx->data);
-		memset(ctx->data, 0, 56);
+		memset(ctx->data, 0x00, 56);
 	}
 
 	ctx->bit_len += ctx->data_len * 8;

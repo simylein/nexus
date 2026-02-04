@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../api/host.h"
+#include "../lib/octet.h"
 #include "../lib/strn.h"
 #include "auth.h"
 #include <pthread.h>
@@ -46,7 +47,7 @@ typedef struct downlinks_t {
 
 extern struct downlinks_t downlinks;
 
-int downlink_init(sqlite3 *database);
+int downlink_init(octet_t *db);
 
 int downlink_spawn(pthread_t *thread, void *(*function)(void *), downlink_arg_t *arg);
 

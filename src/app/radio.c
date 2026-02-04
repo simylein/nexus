@@ -1,9 +1,9 @@
 #include "../api/radio.h"
-#include "../api/database.h"
 #include "../api/transmission.h"
 #include "../lib/config.h"
 #include "../lib/error.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/response.h"
 #include "../lib/ssc128.h"
 #include "airtime.h"
@@ -14,8 +14,8 @@
 #include "sx1278.h"
 #include "uplink.h"
 #include <errno.h>
+#include <fcntl.h>
 #include <pthread.h>
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,147 +29,143 @@ comms_t comms = {
 		.devices_len = 0,
 };
 
-int radio_init(sqlite3 *database) {
+int radio_init(octet_t *db) {
 	int status;
-	sqlite3_stmt *stmt_radio = NULL;
-	sqlite3_stmt *stmt_device = NULL;
+	octet_stmt_t stmt_radio = {.fd = -1};
+	octet_stmt_t stmt_device = {.fd = -1};
 
-	const char *sql_radio = "select "
-													"radio.id, radio.device, radio.frequency, radio.bandwidth, "
-													"radio.spreading_factor, radio.coding_rate, radio.tx_power, "
-													"radio.preamble_len, radio.sync_word, radio.checksum "
-													"from radio "
-													"order by device asc";
-	debug("%s\n", sql_radio);
-
-	if (sqlite3_prepare_v2(database, sql_radio, -1, &stmt_radio, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, radio_file) == -1) {
+		error("failed to sprintf to file\n");
 		status = -1;
 		goto cleanup;
 	}
 
-	while (true) {
-		int result = sqlite3_step(stmt_radio);
-		if (result == SQLITE_ROW) {
-			comms.radios = realloc(comms.radios, sizeof(radio_t) * (comms.radios_len + 1));
-			if (comms.radios == NULL) {
-				error("failed to allocate %zu bytes for radios because %s\n", sizeof(radio_t) * (comms.radios_len + 1), errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			const uint8_t *id = sqlite3_column_blob(stmt_radio, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt_radio, 0);
-			if (id_len != sizeof(*((radio_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((radio_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			comms.radios[comms.radios_len].id = malloc(sizeof(*((radio_t *)0)->id));
-			if (comms.radios[comms.radios_len].id == NULL) {
-				error("failed to allocate %zu bytes for id because %s\n", sizeof(*((radio_t *)0)->id), errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			memcpy(comms.radios[comms.radios_len].id, id, id_len);
-			const uint8_t *device = sqlite3_column_text(stmt_radio, 1);
-			const size_t device_len = (uint8_t)sqlite3_column_bytes(stmt_radio, 1);
-			comms.radios[comms.radios_len].device = malloc(device_len);
-			if (comms.radios[comms.radios_len].device == NULL) {
-				error("failed to allocate %zu bytes for device because %s\n", device_len, errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			memcpy(comms.radios[comms.radios_len].device, device, device_len);
-			comms.radios[comms.radios_len].device_len = (uint8_t)device_len;
-			comms.radios[comms.radios_len].frequency = (uint32_t)sqlite3_column_int(stmt_radio, 2);
-			comms.radios[comms.radios_len].bandwidth = (uint32_t)sqlite3_column_int(stmt_radio, 3);
-			comms.radios[comms.radios_len].spreading_factor = (uint8_t)sqlite3_column_int(stmt_radio, 4);
-			comms.radios[comms.radios_len].coding_rate = (uint8_t)sqlite3_column_int(stmt_radio, 5);
-			comms.radios[comms.radios_len].tx_power = (uint8_t)sqlite3_column_int(stmt_radio, 6);
-			comms.radios[comms.radios_len].preamble_len = (uint8_t)sqlite3_column_int(stmt_radio, 7);
-			comms.radios[comms.radios_len].sync_word = (uint8_t)sqlite3_column_int(stmt_radio, 8);
-			comms.radios[comms.radios_len].checksum = (bool)sqlite3_column_int(stmt_radio, 9);
-			comms.radios_len += 1;
-		} else if (result == SQLITE_DONE) {
-			status = 0;
-			break;
-		} else {
-			status = database_error(database, result);
-			goto cleanup;
-		}
+	if (octet_open(&stmt_radio, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
 	}
 
-	const char *sql_device = "select "
-													 "device.id, device.tag, device.key "
-													 "from device "
-													 "order by tag asc";
-	debug("%s\n", sql_device);
-
-	if (sqlite3_prepare_v2(database, sql_device, -1, &stmt_device, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	if (stmt_radio.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt_radio.stat.st_size, db->table_len);
 		status = -1;
 		goto cleanup;
 	}
 
+	debug("select radios\n");
+
+	off_t offset = 0;
 	while (true) {
-		int result = sqlite3_step(stmt_device);
-		if (result == SQLITE_ROW) {
-			comms.devices = realloc(comms.devices, sizeof(device_t) * (comms.devices_len + 1));
-			if (comms.devices == NULL) {
-				error("failed to allocate %zu bytes for devices because %s\n", sizeof(device_t) * (comms.devices_len + 1), errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			comms.devices[comms.devices_len].id = malloc(sizeof(*((device_t *)0)->id));
-			if (comms.devices[comms.devices_len].id == NULL) {
-				error("failed to allocate %zu bytes for id because %s\n", sizeof(*((device_t *)0)->id), errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			comms.devices[comms.devices_len].tag = malloc(sizeof(*((device_t *)0)->tag));
-			if (comms.devices[comms.devices_len].tag == NULL) {
-				error("failed to allocate %zu bytes for tag because %s\n", sizeof(*((device_t *)0)->tag), errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			comms.devices[comms.devices_len].key = malloc(sizeof(*((device_t *)0)->key));
-			if (comms.devices[comms.devices_len].key == NULL) {
-				error("failed to allocate %zu bytes for key because %s\n", sizeof(*((device_t *)0)->key), errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			const uint8_t *id = sqlite3_column_blob(stmt_device, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt_device, 0);
-			if (id_len != sizeof(*((device_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((device_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *tag = sqlite3_column_blob(stmt_device, 1);
-			const size_t tag_len = (size_t)sqlite3_column_bytes(stmt_device, 1);
-			if (tag_len != sizeof(*((device_t *)0)->tag)) {
-				error("tag length %zu does not match buffer length %zu\n", tag_len, sizeof(*((device_t *)0)->tag));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *key = sqlite3_column_blob(stmt_device, 2);
-			const size_t key_len = (size_t)sqlite3_column_bytes(stmt_device, 2);
-			if (key_len != sizeof(*((device_t *)0)->key)) {
-				error("key length %zu does not match buffer length %zu\n", key_len, sizeof(*((device_t *)0)->key));
-				status = 500;
-				goto cleanup;
-			}
-			memcpy(comms.devices[comms.devices_len].id, id, id_len);
-			memcpy(comms.devices[comms.devices_len].tag, tag, tag_len);
-			memcpy(comms.devices[comms.devices_len].key, key, key_len);
-			comms.devices_len += 1;
-		} else if (result == SQLITE_DONE) {
-			status = 0;
+		if (offset >= stmt_radio.stat.st_size) {
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (octet_row_read(&stmt_radio, file, offset, db->row, radio_row.size) == -1) {
+			status = octet_error();
 			goto cleanup;
 		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, radio_row.id);
+		uint8_t device_len = octet_uint8_read(db->row, radio_row.device_len);
+		char *device = octet_text_read(db->row, radio_row.device);
+		uint32_t frequency = octet_uint32_read(db->row, radio_row.frequency);
+		uint32_t bandwidth = octet_uint32_read(db->row, radio_row.bandwidth);
+		uint8_t spreading_factor = octet_uint8_read(db->row, radio_row.spreading_factor);
+		uint8_t coding_rate = octet_uint8_read(db->row, radio_row.coding_rate);
+		uint8_t tx_power = octet_uint8_read(db->row, radio_row.tx_power);
+		uint8_t preamble_len = octet_uint8_read(db->row, radio_row.preamble_len);
+		uint8_t sync_word = octet_uint8_read(db->row, radio_row.sync_word);
+		uint8_t checksum = octet_uint8_read(db->row, radio_row.checksum);
+		comms.radios = realloc(comms.radios, sizeof(radio_t) * (comms.radios_len + 1));
+		if (comms.radios == NULL) {
+			error("failed to allocate %zu bytes for radios because %s\n", sizeof(radio_t) * (comms.radios_len + 1), errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		comms.radios[comms.radios_len].id = malloc(sizeof(*id));
+		if (comms.radios[comms.radios_len].id == NULL) {
+			error("failed to allocate %zu bytes for id because %s\n", sizeof(*id), errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		comms.radios[comms.radios_len].device = malloc(device_len);
+		if (comms.radios[comms.radios_len].device == NULL) {
+			error("failed to allocate %hhu bytes for device because %s\n", device_len, errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		memcpy(comms.radios[comms.radios_len].device, device, device_len);
+		comms.radios[comms.radios_len].device_len = device_len;
+		comms.radios[comms.radios_len].frequency = frequency;
+		comms.radios[comms.radios_len].bandwidth = bandwidth;
+		comms.radios[comms.radios_len].spreading_factor = spreading_factor;
+		comms.radios[comms.radios_len].coding_rate = coding_rate;
+		comms.radios[comms.radios_len].tx_power = tx_power;
+		comms.radios[comms.radios_len].preamble_len = preamble_len;
+		comms.radios[comms.radios_len].sync_word = sync_word;
+		comms.radios[comms.radios_len].checksum = checksum;
+		comms.radios_len += 1;
+		offset += radio_row.size;
+	}
+
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_open(&stmt_device, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	if (stmt_device.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt_device.stat.st_size, db->table_len);
+		status = -1;
+		goto cleanup;
+	}
+
+	debug("select devices\n");
+
+	offset = 0;
+	while (true) {
+		if (offset >= stmt_device.stat.st_size) {
+			break;
+		}
+		if (octet_row_read(&stmt_device, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*tag)[2] = (uint8_t (*)[2])octet_blob_read(db->row, device_row.tag);
+		uint8_t (*key)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.key);
+		comms.devices = realloc(comms.devices, sizeof(device_t) * (comms.devices_len + 1));
+		if (comms.devices == NULL) {
+			error("failed to allocate %zu bytes for devices because %s\n", sizeof(device_t) * (comms.devices_len + 1), errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		comms.devices[comms.devices_len].id = malloc(sizeof(*id));
+		if (comms.devices[comms.devices_len].id == NULL) {
+			error("failed to allocate %zu bytes for id because %s\n", sizeof(*id), errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		comms.devices[comms.devices_len].tag = malloc(sizeof(*tag));
+		if (comms.devices[comms.devices_len].tag == NULL) {
+			error("failed to allocate %zu bytes for tag because %s\n", sizeof(*tag), errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		comms.devices[comms.devices_len].key = malloc(sizeof(*key));
+		if (comms.devices[comms.devices_len].key == NULL) {
+			error("failed to allocate %zu bytes for key because %s\n", sizeof(*key), errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		memcpy(comms.devices[comms.devices_len].id, id, sizeof(*id));
+		memcpy(comms.devices[comms.devices_len].tag, tag, sizeof(*tag));
+		memcpy(comms.devices[comms.devices_len].key, key, sizeof(*key));
+		comms.devices_len += 1;
+		offset += device_row.size;
 	}
 
 	comms.workers = malloc(sizeof(radio_worker_t) * comms.radios_len);
@@ -195,10 +191,11 @@ int radio_init(sqlite3 *database) {
 	}
 
 	info("spawned %hhu radio threads\n", comms.radios_len);
+	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt_radio);
-	sqlite3_finalize(stmt_device);
+	octet_close(&stmt_radio, file);
+	octet_close(&stmt_device, file);
 	return status;
 }
 
@@ -486,7 +483,7 @@ void *radio_thread(void *args) {
 	}
 }
 
-void radio_reload(sqlite3 *database, response_t *response) {
+void radio_reload(octet_t *db, response_t *response) {
 	for (uint8_t index = 0; index < comms.radios_len; index++) {
 		if (pthread_cancel(comms.workers[index].thread) == -1) {
 			error("failed to cancel radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
@@ -517,7 +514,7 @@ void radio_reload(sqlite3 *database, response_t *response) {
 	comms.devices = NULL;
 	comms.devices_len = 0;
 
-	if (radio_init(database) == -1) {
+	if (radio_init(db) == -1) {
 		response->status = 500;
 		return;
 	}

@@ -1,53 +1,91 @@
 
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "device.h"
 #include "host.h"
 #include "radio.h"
 #include "user.h"
-#include <sqlite3.h>
 #include <stdio.h>
 
-int drop_table(sqlite3 *database, const char *table) {
-	int status;
-	sqlite3_stmt *stmt;
-
-	char sql[64];
-	sprintf(sql, "drop table %s", table);
-	debug("%s\n", sql);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = -1;
-		goto cleanup;
+int drop_user(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
 	}
 
-	if (sqlite3_step(stmt) != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = -1;
-		goto cleanup;
+	if (octet_unlink(file) == -1) {
+		return -1;
 	}
 
-	info("dropped table %s\n", table);
-	status = 0;
-
-cleanup:
-	sqlite3_finalize(stmt);
-	return status;
+	info("unlinked file %s\n", user_file);
+	return 0;
 }
 
-int drop(sqlite3 *database) {
-	if (drop_table(database, user_table) == -1) {
+int drop_radio(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, radio_file) == -1) {
+		error("failed to sprintf to file\n");
 		return -1;
 	}
-	if (drop_table(database, radio_table) == -1) {
+
+	if (octet_unlink(file) == -1) {
 		return -1;
 	}
-	if (drop_table(database, device_table) == -1) {
+
+	info("unlinked file %s\n", radio_file);
+	return 0;
+}
+
+int drop_device(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
 		return -1;
 	}
-	if (drop_table(database, host_table) == -1) {
+
+	if (octet_unlink(file) == -1) {
 		return -1;
 	}
+
+	info("unlinked file %s\n", device_file);
+	return 0;
+}
+
+int drop_host(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	if (octet_unlink(file) == -1) {
+		return -1;
+	}
+
+	info("unlinked file %s\n", host_file);
+	return 0;
+}
+
+int drop(octet_t *db) {
+	if (drop_user(db) == -1) {
+		return -1;
+	}
+	if (drop_radio(db) == -1) {
+		return -1;
+	}
+	if (drop_device(db) == -1) {
+		return -1;
+	}
+	if (drop_host(db) == -1) {
+		return -1;
+	}
+
+	if (octet_rmdir(db->directory) == -1) {
+		return -1;
+	}
+
+	info("removed directory %s\n", db->directory);
 
 	return 0;
 }

@@ -1,5 +1,5 @@
 #pragma once
 
-#include <sqlite3.h>
+#include "../lib/octet.h"
 
-int init(sqlite3 *database);
+int init(octet_t *db);

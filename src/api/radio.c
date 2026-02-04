@@ -2,115 +2,222 @@
 #include "../lib/base16.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include "database.h"
-#include <sqlite3.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
-const char *radio_table = "radio";
-const char *radio_schema = "create table radio ("
-													 "id blob primary key, "
-													 "device text not null unique, "
-													 "frequency integer not null, "
-													 "bandwidth integer not null, "
-													 "spreading_factor integer not null, "
-													 "coding_rate integer not null, "
-													 "tx_power integer not null, "
-													 "preamble_len integer not null, "
-													 "sync_word integer not null, "
-													 "checksum boolean not null"
-													 ")";
+const char *radio_file = "radio";
 
-uint16_t radio_select(sqlite3 *database, radio_query_t *query, response_t *response, uint8_t *radios_len) {
+const radio_row_t radio_row = {
+		.id = 0,
+		.device_len = 16,
+		.device = 17,
+		.frequency = 49,
+		.bandwidth = 53,
+		.spreading_factor = 57,
+		.coding_rate = 58,
+		.tx_power = 59,
+		.preamble_len = 60,
+		.sync_word = 61,
+		.checksum = 62,
+		.size = 63,
+};
+
+int radio_rowcmp(uint8_t *alpha, uint8_t *bravo, radio_query_t *query) {
+	if (query->order_len == 2 && memcmp(query->order, "id", query->order_len) == 0) {
+		uint64_t id_alpha = octet_uint64_read(alpha, radio_row.id);
+		uint64_t id_bravo = octet_uint64_read(bravo, radio_row.id);
+		int result = (id_alpha > id_bravo) - (id_alpha < id_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 6 && memcmp(query->order, "device", query->order_len) == 0) {
+		uint8_t device_len_alpha = octet_uint8_read(alpha, radio_row.device_len);
+		char *device_alpha = octet_text_read(alpha, radio_row.device);
+		uint8_t device_len_bravo = octet_uint8_read(bravo, radio_row.device_len);
+		char *device_bravo = octet_text_read(bravo, radio_row.device);
+		int result = memcmp(device_alpha, device_bravo, device_len_alpha < device_len_bravo ? device_len_alpha : device_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 9 && memcmp(query->order, "frequency", query->order_len) == 0) {
+		uint32_t frequency_alpha = octet_uint32_read(alpha, radio_row.frequency);
+		uint32_t frequency_bravo = octet_uint32_read(bravo, radio_row.frequency);
+		int result = (frequency_alpha > frequency_bravo) - (frequency_alpha < frequency_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 9 && memcmp(query->order, "bandwidth", query->order_len) == 0) {
+		uint32_t bandwidth_alpha = octet_uint32_read(alpha, radio_row.bandwidth);
+		uint32_t bandwidth_bravo = octet_uint32_read(bravo, radio_row.bandwidth);
+		int result = (bandwidth_alpha > bandwidth_bravo) - (bandwidth_alpha < bandwidth_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 15 && memcmp(query->order, "spreadingFactor", query->order_len) == 0) {
+		uint8_t spreading_factor_alpha = octet_uint8_read(alpha, radio_row.spreading_factor);
+		uint8_t spreading_factor_bravo = octet_uint8_read(bravo, radio_row.spreading_factor);
+		int result = (spreading_factor_alpha > spreading_factor_bravo) - (spreading_factor_alpha < spreading_factor_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 10 && memcmp(query->order, "codingRate", query->order_len) == 0) {
+		uint8_t coding_rate_alpha = octet_uint8_read(alpha, radio_row.coding_rate);
+		uint8_t coding_rate_bravo = octet_uint8_read(bravo, radio_row.coding_rate);
+		int result = (coding_rate_alpha > coding_rate_bravo) - (coding_rate_alpha < coding_rate_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 7 && memcmp(query->order, "txPower", query->order_len) == 0) {
+		uint8_t tx_power_alpha = octet_uint8_read(alpha, radio_row.tx_power);
+		uint8_t tx_power_bravo = octet_uint8_read(bravo, radio_row.tx_power);
+		int result = (tx_power_alpha > tx_power_bravo) - (tx_power_alpha < tx_power_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 11 && memcmp(query->order, "preambleLen", query->order_len) == 0) {
+		uint8_t preamble_len_alpha = octet_uint8_read(alpha, radio_row.preamble_len);
+		uint8_t preamble_len_bravo = octet_uint8_read(bravo, radio_row.preamble_len);
+		int result = (preamble_len_alpha > preamble_len_bravo) - (preamble_len_alpha < preamble_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 8 && memcmp(query->order, "syncWord", query->order_len) == 0) {
+		uint8_t sync_word_alpha = octet_uint8_read(alpha, radio_row.sync_word);
+		uint8_t sync_word_bravo = octet_uint8_read(bravo, radio_row.sync_word);
+		int result = (sync_word_alpha > sync_word_bravo) - (sync_word_alpha < sync_word_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 8 && memcmp(query->order, "checksum", query->order_len) == 0) {
+		uint8_t checksum_alpha = octet_uint8_read(alpha, radio_row.checksum);
+		uint8_t checksum_bravo = octet_uint8_read(bravo, radio_row.checksum);
+		int result = (checksum_alpha > checksum_bravo) - (checksum_alpha < checksum_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	return 0;
+}
+
+uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, uint8_t *radios_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"radio.id, radio.device, radio.frequency, radio.bandwidth, "
-										"radio.spreading_factor, radio.coding_rate, radio.tx_power, "
-										"radio.preamble_len, radio.sync_word, radio.checksum "
-										"from radio "
-										"order by "
-										"case when ?1 = 'id' and ?2 = 'asc' then radio.id end asc, "
-										"case when ?1 = 'id' and ?2 = 'desc' then radio.id end desc, "
-										"case when ?1 = 'device' and ?2 = 'asc' then radio.device end asc, "
-										"case when ?1 = 'device' and ?2 = 'desc' then radio.device end desc, "
-										"case when ?1 = 'frequency' and ?2 = 'asc' then radio.frequency end asc, "
-										"case when ?1 = 'frequency' and ?2 = 'desc' then radio.frequency end desc, "
-										"case when ?1 = 'bandwidth' and ?2 = 'asc' then radio.bandwidth end asc, "
-										"case when ?1 = 'bandwidth' and ?2 = 'desc' then radio.bandwidth end desc, "
-										"case when ?1 = 'spreadingFactor' and ?2 = 'asc' then radio.spreading_factor end asc, "
-										"case when ?1 = 'spreadingFactor' and ?2 = 'desc' then radio.spreading_factor end desc, "
-										"case when ?1 = 'codingRate' and ?2 = 'asc' then radio.coding_rate end asc, "
-										"case when ?1 = 'codingRate' and ?2 = 'desc' then radio.coding_rate end desc, "
-										"case when ?1 = 'txPower' and ?2 = 'asc' then radio.tx_power end asc, "
-										"case when ?1 = 'txPower' and ?2 = 'desc' then radio.tx_power end desc, "
-										"case when ?1 = 'preambleLen' and ?2 = 'asc' then radio.preamble_len end asc, "
-										"case when ?1 = 'preambleLen' and ?2 = 'desc' then radio.preamble_len end desc, "
-										"case when ?1 = 'syncWord' and ?2 = 'asc' then radio.sync_word end asc, "
-										"case when ?1 = 'syncWord' and ?2 = 'desc' then radio.sync_word end desc, "
-										"case when ?1 = 'checksum' and ?2 = 'asc' then radio.checksum end asc, "
-										"case when ?1 = 'checksum' and ?2 = 'desc' then radio.checksum end desc "
-										"limit ?3 offset ?4";
-	debug("%s\n", sql);
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, radio_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_text(stmt, 1, query->order, (uint8_t)query->order_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, query->sort, (uint8_t)query->sort_len, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 3, query->limit);
-	sqlite3_bind_int64(stmt, 4, query->offset);
+	debug("select radios order by %.*s:%.*s\n", (int)query->order_len, query->order, (int)query->sort_len, query->sort);
 
+	off_t offset = 0;
+	uint32_t table_len = 0;
 	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const uint8_t *id = sqlite3_column_blob(stmt, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-			if (id_len != sizeof(*((radio_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((radio_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *device = sqlite3_column_text(stmt, 1);
-			const size_t device_len = (size_t)sqlite3_column_bytes(stmt, 1);
-			const uint32_t frequency = (uint32_t)sqlite3_column_int(stmt, 2);
-			const uint32_t bandwidth = (uint32_t)sqlite3_column_int(stmt, 3);
-			const uint8_t spreading_factor = (uint8_t)sqlite3_column_int(stmt, 4);
-			const uint8_t coding_rate = (uint8_t)sqlite3_column_int(stmt, 5);
-			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 6);
-			const uint8_t preamble_len = (uint8_t)sqlite3_column_int(stmt, 7);
-			const uint8_t sync_word = (uint8_t)sqlite3_column_int(stmt, 8);
-			const bool checksum = (bool)sqlite3_column_int(stmt, 9);
-			body_write(response, id, id_len);
-			body_write(response, device, device_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-			body_write(response, (uint32_t[]){hton32(frequency)}, sizeof(frequency));
-			body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
-			body_write(response, &spreading_factor, sizeof(spreading_factor));
-			body_write(response, &coding_rate, sizeof(coding_rate));
-			body_write(response, &tx_power, sizeof(tx_power));
-			body_write(response, &preamble_len, sizeof(preamble_len));
-			body_write(response, &sync_word, sizeof(sync_word));
-			body_write(response, &checksum, sizeof(checksum));
-			*radios_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (offset >= stmt.stat.st_size) {
 			status = 0;
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (octet_row_read(&stmt, file, offset, &db->table[table_len], radio_row.size) == -1) {
+			status = octet_error();
 			goto cleanup;
+		}
+		table_len += radio_row.size;
+		offset += radio_row.size;
+	}
+
+	if (table_len >= radio_row.size * 2) {
+		for (uint8_t index = 0; index < table_len / radio_row.size - 1; index++) {
+			for (uint8_t ind = index + 1; ind < table_len / radio_row.size; ind++) {
+				if (radio_rowcmp(&db->table[index * radio_row.size], &db->table[ind * radio_row.size], query) > 0) {
+					memcpy(db->row, &db->table[index * radio_row.size], radio_row.size);
+					memcpy(&db->table[index * radio_row.size], &db->table[ind * radio_row.size], radio_row.size);
+					memcpy(&db->table[ind * radio_row.size], db->row, radio_row.size);
+				}
+			}
 		}
 	}
 
+	uint32_t index = radio_row.size * query->offset;
+	while (true) {
+		if (index >= table_len || *radios_len >= query->limit) {
+			status = 0;
+			break;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], radio_row.id);
+		uint8_t device_len = octet_uint8_read(&db->table[index], radio_row.device_len);
+		char *device = octet_text_read(&db->table[index], radio_row.device);
+		uint32_t frequency = octet_uint32_read(&db->table[index], radio_row.frequency);
+		uint32_t bandwidth = octet_uint32_read(&db->table[index], radio_row.bandwidth);
+		uint8_t spreading_factor = octet_uint8_read(&db->table[index], radio_row.spreading_factor);
+		uint8_t coding_rate = octet_uint8_read(&db->table[index], radio_row.coding_rate);
+		uint8_t tx_power = octet_uint8_read(&db->table[index], radio_row.tx_power);
+		uint8_t preamble_len = octet_uint8_read(&db->table[index], radio_row.preamble_len);
+		uint8_t sync_word = octet_uint8_read(&db->table[index], radio_row.sync_word);
+		uint8_t checksum = octet_uint8_read(&db->table[index], radio_row.checksum);
+		body_write(response, id, sizeof(*id));
+		body_write(response, device, device_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, (uint32_t[]){hton32(frequency)}, sizeof(frequency));
+		body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
+		body_write(response, &spreading_factor, sizeof(spreading_factor));
+		body_write(response, &coding_rate, sizeof(coding_rate));
+		body_write(response, &tx_power, sizeof(tx_power));
+		body_write(response, &preamble_len, sizeof(preamble_len));
+		body_write(response, &sync_word, sizeof(sync_word));
+		body_write(response, &checksum, sizeof(checksum));
+		*radios_len += 1;
+		index += radio_row.size;
+	}
+
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -227,139 +334,187 @@ int radio_validate(radio_t *radio) {
 	return 0;
 }
 
-uint16_t radio_insert(sqlite3 *database, radio_t *radio) {
+uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into radio (id, device, frequency, bandwidth, "
-										"spreading_factor, coding_rate, tx_power, preamble_len, sync_word, checksum) "
-										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	for (uint8_t index = 0; index < sizeof(*radio->id); index++) {
+		(*radio->id)[index] = (uint8_t)(rand() & 0xff);
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, radio_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 
-	sqlite3_bind_text(stmt, 1, radio->device, radio->device_len, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 2, (int)radio->frequency);
-	sqlite3_bind_int(stmt, 3, (int)radio->bandwidth);
-	sqlite3_bind_int(stmt, 4, radio->spreading_factor);
-	sqlite3_bind_int(stmt, 5, radio->coding_rate);
-	sqlite3_bind_int(stmt, 6, radio->tx_power);
-	sqlite3_bind_int(stmt, 7, radio->preamble_len);
-	sqlite3_bind_int(stmt, 8, radio->sync_word);
-	sqlite3_bind_int(stmt, 9, radio->checksum);
+	debug("insert radio %.*s frequency %u\n", radio->device_len, radio->device, radio->frequency);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*radio->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*radio->id));
-			status = 500;
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, radio_row.size) == -1) {
+			status = octet_error();
 			goto cleanup;
 		}
-		memcpy(radio->id, id, id_len);
-		status = 0;
-	} else if (result == SQLITE_CONSTRAINT) {
-		warn("radio device %.*s already taken\n", (int)radio->device_len, radio->device);
-		status = 409;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
+		uint8_t device_len = octet_uint8_read(db->row, radio_row.device_len);
+		char *device = octet_text_read(db->row, radio_row.device);
+		if (device_len == radio->device_len && memcmp(device, radio->device, radio->device_len) == 0) {
+			status = 409;
+			warn("device %.*s already taken\n", radio->device_len, radio->device);
+			goto cleanup;
+		}
+		offset += radio_row.size;
 	}
 
-cleanup:
-	sqlite3_finalize(stmt);
-	return status;
-}
+	octet_blob_write(db->row, radio_row.id, (uint8_t *)radio->id, sizeof(*radio->id));
+	octet_uint8_write(db->row, radio_row.device_len, radio->device_len);
+	octet_text_write(db->row, radio_row.device, radio->device, radio->device_len);
+	octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
+	octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
+	octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);
+	octet_uint8_write(db->row, radio_row.coding_rate, radio->coding_rate);
+	octet_uint8_write(db->row, radio_row.tx_power, radio->tx_power);
+	octet_uint8_write(db->row, radio_row.preamble_len, radio->preamble_len);
+	octet_uint8_write(db->row, radio_row.sync_word, radio->sync_word);
+	octet_uint8_write(db->row, radio_row.checksum, radio->checksum);
 
-uint16_t radio_update(sqlite3 *database, radio_t *radio) {
-	uint16_t status;
-	sqlite3_stmt *stmt;
-
-	const char *sql = "update radio "
-										"set device = ?, frequency = ?, bandwidth = ?, "
-										"spreading_factor = ?, coding_rate = ?, tx_power = ?, preamble_len = ?, "
-										"sync_word = ?, checksum = ? "
-										"where id = ?";
-	debug("%s\n", sql);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
-		goto cleanup;
-	}
-
-	sqlite3_bind_text(stmt, 1, radio->device, radio->device_len, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 2, (int)radio->frequency);
-	sqlite3_bind_int(stmt, 3, (int)radio->bandwidth);
-	sqlite3_bind_int(stmt, 4, radio->spreading_factor);
-	sqlite3_bind_int(stmt, 5, radio->coding_rate);
-	sqlite3_bind_int(stmt, 6, radio->tx_power);
-	sqlite3_bind_int(stmt, 7, radio->preamble_len);
-	sqlite3_bind_int(stmt, 8, radio->sync_word);
-	sqlite3_bind_int(stmt, 9, radio->checksum);
-	sqlite3_bind_blob(stmt, 10, *radio->id, sizeof(*radio->id), SQLITE_STATIC);
-
-	int result = sqlite3_step(stmt);
-	if (result != SQLITE_DONE) {
-		status = database_error(database, result);
-		goto cleanup;
-	}
-
-	if (sqlite3_changes(database) == 0) {
-		warn("radio %02x%02x not found\n", (*radio->id)[0], (*radio->id)[1]);
-		status = 404;
+	offset = stmt.stat.st_size;
+	if (octet_row_write(&stmt, file, offset, db->row, radio_row.size) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 
 	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
-uint16_t radio_delete(sqlite3 *database, radio_t *radio) {
+uint16_t radio_update(octet_t *db, radio_t *radio) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "delete from radio "
-										"where id = ?";
-	debug("%s\n", sql);
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, radio_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("update radio %02x%02x\n", (*radio->id)[0], (*radio->id)[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("radio %02x%02x not found\n", (*radio->id)[0], (*radio->id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, radio_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, radio_row.id);
+		if (memcmp(id, radio->id, sizeof(*radio->id)) == 0) {
+			octet_uint8_write(db->row, radio_row.device_len, radio->device_len);
+			octet_text_write(db->row, radio_row.device, (char *)radio->device, radio->device_len);
+			octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
+			octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
+			octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);
+			octet_uint8_write(db->row, radio_row.coding_rate, radio->coding_rate);
+			octet_uint8_write(db->row, radio_row.tx_power, radio->tx_power);
+			octet_uint8_write(db->row, radio_row.preamble_len, radio->preamble_len);
+			octet_uint8_write(db->row, radio_row.sync_word, radio->sync_word);
+			octet_uint8_write(db->row, radio_row.checksum, radio->checksum);
+			if (octet_row_write(&stmt, file, offset, db->row, radio_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			status = 0;
+			break;
+		}
+		offset += radio_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+uint16_t radio_delete(octet_t *db, radio_t *radio) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, radio_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("delete radio %02x%02x\n", (*radio->id)[0], (*radio->id)[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("user %02x%02x not found\n", (*radio->id)[0], (*radio->id)[1]);
+			status = 404;
+			goto cleanup;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, radio_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, radio_row.id);
+		if (memcmp(id, radio->id, sizeof(*radio->id)) == 0) {
+			break;
+		}
+		offset += radio_row.size;
+	}
+
+	off_t index = offset + radio_row.size;
+	while (index < stmt.stat.st_size) {
+		if (octet_row_read(&stmt, file, index, db->row, radio_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		if (octet_row_write(&stmt, file, index - radio_row.size, db->row, radio_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		index += radio_row.size;
+	}
+
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - radio_row.size)) {
 		status = 500;
-		goto cleanup;
-	}
-
-	sqlite3_bind_blob(stmt, 1, radio->id, sizeof(*radio->id), SQLITE_STATIC);
-
-	int result = sqlite3_step(stmt);
-	if (result != SQLITE_DONE) {
-		status = database_error(database, result);
-		goto cleanup;
-	}
-
-	if (sqlite3_changes(database) == 0) {
-		warn("radio %02x%02x not found\n", (*radio->id)[0], (*radio->id)[1]);
-		status = 404;
 		goto cleanup;
 	}
 
 	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
-void radio_find(sqlite3 *database, request_t *request, response_t *response) {
+void radio_find(octet_t *db, request_t *request, response_t *response) {
 	radio_query_t query = {.limit = 16, .offset = 0};
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
 		response->status = 400;
@@ -372,7 +527,7 @@ void radio_find(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	uint8_t radios_len = 0;
-	uint16_t status = radio_select(database, &query, response, &radios_len);
+	uint16_t status = radio_select(db, &query, response, &radios_len);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -384,7 +539,7 @@ void radio_find(sqlite3 *database, request_t *request, response_t *response) {
 	response->status = 200;
 }
 
-void radio_create(sqlite3 *database, request_t *request, response_t *response) {
+void radio_create(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -397,7 +552,7 @@ void radio_create(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint16_t status = radio_insert(database, &radio);
+	uint16_t status = radio_insert(db, &radio);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -407,7 +562,7 @@ void radio_create(sqlite3 *database, request_t *request, response_t *response) {
 	response->status = 201;
 }
 
-void radio_modify(sqlite3 *database, request_t *request, response_t *response) {
+void radio_modify(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -434,7 +589,7 @@ void radio_modify(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint16_t status = radio_update(database, &radio);
+	uint16_t status = radio_update(db, &radio);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -444,7 +599,7 @@ void radio_modify(sqlite3 *database, request_t *request, response_t *response) {
 	response->status = 200;
 }
 
-void radio_remove(sqlite3 *database, request_t *request, response_t *response) {
+void radio_remove(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -466,7 +621,7 @@ void radio_remove(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	radio_t radio = {.id = &id};
-	uint16_t status = radio_delete(database, &radio);
+	uint16_t status = radio_delete(db, &radio);
 	if (status != 0) {
 		response->status = status;
 		return;

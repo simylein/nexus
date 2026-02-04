@@ -1,14 +1,15 @@
 #include "uplink.h"
-#include "../api/database.h"
 #include "../lib/config.h"
 #include "../lib/endian.h"
 #include "../lib/error.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "auth.h"
 #include "http.h"
 #include <errno.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -26,86 +27,89 @@ uplinks_t uplinks = {
 		.available = PTHREAD_COND_INITIALIZER,
 };
 
-int uplink_init(sqlite3 *database) {
+int uplink_init(octet_t *db) {
 	int status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"host.id, host.address, host.port, host.username, host.password "
-										"from host "
-										"order by port asc";
-	debug("%s\n", sql);
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = -1;
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("select hosts\n");
+
 	host_t *hosts = NULL;
 	uint8_t hosts_len = 0;
+	off_t offset = 0;
 	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			hosts = realloc(hosts, sizeof(host_t) * (hosts_len + 1));
-			if (hosts == NULL) {
-				error("failed to allocate %zu bytes for hosts because %s\n", sizeof(host_t) * (hosts_len + 1), errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			const uint8_t *id = sqlite3_column_blob(stmt, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-			if (id_len != sizeof(*((host_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((host_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			hosts[hosts_len].id = malloc(sizeof(*((host_t *)0)->id));
-			if (hosts[hosts_len].id == NULL) {
-				error("failed to allocate %zu bytes for id because %s\n", sizeof(*((host_t *)0)->id), errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			memcpy(hosts[hosts_len].id, id, id_len);
-			const uint8_t *addr = sqlite3_column_text(stmt, 1);
-			const size_t address_len = (uint8_t)sqlite3_column_bytes(stmt, 1);
-			hosts[hosts_len].address = malloc(address_len);
-			if (hosts[hosts_len].address == NULL) {
-				error("failed to allocate %zu bytes for address because %s\n", address_len, errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			memcpy(hosts[hosts_len].address, addr, address_len);
-			hosts[hosts_len].address_len = (uint8_t)address_len;
-			hosts[hosts_len].port = (uint16_t)sqlite3_column_int(stmt, 2);
-			const uint8_t *username = sqlite3_column_text(stmt, 3);
-			const size_t username_len = (uint8_t)sqlite3_column_bytes(stmt, 3);
-			hosts[hosts_len].username = malloc(username_len);
-			if (hosts[hosts_len].username == NULL) {
-				error("failed to allocate %zu bytes for username because %s\n", username_len, errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			memcpy(hosts[hosts_len].username, username, username_len);
-			hosts[hosts_len].username_len = (uint8_t)username_len;
-			const uint8_t *password = sqlite3_column_text(stmt, 4);
-			const size_t password_len = (uint8_t)sqlite3_column_bytes(stmt, 4);
-			hosts[hosts_len].password = malloc(password_len);
-			if (hosts[hosts_len].password == NULL) {
-				error("failed to allocate %zu bytes for password because %s\n", password_len, errno_str());
-				status = -1;
-				goto cleanup;
-			}
-			memcpy(hosts[hosts_len].password, password, password_len);
-			hosts[hosts_len].password_len = (uint8_t)password_len;
-			hosts_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (offset >= stmt.stat.st_size) {
 			status = 0;
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, host_row.size) == -1) {
+			status = octet_error();
 			goto cleanup;
 		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, host_row.id);
+		uint8_t address_len = octet_uint8_read(db->row, host_row.address_len);
+		char *host_address = octet_text_read(db->row, host_row.address);
+		uint16_t host_port = octet_uint16_read(db->row, host_row.port);
+		uint8_t username_len = octet_uint8_read(db->row, host_row.username_len);
+		char *username = octet_text_read(db->row, host_row.username);
+		uint8_t password_len = octet_uint8_read(db->row, host_row.password_len);
+		char *password = octet_text_read(db->row, host_row.password);
+		hosts = realloc(hosts, sizeof(host_t) * (hosts_len + 1));
+		if (hosts == NULL) {
+			error("failed to allocate %zu bytes for hosts because %s\n", sizeof(host_t) * (hosts_len + 1), errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		hosts[hosts_len].id = malloc(sizeof(*id));
+		if (hosts[hosts_len].id == NULL) {
+			error("failed to allocate %zu bytes for id because %s\n", sizeof(*id), errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		hosts[hosts_len].address = malloc(address_len);
+		if (hosts[hosts_len].address == NULL) {
+			error("failed to allocate %hhu bytes for address because %s\n", address_len, errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		hosts[hosts_len].username = malloc(username_len);
+		if (hosts[hosts_len].username == NULL) {
+			error("failed to allocate %hhu bytes for username because %s\n", username_len, errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		hosts[hosts_len].password = malloc(password_len);
+		if (hosts[hosts_len].password == NULL) {
+			error("failed to allocate %hhu bytes for password because %s\n", password_len, errno_str());
+			status = -1;
+			goto cleanup;
+		}
+		memcpy(hosts[hosts_len].id, id, sizeof(*id));
+		memcpy(hosts[hosts_len].address, host_address, address_len);
+		hosts[hosts_len].address_len = address_len;
+		hosts[hosts_len].port = host_port;
+		memcpy(hosts[hosts_len].username, username, username_len);
+		hosts[hosts_len].username_len = username_len;
+		memcpy(hosts[hosts_len].password, password, password_len);
+		hosts[hosts_len].password_len = password_len;
+		hosts_len += 1;
+		offset += host_row.size;
 	}
 
 	uplinks.ptr = malloc(uplinks_size * sizeof(*uplinks.ptr));
@@ -121,7 +125,7 @@ int uplink_init(sqlite3 *database) {
 	}
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 

@@ -23,8 +23,8 @@ uint8_t schedules_size = 16;
 const char *bwt_key = "n6ee65x78u75s73";
 uint32_t bwt_ttl = 2764800;
 
-const char *database_file = "nexus.sqlite";
-uint16_t database_timeout = 500;
+const char *database_directory = "data";
+uint32_t database_buffer = 65536;
 
 uint8_t receive_timeout = 60;
 uint8_t send_timeout = 60;
@@ -217,12 +217,12 @@ int configure(int argc, char *argv[], uint8_t *cmds) {
 		} else if (match_arg(flag, "--bwt-ttl", "-bt")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint32(value, "bwt ttl", 3600, 15768000, &bwt_ttl);
-		} else if (match_arg(flag, "--database-file", "-df")) {
+		} else if (match_arg(flag, "--database-directory", "-dd")) {
 			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_str(value, "database file", 4, 64, &database_file);
-		} else if (match_arg(flag, "--database-timeout", "-dt")) {
+			errors += parse_str(value, "database directory", 4, 64, &database_directory);
+		} else if (match_arg(flag, "--database-buffer", "-db")) {
 			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_uint16(value, "database timeout", 10, 10000, &database_timeout);
+			errors += parse_uint32(value, "database buffer", 16384, 1048576, &database_buffer);
 		} else if (match_arg(flag, "--receive-timeout", "-rt")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint8(value, "receive timeout", 2, 240, &receive_timeout);
