@@ -63,7 +63,7 @@ int radio_init(octet_t *db) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, radio_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, radio_row.id);
 		uint8_t device_len = octet_uint8_read(db->row, radio_row.device_len);
 		char *device = octet_text_read(db->row, radio_row.device);
 		uint32_t frequency = octet_uint32_read(db->row, radio_row.frequency);
@@ -135,7 +135,7 @@ int radio_init(octet_t *db) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
 		uint8_t (*tag)[2] = (uint8_t (*)[2])octet_blob_read(db->row, device_row.tag);
 		uint8_t (*key)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.key);
 		comms.devices = realloc(comms.devices, sizeof(device_t) * (comms.devices_len + 1));

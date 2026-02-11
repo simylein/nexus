@@ -22,7 +22,7 @@ typedef struct uplink_t {
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	time_t received_at;
-	uint8_t device_id[16];
+	uint8_t device_id[8];
 } uplink_t;
 
 typedef struct uplink_arg_t {

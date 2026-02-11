@@ -145,7 +145,7 @@ uint16_t host_select(octet_t *db, host_query_t *query, response_t *response, uin
 			status = 0;
 			break;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], host_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], host_row.id);
 		uint8_t address_len = octet_uint8_read(&db->table[index], host_row.address_len);
 		char *address = octet_text_read(&db->table[index], host_row.address);
 		uint16_t port = octet_uint16_read(&db->table[index], host_row.port);
@@ -377,7 +377,7 @@ uint16_t host_update(octet_t *db, host_t *host) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, host_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, host_row.id);
 		if (memcmp(id, host->id, sizeof(*host->id)) == 0) {
 			octet_uint8_write(db->row, host_row.address_len, host->address_len);
 			octet_text_write(db->row, host_row.address, (char *)host->address, host->address_len);
@@ -429,7 +429,7 @@ uint16_t host_delete(octet_t *db, host_t *host) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, host_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, host_row.id);
 		if (memcmp(id, host->id, sizeof(*host->id)) == 0) {
 			break;
 		}
@@ -492,7 +492,7 @@ void host_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	host_t host = {.id = &id};
 	if (request->body.len == 0 || host_parse(&host, request) == -1 || host_validate(&host) == -1) {
 		response->status = 400;
@@ -523,7 +523,7 @@ void host_modify(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -560,7 +560,7 @@ void host_remove(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

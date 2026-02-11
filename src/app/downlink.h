@@ -21,7 +21,7 @@ typedef struct downlink_t {
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	time_t sent_at;
-	uint8_t device_id[16];
+	uint8_t device_id[8];
 } downlink_t;
 
 typedef struct downlink_arg_t {

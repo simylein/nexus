@@ -62,7 +62,7 @@ int uplink_init(octet_t *db) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, host_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, host_row.id);
 		uint8_t address_len = octet_uint8_read(db->row, host_row.address_len);
 		char *host_address = octet_text_read(db->row, host_row.address);
 		uint16_t host_port = octet_uint16_read(db->row, host_row.port);

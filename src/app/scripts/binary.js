@@ -58,7 +58,7 @@ class Binary {
 	}
 	uuid() {
 		const chars = [];
-		for (let i = 0; i < 16; i++) {
+		for (let i = 0; i < 8; i++) {
 			const byte = this.data.getUint8(this.offset++);
 			chars.push(byte.toString(16).padStart(2, '0'));
 		}

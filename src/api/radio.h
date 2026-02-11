@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 typedef struct radio_t {
-	uint8_t (*id)[16];
+	uint8_t (*id)[8];
 	char *device;
 	uint8_t device_len;
 	uint32_t frequency;

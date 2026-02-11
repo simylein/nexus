@@ -7,7 +7,7 @@
 #include <time.h>
 
 typedef struct user_t {
-	uint8_t (*id)[16];
+	uint8_t (*id)[8];
 	char *username;
 	uint8_t username_len;
 	char *password;

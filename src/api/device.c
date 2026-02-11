@@ -109,7 +109,7 @@ uint16_t device_select(octet_t *db, device_query_t *query, response_t *response,
 			status = 0;
 			break;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], device_row.id);
 		uint8_t (*tag)[2] = (uint8_t (*)[2])octet_blob_read(&db->table[index], device_row.tag);
 		uint8_t (*key)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], device_row.key);
 		body_write(response, id, sizeof(*id));
@@ -131,7 +131,7 @@ int device_parse(device_t *device, request_t *request) {
 		debug("missing id on device\n");
 		return -1;
 	}
-	device->id = (uint8_t (*)[16])body_read(request, sizeof(*device->id));
+	device->id = (uint8_t (*)[8])body_read(request, sizeof(*device->id));
 
 	if (request->body.len < request->body.pos + sizeof(*device->tag)) {
 		debug("missing tag on device\n");
@@ -184,7 +184,7 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
 		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
 			status = 409;
 			warn("id %02x%02x already taken\n", (*device->id)[0], (*device->id)[1]);
@@ -216,7 +216,7 @@ cleanup:
 	return status;
 }
 
-uint16_t device_update(octet_t *db, uint8_t (*id)[16], device_t *device) {
+uint16_t device_update(octet_t *db, uint8_t (*id)[8], device_t *device) {
 	uint16_t status;
 
 	char file[128];
@@ -244,7 +244,7 @@ uint16_t device_update(octet_t *db, uint8_t (*id)[16], device_t *device) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*device_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
 		if (memcmp(device_id, id, sizeof(*id)) == 0) {
 			octet_blob_write(db->row, device_row.id, (uint8_t *)device->id, sizeof(*device->id));
 			octet_blob_write(db->row, device_row.tag, (uint8_t *)device->tag, sizeof(*device->tag));
@@ -292,7 +292,7 @@ uint16_t device_delete(octet_t *db, device_t *device) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
 		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
 			break;
 		}
@@ -355,7 +355,7 @@ void device_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	device_t device = {.id = &id};
 	if (request->body.len == 0 || device_parse(&device, request) == -1 || device_validate(&device) == -1) {
 		response->status = 400;
@@ -386,7 +386,7 @@ void device_modify(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -423,7 +423,7 @@ void device_remove(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

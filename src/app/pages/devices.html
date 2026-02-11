@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -37,7 +37,10 @@
 								id="id"
 								sort="asc"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('id'); loadDevices()"
+								onclick="
+									paintSorting('id');
+									loadDevices();
+								"
 							>
 								Id
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
@@ -46,7 +49,10 @@
 							<th
 								id="tag"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('tag'); loadDevices()"
+								onclick="
+									paintSorting('tag');
+									loadDevices();
+								"
 							>
 								Tag
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -55,7 +61,10 @@
 							<th
 								id="key"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('key'); loadDevices()"
+								onclick="
+									paintSorting('key');
+									loadDevices();
+								"
 							>
 								Key
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -326,7 +335,7 @@
 			create.classList.add('opacity-50', 'cursor-not-allowed');
 			create.onclick = null;
 			array(element.children.length).forEach((ind) => {
-				loading(element.children[ind].children[0].children[0], ['w-80', 'h-4'], [], '');
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
 				loading(element.children[ind].children[2].children[0], ['w-80', 'h-4'], [], '');
 				element.children[ind].children[3].children[0].children[0].classList.remove('cursor-pointer');
@@ -347,7 +356,7 @@
 			resize(element, data.length > 0 ? data.length : 1);
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
-					paint(element.children[ind].children[0].children[0], [], ['w-80', 'h-4'], data[ind].id);
+					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4'], data[ind].id);
 					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4'], data[ind].tag);
 					paint(element.children[ind].children[2].children[0], [], ['w-80', 'h-4'], data[ind].key.replace(/./g, '*'));
 					element.children[ind].children[3].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
@@ -367,7 +376,7 @@
 			create.classList.add('opacity-50', 'cursor-not-allowed');
 			create.onclick = null;
 			array(element.children.length).forEach((ind) => {
-				error(element.children[ind].children[0].children[0], ['w-80', 'h-4'], [], '');
+				error(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
 				error(element.children[ind].children[2].children[0], ['w-80', 'h-4'], [], '');
 				element.children[ind].children[3].children[0].children[0].classList.remove('cursor-pointer');
@@ -403,7 +412,7 @@
 			},
 			async (context, response) => (context.data = await parseDevices(response)),
 			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
+			(context) => window.requestAnimationFrame(() => errorDevices(context.element)),
 		);
 		const createDialog = document.getElementById('create-dialog');
 		const downlinkDialog = document.getElementById('downlink-dialog');
@@ -465,7 +474,7 @@
 			{
 				id: (value) => {
 					if (!value) return 'id is required';
-					if (value.length !== 32) return 'id must be 32 characters';
+					if (value.length !== 16) return 'id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
 				},
 				tag: (value) => {
@@ -499,7 +508,7 @@
 					report(err);
 				}
 				closeCreateDialog();
-			}
+			},
 		);
 		const downlinkForm = formik(
 			{
@@ -520,7 +529,7 @@
 				},
 				deviceId: (value) => {
 					if (!value) return 'device id is required';
-					if (value.length !== 32) return 'device id must be 32 characters';
+					if (value.length !== 16) return 'device id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
 				},
 			},
@@ -542,7 +551,7 @@
 					report(err);
 				}
 				closeDownlinkDialog();
-			}
+			},
 		);
 		const updateForm = formik(
 			{
@@ -554,7 +563,7 @@
 			{
 				id: (value) => {
 					if (!value) return 'id is required';
-					if (value.length !== 32) return 'id must be 32 characters';
+					if (value.length !== 16) return 'id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
 				},
 				tag: (value) => {
@@ -569,7 +578,7 @@
 				},
 				deviceId: (value) => {
 					if (!value) return 'device id is required';
-					if (value.length !== 32) return 'device id must be 32 characters';
+					if (value.length !== 16) return 'device id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
 				},
 			},
@@ -593,7 +602,7 @@
 					report(err);
 				}
 				closeUpdateDialog();
-			}
+			},
 		);
 		const deleteForm = formik(
 			{
@@ -602,7 +611,7 @@
 			{
 				deviceId: (value) => {
 					if (!value) return 'device id is required';
-					if (value.length !== 32) return 'device id must be 32 characters';
+					if (value.length !== 16) return 'device id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
 				},
 			},
@@ -615,7 +624,7 @@
 					report(err);
 				}
 				closeDeleteDialog();
-			}
+			},
 		);
 	</script>
 </html>

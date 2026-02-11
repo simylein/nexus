@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -37,7 +37,10 @@
 								id="id"
 								sort="asc"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('id'); loadHosts()"
+								onclick="
+									paintSorting('id');
+									loadHosts();
+								"
 							>
 								Id
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
@@ -46,7 +49,10 @@
 							<th
 								id="address"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('address'); loadHosts()"
+								onclick="
+									paintSorting('address');
+									loadHosts();
+								"
 							>
 								Address
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -55,7 +61,10 @@
 							<th
 								id="port"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('port'); loadHosts()"
+								onclick="
+									paintSorting('port');
+									loadHosts();
+								"
 							>
 								Port
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -64,7 +73,10 @@
 							<th
 								id="username"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('username'); loadHosts()"
+								onclick="
+									paintSorting('username');
+									loadHosts();
+								"
 							>
 								Username
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -73,7 +85,10 @@
 							<th
 								id="password"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('password'); loadHosts()"
+								onclick="
+									paintSorting('password');
+									loadHosts();
+								"
 							>
 								Password
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -405,7 +420,7 @@
 			},
 			async (context, response) => (context.data = await parseHosts(response)),
 			(context) => window.requestAnimationFrame(() => paintHosts(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorHosts(context.element))
+			(context) => window.requestAnimationFrame(() => errorHosts(context.element)),
 		);
 		const createDialog = document.getElementById('create-dialog');
 		const updateDialog = document.getElementById('update-dialog');
@@ -494,7 +509,7 @@
 					report(err);
 				}
 				closeCreateDialog();
-			}
+			},
 		);
 		const updateForm = formik(
 			{
@@ -507,7 +522,7 @@
 			{
 				id: (value) => {
 					if (!value) return 'id is required';
-					if (value.length !== 32) return 'id must be 32 characters';
+					if (value.length !== 16) return 'id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
 				},
 				address: (value) => {
@@ -548,7 +563,7 @@
 					report(err);
 				}
 				closeUpdateDialog();
-			}
+			},
 		);
 		const deleteForm = formik(
 			{
@@ -557,7 +572,7 @@
 			{
 				hostId: (value) => {
 					if (!value) return 'host id is required';
-					if (value.length !== 32) return 'host id must be 32 characters';
+					if (value.length !== 16) return 'host id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'host id must be lowercase hexadecimal';
 				},
 			},
@@ -570,7 +585,7 @@
 					report(err);
 				}
 				closeDeleteDialog();
-			}
+			},
 		);
 	</script>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -40,7 +40,10 @@
 								id="id"
 								sort="asc"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('id'); loadRadios()"
+								onclick="
+									paintSorting('id');
+									loadRadios();
+								"
 							>
 								Id
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
@@ -49,7 +52,10 @@
 							<th
 								id="device"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('device'); loadRadios()"
+								onclick="
+									paintSorting('device');
+									loadRadios();
+								"
 							>
 								Device
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -58,7 +64,10 @@
 							<th
 								id="frequency"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('frequency'); loadRadios()"
+								onclick="
+									paintSorting('frequency');
+									loadRadios();
+								"
 							>
 								Frequency
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -67,7 +76,10 @@
 							<th
 								id="bandwidth"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('bandwidth'); loadRadios()"
+								onclick="
+									paintSorting('bandwidth');
+									loadRadios();
+								"
 							>
 								Bandwidth
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -76,7 +88,10 @@
 							<th
 								id="spreading-factor"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('spreadingFactor'); loadRadios()"
+								onclick="
+									paintSorting('spreadingFactor');
+									loadRadios();
+								"
 							>
 								Spreading Factor
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -85,7 +100,10 @@
 							<th
 								id="coding-rate"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('codingRate'); loadRadios()"
+								onclick="
+									paintSorting('codingRate');
+									loadRadios();
+								"
 							>
 								Coding rate
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -94,7 +112,10 @@
 							<th
 								id="tx-power"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('txPower'); loadRadios()"
+								onclick="
+									paintSorting('txPower');
+									loadRadios();
+								"
 							>
 								Tx power
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -103,7 +124,10 @@
 							<th
 								id="preamble-len"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('preambleLen'); loadRadios()"
+								onclick="
+									paintSorting('preambleLen');
+									loadRadios();
+								"
 							>
 								Preamble len
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -112,7 +136,10 @@
 							<th
 								id="sync-word"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('syncWord'); loadRadios()"
+								onclick="
+									paintSorting('syncWord');
+									loadRadios();
+								"
 							>
 								Sync word
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -121,7 +148,10 @@
 							<th
 								id="checksum"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('checksum'); loadRadios()"
+								onclick="
+									paintSorting('checksum');
+									loadRadios();
+								"
 							>
 								Checksum
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -198,49 +228,77 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 6); updateForm.setValue('spreadingFactor', 6); updateForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 6);
+											updateForm.setValue('spreadingFactor', 6);
+											updateForm.setTouched('spreadingFactor', true);
+										"
 									>
 										6
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 7); createForm.setValue('spreadingFactor', 7); createForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 7);
+											createForm.setValue('spreadingFactor', 7);
+											createForm.setTouched('spreadingFactor', true);
+										"
 									>
 										7
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 8); createForm.setValue('spreadingFactor', 8); createForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 8);
+											createForm.setValue('spreadingFactor', 8);
+											createForm.setTouched('spreadingFactor', true);
+										"
 									>
 										8
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 9); createForm.setValue('spreadingFactor', 9); createForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 9);
+											createForm.setValue('spreadingFactor', 9);
+											createForm.setTouched('spreadingFactor', true);
+										"
 									>
 										9
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 10); createForm.setValue('spreadingFactor', 10); createForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 10);
+											createForm.setValue('spreadingFactor', 10);
+											createForm.setTouched('spreadingFactor', true);
+										"
 									>
 										10
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 11); createForm.setValue('spreadingFactor', 11); createForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 11);
+											createForm.setValue('spreadingFactor', 11);
+											createForm.setTouched('spreadingFactor', true);
+										"
 									>
 										11
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 12); createForm.setValue('spreadingFactor', 12); createForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 12);
+											createForm.setValue('spreadingFactor', 12);
+											createForm.setTouched('spreadingFactor', true);
+										"
 									>
 										12
 									</button>
@@ -253,28 +311,44 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 5); createForm.setValue('codingRate', 5); createForm.setTouched('codingRate', true)"
+										onclick="
+											highlightCodingRate(document.getElementById('create-coding-rates'), 5);
+											createForm.setValue('codingRate', 5);
+											createForm.setTouched('codingRate', true);
+										"
 									>
 										4/5
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 6); createForm.setValue('codingRate', 6); createForm.setTouched('codingRate', true)"
+										onclick="
+											highlightCodingRate(document.getElementById('create-coding-rates'), 6);
+											createForm.setValue('codingRate', 6);
+											createForm.setTouched('codingRate', true);
+										"
 									>
 										4/6
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 7); createForm.setValue('codingRate', 7); createForm.setTouched('codingRate', true)"
+										onclick="
+											highlightCodingRate(document.getElementById('create-coding-rates'), 7);
+											createForm.setValue('codingRate', 7);
+											createForm.setTouched('codingRate', true);
+										"
 									>
 										4/7
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightCodingRate(document.getElementById('create-coding-rates'), 8); createForm.setValue('codingRate', 8); createForm.setTouched('codingRate', true)"
+										onclick="
+											highlightCodingRate(document.getElementById('create-coding-rates'), 8);
+											createForm.setValue('codingRate', 8);
+											createForm.setTouched('codingRate', true);
+										"
 									>
 										4/8
 									</button>
@@ -327,14 +401,22 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightChecksum(document.getElementById('create-checksum'), false); createForm.setValue('checksum', false); createForm.setTouched('checksum', true)"
+										onclick="
+											highlightChecksum(document.getElementById('create-checksum'), false);
+											createForm.setValue('checksum', false);
+											createForm.setTouched('checksum', true);
+										"
 									>
 										false
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightChecksum(document.getElementById('create-checksum'), true); createForm.setValue('checksum', true); createForm.setTouched('checksum', true)"
+										onclick="
+											highlightChecksum(document.getElementById('create-checksum'), true);
+											createForm.setValue('checksum', true);
+											createForm.setTouched('checksum', true);
+										"
 									>
 										true
 									</button>
@@ -431,49 +513,77 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 6); updateForm.setValue('spreadingFactor', 6); updateForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 6);
+											updateForm.setValue('spreadingFactor', 6);
+											updateForm.setTouched('spreadingFactor', true);
+										"
 									>
 										6
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 7); updateForm.setValue('spreadingFactor', 7); updateForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 7);
+											updateForm.setValue('spreadingFactor', 7);
+											updateForm.setTouched('spreadingFactor', true);
+										"
 									>
 										7
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 8); updateForm.setValue('spreadingFactor', 8); updateForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 8);
+											updateForm.setValue('spreadingFactor', 8);
+											updateForm.setTouched('spreadingFactor', true);
+										"
 									>
 										8
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 9); updateForm.setValue('spreadingFactor', 9); updateForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 9);
+											updateForm.setValue('spreadingFactor', 9);
+											updateForm.setTouched('spreadingFactor', true);
+										"
 									>
 										9
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 10); updateForm.setValue('spreadingFactor', 10); updateForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 10);
+											updateForm.setValue('spreadingFactor', 10);
+											updateForm.setTouched('spreadingFactor', true);
+										"
 									>
 										10
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 11); updateForm.setValue('spreadingFactor', 11); updateForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 11);
+											updateForm.setValue('spreadingFactor', 11);
+											updateForm.setTouched('spreadingFactor', true);
+										"
 									>
 										11
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 12); updateForm.setValue('spreadingFactor', 12); updateForm.setTouched('spreadingFactor', true)"
+										onclick="
+											highlightSpreadingFactor(document.getElementById('update-spreading-factors'), 12);
+											updateForm.setValue('spreadingFactor', 12);
+											updateForm.setTouched('spreadingFactor', true);
+										"
 									>
 										12
 									</button>
@@ -486,28 +596,44 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 5); updateForm.setValue('codingRate', 5); updateForm.setTouched('codingRate', true)"
+										onclick="
+											highlightCodingRate(document.getElementById('update-coding-rates'), 5);
+											updateForm.setValue('codingRate', 5);
+											updateForm.setTouched('codingRate', true);
+										"
 									>
 										4/5
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 6); updateForm.setValue('codingRate', 6); updateForm.setTouched('codingRate', true)"
+										onclick="
+											highlightCodingRate(document.getElementById('update-coding-rates'), 6);
+											updateForm.setValue('codingRate', 6);
+											updateForm.setTouched('codingRate', true);
+										"
 									>
 										4/6
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 7); updateForm.setValue('codingRate', 7); updateForm.setTouched('codingRate', true)"
+										onclick="
+											highlightCodingRate(document.getElementById('update-coding-rates'), 7);
+											updateForm.setValue('codingRate', 7);
+											updateForm.setTouched('codingRate', true);
+										"
 									>
 										4/7
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightCodingRate(document.getElementById('update-coding-rates'), 8); updateForm.setValue('codingRate', 8); updateForm.setTouched('codingRate', true)"
+										onclick="
+											highlightCodingRate(document.getElementById('update-coding-rates'), 8);
+											updateForm.setValue('codingRate', 8);
+											updateForm.setTouched('codingRate', true);
+										"
 									>
 										4/8
 									</button>
@@ -560,14 +686,22 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightChecksum(document.getElementById('update-checksum'), false); updateForm.setValue('checksum', false); updateForm.setTouched('checksum', true)"
+										onclick="
+											highlightChecksum(document.getElementById('update-checksum'), false);
+											updateForm.setValue('checksum', false);
+											updateForm.setTouched('checksum', true);
+										"
 									>
 										false
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightChecksum(document.getElementById('update-checksum'), true); updateForm.setValue('checksum', true); updateForm.setTouched('checksum', true)"
+										onclick="
+											highlightChecksum(document.getElementById('update-checksum'), true);
+											updateForm.setValue('checksum', true);
+											updateForm.setTouched('checksum', true);
+										"
 									>
 										true
 									</button>
@@ -819,7 +953,7 @@
 			},
 			async (context, response) => (context.data = await parseRadios(response)),
 			(context) => window.requestAnimationFrame(() => paintRadios(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorRadios(context.element))
+			(context) => window.requestAnimationFrame(() => errorRadios(context.element)),
 		);
 		const highlightSpreadingFactor = (element, spreadingFactor) => {
 			array(element.children.length).forEach((ind) => {
@@ -1043,7 +1177,7 @@
 					report(err);
 				}
 				closeCreateDialog();
-			}
+			},
 		);
 		const reloadForm = formik(
 			{
@@ -1058,7 +1192,7 @@
 					report(err);
 				}
 				closeReloadDialog();
-			}
+			},
 		);
 		const updateForm = formik(
 			{
@@ -1076,7 +1210,7 @@
 			{
 				id: (value) => {
 					if (!value) return 'id is required';
-					if (value.length !== 32) return 'id must be 32 characters';
+					if (value.length !== 16) return 'id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
 				},
 				device: (value) => {
@@ -1149,7 +1283,7 @@
 					report(err);
 				}
 				closeUpdateDialog();
-			}
+			},
 		);
 		const deleteForm = formik(
 			{
@@ -1158,7 +1292,7 @@
 			{
 				radioId: (value) => {
 					if (!value) return 'radio id is required';
-					if (value.length !== 32) return 'radio id must be 32 characters';
+					if (value.length !== 16) return 'radio id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'radio id must be lowercase hexadecimal';
 				},
 			},
@@ -1171,7 +1305,7 @@
 					report(err);
 				}
 				closeDeleteDialog();
-			}
+			},
 		);
 	</script>
 </html>

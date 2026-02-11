@@ -190,7 +190,7 @@ uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, u
 			status = 0;
 			break;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], radio_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], radio_row.id);
 		uint8_t device_len = octet_uint8_read(&db->table[index], radio_row.device_len);
 		char *device = octet_text_read(&db->table[index], radio_row.device);
 		uint32_t frequency = octet_uint32_read(&db->table[index], radio_row.frequency);
@@ -427,7 +427,7 @@ uint16_t radio_update(octet_t *db, radio_t *radio) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, radio_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, radio_row.id);
 		if (memcmp(id, radio->id, sizeof(*radio->id)) == 0) {
 			octet_uint8_write(db->row, radio_row.device_len, radio->device_len);
 			octet_text_write(db->row, radio_row.device, (char *)radio->device, radio->device_len);
@@ -482,7 +482,7 @@ uint16_t radio_delete(octet_t *db, radio_t *radio) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, radio_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, radio_row.id);
 		if (memcmp(id, radio->id, sizeof(*radio->id)) == 0) {
 			break;
 		}
@@ -545,7 +545,7 @@ void radio_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	radio_t radio = {.id = &id};
 	if (request->body.len == 0 || radio_parse(&radio, request) == -1 || radio_validate(&radio) == -1) {
 		response->status = 400;
@@ -576,7 +576,7 @@ void radio_modify(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -613,7 +613,7 @@ void radio_remove(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

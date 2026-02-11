@@ -31,7 +31,7 @@ int seed_user(octet_t *db) {
 
 	for (uint8_t index = 0; index < user_ids_len; index++) {
 		user_t user = {
-				.id = (uint8_t (*)[16])(&user_ids[index * sizeof(*((user_t *)0)->id)]),
+				.id = (uint8_t (*)[8])(&user_ids[index * sizeof(*((user_t *)0)->id)]),
 				.username = usernames[index],
 				.username_len = (uint8_t)strlen(usernames[index]),
 				.password = passwords[index],
@@ -60,7 +60,7 @@ int seed_radio(octet_t *db) {
 
 	for (uint8_t index = 0; index < radio_ids_len; index++) {
 		radio_t radio = {
-				.id = (uint8_t (*)[16])(&radio_ids[index * sizeof(*((radio_t *)0)->id)]),
+				.id = (uint8_t (*)[8])(&radio_ids[index * sizeof(*((radio_t *)0)->id)]),
 				.device = devices[index],
 				.device_len = (uint8_t)strlen(devices[index]),
 				.frequency = (uint32_t)434225000 - (index * 200000),
@@ -98,7 +98,7 @@ int seed_device(octet_t *db) {
 			device_key[ind] = (uint8_t)rand();
 		}
 		device_t device = {
-				.id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+				.id = (uint8_t (*)[8])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
 				.tag = (uint8_t (*)[2])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
 				.key = &device_key,
 		};
@@ -126,7 +126,7 @@ int seed_host(octet_t *db) {
 
 	for (uint8_t index = 0; index < host_ids_len; index++) {
 		host_t host = {
-				.id = (uint8_t (*)[16])(&host_ids[index * sizeof(*((user_t *)0)->id)]),
+				.id = (uint8_t (*)[8])(&host_ids[index * sizeof(*((user_t *)0)->id)]),
 				.address = addresses[index],
 				.address_len = (uint8_t)strlen(addresses[index]),
 				.port = ports[index],

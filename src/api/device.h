@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 typedef struct device_t {
-	uint8_t (*id)[16];
+	uint8_t (*id)[8];
 	uint8_t (*tag)[2];
 	uint8_t (*key)[16];
 } device_t;
@@ -33,7 +33,7 @@ extern const device_row_t device_row;
 
 uint16_t device_select(octet_t *db, device_query_t *query, response_t *response, uint8_t *devices_len);
 uint16_t device_insert(octet_t *db, device_t *device);
-uint16_t device_update(octet_t *db, uint8_t (*id)[16], device_t *device);
+uint16_t device_update(octet_t *db, uint8_t (*id)[8], device_t *device);
 uint16_t device_delete(octet_t *db, device_t *device);
 
 void device_find(octet_t *db, request_t *request, response_t *response);

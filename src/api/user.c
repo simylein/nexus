@@ -204,7 +204,7 @@ uint16_t user_update(octet_t *db, user_t *user) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_row.id);
 		uint8_t username_len = octet_uint8_read(db->row, user_row.username_len);
 		char *username = octet_text_read(db->row, user_row.username);
 		uint8_t (*password)[32] = (uint8_t (*)[32])octet_blob_read(db->row, user_row.password);
@@ -233,7 +233,7 @@ void user_signin(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	user_t user = {.id = &id, .signin_at = (time_t[]){time(NULL)}};
 	if (request->body.len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
 		response->status = 400;
@@ -246,7 +246,7 @@ void user_signin(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	char bwt[103];
+	char bwt[90];
 	if (bwt_sign(&bwt, user.id) == -1) {
 		response->status = 500;
 		return;

@@ -7,7 +7,7 @@ typedef struct schedule_t {
 	uint8_t kind;
 	uint8_t data[256];
 	uint8_t data_len;
-	uint8_t device_id[16];
+	uint8_t device_id[8];
 	uint8_t device_tag[2];
 } schedule_t;
 

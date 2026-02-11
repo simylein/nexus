@@ -14,9 +14,9 @@ typedef struct streams_t {
 
 typedef struct transmission_t {
 	time_t timestamp;
-	uint8_t radio_id[16];
+	uint8_t radio_id[8];
 	char type[2];
-	uint8_t device_id[16];
+	uint8_t device_id[8];
 	uint16_t frame;
 	uint8_t kind;
 	uint8_t data[256];
