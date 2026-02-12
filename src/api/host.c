@@ -16,14 +16,14 @@ const char *host_file = "host";
 
 const host_row_t host_row = {
 		.id = 0,
-		.address_len = 16,
-		.address = 17,
-		.port = 49,
-		.username_len = 51,
-		.username = 52,
-		.password_len = 68,
-		.password = 69,
-		.size = 133,
+		.address_len = 8,
+		.address = 9,
+		.port = 41,
+		.username_len = 43,
+		.username = 44,
+		.password_len = 60,
+		.password = 61,
+		.size = 125,
 };
 
 int host_rowcmp(uint8_t *alpha, uint8_t *bravo, host_query_t *query) {

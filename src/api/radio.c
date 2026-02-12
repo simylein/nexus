@@ -15,17 +15,17 @@ const char *radio_file = "radio";
 
 const radio_row_t radio_row = {
 		.id = 0,
-		.device_len = 16,
-		.device = 17,
-		.frequency = 49,
-		.bandwidth = 53,
-		.spreading_factor = 57,
-		.coding_rate = 58,
-		.tx_power = 59,
-		.preamble_len = 60,
-		.sync_word = 61,
-		.checksum = 62,
-		.size = 63,
+		.device_len = 8,
+		.device = 9,
+		.frequency = 41,
+		.bandwidth = 45,
+		.spreading_factor = 49,
+		.coding_rate = 50,
+		.tx_power = 51,
+		.preamble_len = 52,
+		.sync_word = 53,
+		.checksum = 54,
+		.size = 55,
 };
 
 int radio_rowcmp(uint8_t *alpha, uint8_t *bravo, radio_query_t *query) {

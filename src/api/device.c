@@ -14,9 +14,9 @@ const char *device_file = "device";
 
 const device_row_t device_row = {
 		.id = 0,
-		.tag = 16,
-		.key = 18,
-		.size = 34,
+		.tag = 8,
+		.key = 10,
+		.size = 26,
 };
 
 int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {

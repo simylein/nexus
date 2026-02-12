@@ -17,12 +17,12 @@ const char *user_file = "user";
 
 const user_row_t user_row = {
 		.id = 0,
-		.username_len = 16,
-		.username = 17,
-		.password = 33,
-		.signup_at = 65,
-		.signin_at = 73,
-		.size = 81,
+		.username_len = 8,
+		.username = 9,
+		.password = 25,
+		.signup_at = 57,
+		.signin_at = 65,
+		.size = 73,
 };
 
 int user_parse(user_t *user, request_t *request) {
