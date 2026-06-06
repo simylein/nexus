@@ -104,7 +104,7 @@
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="id"
 							autofocus
-							onchange="createForm.setValue('id', event.target.value)"
+							oninput="createForm.setValue('id', event.target.value)"
 							onblur="createForm.setTouched('id', true)"
 						/>
 						<p id="create-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -116,7 +116,7 @@
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="tag"
-							onchange="createForm.setValue('tag', event.target.value)"
+							oninput="createForm.setValue('tag', event.target.value)"
 							onblur="createForm.setTouched('tag', true)"
 						/>
 						<p id="create-tag-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -128,7 +128,7 @@
 							type="password"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="key"
-							onchange="createForm.setValue('key', event.target.value)"
+							oninput="createForm.setValue('key', event.target.value)"
 							onblur="createForm.setTouched('key', true)"
 						/>
 						<p id="create-key-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -162,7 +162,7 @@
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="kind"
 							autofocus
-							onchange="downlinkForm.setValue('kind', event.target.value)"
+							oninput="downlinkForm.setValue('kind', event.target.value)"
 							onblur="downlinkForm.setTouched('kind', true)"
 						/>
 						<p id="downlink-kind-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -175,7 +175,7 @@
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="data"
 							autofocus
-							onchange="downlinkForm.setValue('data', event.target.value)"
+							oninput="downlinkForm.setValue('data', event.target.value)"
 							onblur="downlinkForm.setTouched('data', true)"
 						/>
 						<p id="downlink-data-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -209,7 +209,7 @@
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="id"
 							autofocus
-							onchange="updateForm.setValue('id', event.target.value)"
+							oninput="updateForm.setValue('id', event.target.value)"
 							onblur="updateForm.setTouched('id', true)"
 						/>
 						<p id="update-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -221,7 +221,7 @@
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="tag"
-							onchange="updateForm.setValue('tag', event.target.value)"
+							oninput="updateForm.setValue('tag', event.target.value)"
 							onblur="updateForm.setTouched('tag', true)"
 						/>
 						<p id="update-tag-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -233,7 +233,7 @@
 							type="password"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="key"
-							onchange="updateForm.setValue('key', event.target.value)"
+							oninput="updateForm.setValue('key', event.target.value)"
 							onblur="updateForm.setTouched('key', true)"
 						/>
 						<p id="update-key-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>

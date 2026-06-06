@@ -21,7 +21,7 @@
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="username"
 							autofocus
-							onchange="setValue('username', event.target.value)"
+							oninput="setValue('username', event.target.value)"
 							onblur="setTouched('username', true)"
 						/>
 						<p id="username-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -33,7 +33,7 @@
 							type="password"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="password"
-							onchange="setValue('password', event.target.value)"
+							oninput="setValue('password', event.target.value)"
 							onblur="setTouched('password', true)"
 						/>
 						<p id="password-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
