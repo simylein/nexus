@@ -1,9 +1,12 @@
 #include "../lib/logger.h"
 #include "../lib/octet.h"
 #include "device.h"
+#include "downlink.h"
 #include "host.h"
 #include "radio.h"
+#include "uplink.h"
 #include "user.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 int init_user(octet_t *db) {
@@ -66,6 +69,36 @@ int init_host(octet_t *db) {
 	return 0;
 }
 
+int init_uplink(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, uplink_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	if (octet_creat(file) == -1) {
+		return -1;
+	}
+
+	info("created file %s\n", uplink_file);
+	return 0;
+}
+
+int init_downlink(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, downlink_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	if (octet_creat(file) == -1) {
+		return -1;
+	}
+
+	info("created file %s\n", downlink_file);
+	return 0;
+}
+
 int init(octet_t *db) {
 	if (octet_mkdir(db->directory) == -1) {
 		return -1;
@@ -83,6 +116,12 @@ int init(octet_t *db) {
 		return -1;
 	}
 	if (init_host(db) == -1) {
+		return -1;
+	}
+	if (init_uplink(db) == -1) {
+		return -1;
+	}
+	if (init_downlink(db) == -1) {
 		return -1;
 	}
 

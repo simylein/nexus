@@ -1,8 +1,10 @@
 #include "../lib/logger.h"
 #include "../lib/octet.h"
 #include "device.h"
+#include "downlink.h"
 #include "host.h"
 #include "radio.h"
+#include "uplink.h"
 #include "user.h"
 #include <fcntl.h>
 #include <stdio.h>
@@ -112,6 +114,62 @@ int wipe_host(octet_t *db) {
 	}
 
 	info("wiped file %s\n", host_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int wipe_uplink(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, uplink_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, 0) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("wiped file %s\n", uplink_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int wipe_downlink(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, downlink_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, 0) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("wiped file %s\n", downlink_file);
 	status = 0;
 
 cleanup:
