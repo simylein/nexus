@@ -19,11 +19,11 @@ const uint8_t reg_irq_flags = 0x12;
 const uint8_t reg_packet_len = 0x13;
 const uint8_t reg_packet_snr = 0x19;
 const uint8_t reg_packet_rssi = 0x1a;
+const uint8_t reg_modem_config_1 = 0x1d;
+const uint8_t reg_modem_config_2 = 0x1e;
 const uint8_t reg_preamble_msb = 0x20;
 const uint8_t reg_preamble_lsb = 0x21;
 const uint8_t reg_payload_len = 0x22;
-const uint8_t reg_modem_config_1 = 0x1d;
-const uint8_t reg_modem_config_2 = 0x1e;
 const uint8_t reg_sync_word = 0x39;
 
 int sx1278_sleep(int fd) {
