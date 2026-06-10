@@ -1,4 +1,5 @@
 #include "downlink.h"
+#include "../api/downlink.h"
 #include "../lib/config.h"
 #include "../lib/endian.h"
 #include "../lib/error.h"
@@ -29,22 +30,24 @@ downlinks_t downlinks = {
 
 int downlink_init(octet_t *db) {
 	int status;
+	octet_stmt_t stmt_host = {.fd = -1};
+	octet_stmt_t stmt_downlink = {.fd = -1};
 
 	char file[128];
 	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
 		error("failed to sprintf to file\n");
-		return 500;
-	}
-
-	octet_stmt_t stmt;
-	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = octet_error();
+		status = -1;
 		goto cleanup;
 	}
 
-	if (stmt.stat.st_size > db->table_len) {
-		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
-		status = 500;
+	if (octet_open(&stmt_host, file, O_RDONLY, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (stmt_host.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt_host.stat.st_size, db->table_len);
+		status = -1;
 		goto cleanup;
 	}
 
@@ -54,12 +57,12 @@ int downlink_init(octet_t *db) {
 	uint8_t hosts_len = 0;
 	off_t offset = 0;
 	while (true) {
-		if (offset >= stmt.stat.st_size) {
+		if (offset >= stmt_host.stat.st_size) {
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->row, host_row.size) == -1) {
-			status = octet_error();
+		if (octet_row_read(&stmt_host, file, offset, db->row, host_row.size) == -1) {
+			status = -1;
 			goto cleanup;
 		}
 		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, host_row.id);
@@ -112,20 +115,70 @@ int downlink_init(octet_t *db) {
 		offset += host_row.size;
 	}
 
-	downlinks.ptr = malloc(downlinks_size * sizeof(*downlinks.ptr));
-	if (downlinks.ptr == NULL) {
-		fatal("failed to allocate %zu bytes for downlinks because %s\n", downlinks_size * sizeof(*downlinks.ptr), errno_str());
-		return -1;
+	if (sprintf(file, "%s/%s.data", db->directory, downlink_file) == -1) {
+		error("failed to sprintf to file\n");
+		status = -1;
+		goto cleanup;
 	}
+
+	if (octet_open(&stmt_downlink, file, O_RDONLY, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	debug("select downlinks\n");
+
+	time_t sent_at_max = 0;
+	time_t sent_at_min = 0;
+	uint8_t null[512];
+	memset(null, 0x00, downlink_row.size);
+	offset = 0;
+	while (true) {
+		if (offset >= stmt_downlink.stat.st_size) {
+			status = 0;
+			break;
+		}
+		if (octet_row_read(&stmt_downlink, file, offset, db->row, downlink_row.size) == -1) {
+			status = -1;
+			goto cleanup;
+		}
+		time_t sent_at = (time_t)octet_uint64_read(db->row, downlink_row.sent_at);
+		if (memcmp(db->row, null, downlink_row.size) != 0) {
+			if (sent_at < sent_at_min || sent_at_min == 0) {
+				downlinks.head = (uint8_t)(offset / downlink_row.size);
+				sent_at_min = sent_at;
+			}
+			if (sent_at >= sent_at_max) {
+				downlinks.tail = (uint8_t)(offset / downlink_row.size);
+				sent_at_max = sent_at;
+			}
+			downlinks.size++;
+		}
+		offset += downlink_row.size;
+	}
+	if (downlinks.size != 0) {
+		downlinks.tail = (uint8_t)(downlinks.tail + 1) % downlinks_size;
+	}
+
+	downlinks.worker.arg.db.directory = database_directory;
+	downlinks.worker.arg.db.row = malloc(512);
+	if (downlinks.worker.arg.db.row == NULL) {
+		fatal("failed to allocate %hu bytes for downlinks because %s\n", 512, errno_str());
+		status = -1;
+		goto cleanup;
+	}
+	downlinks.worker.arg.db.row_len = 512;
 
 	downlinks.worker.arg.hosts = hosts;
 	downlinks.worker.arg.hosts_len = hosts_len;
 	if (downlink_spawn(&downlinks.worker.thread, downlink_thread, &downlinks.worker.arg) == -1) {
-		return -1;
+		status = -1;
+		goto cleanup;
 	}
 
 cleanup:
-	octet_close(&stmt, file);
+	octet_close(&stmt_host, file);
+	octet_close(&stmt_downlink, file);
 	return status;
 }
 
@@ -155,7 +208,10 @@ void *downlink_thread(void *args) {
 			pthread_cond_wait(&downlinks.filled, &downlinks.lock);
 		}
 
-		downlink_t downlink = downlinks.ptr[downlinks.head];
+		downlink_t downlink;
+		if (downlink_select_one(&arg->db, &downlink, &downlinks.head) != 0) {
+			goto unlock;
+		}
 		pthread_mutex_unlock(&downlinks.lock);
 
 		while (true) {
@@ -182,10 +238,15 @@ void *downlink_thread(void *args) {
 		}
 
 		pthread_mutex_lock(&downlinks.lock);
+		if (downlink_delete(&arg->db, &downlink, &downlinks.head) != 0) {
+			goto unlock;
+		}
 		downlinks.head = (uint8_t)((downlinks.head + 1) % downlinks_size);
 		downlinks.size--;
 		trace("downlink thread decreased queue size to %hhu\n", downlinks.size);
 		pthread_cond_signal(&downlinks.available);
+
+	unlock:
 		pthread_mutex_unlock(&downlinks.lock);
 	}
 }

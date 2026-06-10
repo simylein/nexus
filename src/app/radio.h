@@ -9,6 +9,7 @@
 
 typedef struct radio_arg_t {
 	int fd;
+	octet_t db;
 	radio_t *radio;
 	device_t *devices;
 	uint8_t devices_len;

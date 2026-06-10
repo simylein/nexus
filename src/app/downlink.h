@@ -1,30 +1,15 @@
 #pragma once
 
+#include "../api/downlink.h"
 #include "../api/host.h"
 #include "../lib/octet.h"
 #include "../lib/strn.h"
 #include "auth.h"
 #include <pthread.h>
 #include <stdint.h>
-#include <time.h>
-
-typedef struct downlink_t {
-	uint16_t frame;
-	uint8_t kind;
-	uint8_t data[256];
-	uint8_t data_len;
-	uint16_t airtime;
-	uint32_t frequency;
-	uint32_t bandwidth;
-	uint8_t spreading_factor;
-	uint8_t coding_rate;
-	uint8_t tx_power;
-	uint8_t preamble_len;
-	time_t sent_at;
-	uint8_t device_id[8];
-} downlink_t;
 
 typedef struct downlink_arg_t {
+	octet_t db;
 	host_t *hosts;
 	uint8_t hosts_len;
 } downlink_arg_t;
@@ -36,7 +21,6 @@ typedef struct downlink_worker_t {
 
 typedef struct downlinks_t {
 	downlink_worker_t worker;
-	downlink_t *ptr;
 	uint8_t head;
 	uint8_t tail;
 	uint8_t size;

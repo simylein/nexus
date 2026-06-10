@@ -137,6 +137,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	trace("spawning scaler thread\n");
 	if ((errno = pthread_create(&thread_pool.scaler, NULL, &scaler, NULL)) != 0) {
 		fatal("failed to spawn scaler thread because %s\n", errno_str());
 		exit(1);
@@ -301,6 +302,7 @@ int main(int argc, char *argv[]) {
 		}
 		free(comms.radios[index].id);
 		free(comms.radios[index].device);
+		free(comms.workers[index].arg.db.row);
 	}
 
 	for (uint8_t index = 0; index < comms.devices_len; index++) {
@@ -338,6 +340,7 @@ int main(int argc, char *argv[]) {
 		error("failed to join uplink thread\n");
 	}
 
+	free(uplinks.worker.arg.db.row);
 	for (uint8_t index = 0; index < uplinks.worker.arg.hosts_len; index++) {
 		free(uplinks.worker.arg.hosts[index].id);
 		free(uplinks.worker.arg.hosts[index].address);
@@ -345,7 +348,6 @@ int main(int argc, char *argv[]) {
 		free(uplinks.worker.arg.hosts[index].password);
 	}
 	free(uplinks.worker.arg.hosts);
-	free(uplinks.ptr);
 
 	if (downlinks.size > 0) {
 		info("waiting for %hhu downlinks...\n", downlinks.size);
@@ -362,6 +364,7 @@ int main(int argc, char *argv[]) {
 		error("failed to join downlink thread\n");
 	}
 
+	free(downlinks.worker.arg.db.row);
 	for (uint8_t index = 0; index < downlinks.worker.arg.hosts_len; index++) {
 		free(downlinks.worker.arg.hosts[index].id);
 		free(downlinks.worker.arg.hosts[index].address);
@@ -369,7 +372,6 @@ int main(int argc, char *argv[]) {
 		free(downlinks.worker.arg.hosts[index].password);
 	}
 	free(downlinks.worker.arg.hosts);
-	free(downlinks.ptr);
 
 	free(schedules.ptr);
 

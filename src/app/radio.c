@@ -1,5 +1,7 @@
 #include "../api/radio.h"
+#include "../api/downlink.h"
 #include "../api/transmission.h"
+#include "../api/uplink.h"
 #include "../lib/config.h"
 #include "../lib/error.h"
 #include "../lib/logger.h"
@@ -183,6 +185,15 @@ int radio_init(octet_t *db) {
 			return -1;
 		}
 
+		comms.workers[index].arg.db.directory = database_directory;
+		comms.workers[index].arg.db.row = malloc(512);
+		if (comms.workers[index].arg.db.row == NULL) {
+			error("failed to allocate %hu bytes for workers because %s\n", 512, errno_str());
+			status = -1;
+			goto cleanup;
+		}
+
+		comms.workers[index].arg.db.row_len = 512;
 		comms.workers[index].arg.radio = &comms.radios[index];
 		comms.workers[index].arg.devices = comms.devices;
 		comms.workers[index].arg.devices_len = comms.devices_len;
@@ -327,7 +338,10 @@ void *radio_thread(void *args) {
 			pthread_cond_wait(&uplinks.available, &uplinks.lock);
 		}
 
-		memcpy(&uplinks.ptr[uplinks.tail], &uplink, sizeof(uplink));
+		if (uplink_insert(&arg->db, &uplink, &uplinks.tail) != 0) {
+			pthread_mutex_unlock(&uplinks.lock);
+			continue;
+		}
 		uplinks.tail = (uint8_t)((uplinks.tail + 1) % uplinks_size);
 		uplinks.size++;
 		trace("radio thread increased uplinks size to %hhu\n", uplinks.size);
@@ -444,7 +458,10 @@ void *radio_thread(void *args) {
 			pthread_cond_wait(&downlinks.available, &downlinks.lock);
 		}
 
-		memcpy(&downlinks.ptr[downlinks.tail], &downlink, sizeof(downlink));
+		if (downlink_insert(&arg->db, &downlink, &downlinks.tail) != 0) {
+			pthread_mutex_unlock(&downlinks.lock);
+			continue;
+		}
 		downlinks.tail = (uint8_t)((downlinks.tail + 1) % downlinks_size);
 		downlinks.size++;
 		trace("radio thread increased downlinks size to %hhu\n", downlinks.size);

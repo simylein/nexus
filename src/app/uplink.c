@@ -1,4 +1,5 @@
 #include "uplink.h"
+#include "../api/uplink.h"
 #include "../lib/config.h"
 #include "../lib/endian.h"
 #include "../lib/error.h"
@@ -29,22 +30,24 @@ uplinks_t uplinks = {
 
 int uplink_init(octet_t *db) {
 	int status;
+	octet_stmt_t stmt_host = {.fd = -1};
+	octet_stmt_t stmt_uplink = {.fd = -1};
 
 	char file[128];
 	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
 		error("failed to sprintf to file\n");
-		return 500;
-	}
-
-	octet_stmt_t stmt;
-	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = octet_error();
+		status = -1;
 		goto cleanup;
 	}
 
-	if (stmt.stat.st_size > db->table_len) {
-		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
-		status = 500;
+	if (octet_open(&stmt_host, file, O_RDONLY, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (stmt_host.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt_host.stat.st_size, db->table_len);
+		status = -1;
 		goto cleanup;
 	}
 
@@ -54,12 +57,12 @@ int uplink_init(octet_t *db) {
 	uint8_t hosts_len = 0;
 	off_t offset = 0;
 	while (true) {
-		if (offset >= stmt.stat.st_size) {
+		if (offset >= stmt_host.stat.st_size) {
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->row, host_row.size) == -1) {
-			status = octet_error();
+		if (octet_row_read(&stmt_host, file, offset, db->row, host_row.size) == -1) {
+			status = -1;
 			goto cleanup;
 		}
 		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, host_row.id);
@@ -112,20 +115,70 @@ int uplink_init(octet_t *db) {
 		offset += host_row.size;
 	}
 
-	uplinks.ptr = malloc(uplinks_size * sizeof(*uplinks.ptr));
-	if (uplinks.ptr == NULL) {
-		fatal("failed to allocate %zu bytes for uplinks because %s\n", uplinks_size * sizeof(*uplinks.ptr), errno_str());
-		return -1;
+	if (sprintf(file, "%s/%s.data", db->directory, uplink_file) == -1) {
+		error("failed to sprintf to file\n");
+		status = -1;
+		goto cleanup;
 	}
+
+	if (octet_open(&stmt_uplink, file, O_RDONLY, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	debug("select uplinks\n");
+
+	time_t received_at_max = 0;
+	time_t received_at_min = 0;
+	uint8_t null[512];
+	memset(null, 0x00, uplink_row.size);
+	offset = 0;
+	while (true) {
+		if (offset >= stmt_uplink.stat.st_size) {
+			status = 0;
+			break;
+		}
+		if (octet_row_read(&stmt_uplink, file, offset, db->row, uplink_row.size) == -1) {
+			status = -1;
+			goto cleanup;
+		}
+		time_t received_at = (time_t)octet_uint64_read(db->row, uplink_row.received_at);
+		if (memcmp(db->row, null, uplink_row.size) != 0) {
+			if (received_at < received_at_min || received_at_min == 0) {
+				uplinks.head = (uint8_t)(offset / uplink_row.size);
+				received_at_min = received_at;
+			}
+			if (received_at >= received_at_max) {
+				uplinks.tail = (uint8_t)(offset / uplink_row.size);
+				received_at_max = received_at;
+			}
+			uplinks.size++;
+		}
+		offset += uplink_row.size;
+	}
+	if (uplinks.size != 0) {
+		uplinks.tail = (uint8_t)(uplinks.tail + 1) % uplinks_size;
+	}
+
+	uplinks.worker.arg.db.directory = database_directory;
+	uplinks.worker.arg.db.row = malloc(512);
+	if (uplinks.worker.arg.db.row == NULL) {
+		fatal("failed to allocate %hu bytes for uplinks because %s\n", 512, errno_str());
+		status = -1;
+		goto cleanup;
+	}
+	uplinks.worker.arg.db.row_len = 512;
 
 	uplinks.worker.arg.hosts = hosts;
 	uplinks.worker.arg.hosts_len = hosts_len;
 	if (uplink_spawn(&uplinks.worker.thread, uplink_thread, &uplinks.worker.arg) == -1) {
-		return -1;
+		status = -1;
+		goto cleanup;
 	}
 
 cleanup:
-	octet_close(&stmt, file);
+	octet_close(&stmt_host, file);
+	octet_close(&stmt_uplink, file);
 	return status;
 }
 
@@ -155,7 +208,10 @@ void *uplink_thread(void *args) {
 			pthread_cond_wait(&uplinks.filled, &uplinks.lock);
 		}
 
-		uplink_t uplink = uplinks.ptr[uplinks.head];
+		uplink_t uplink;
+		if (uplink_select_one(&arg->db, &uplink, &uplinks.head) != 0) {
+			goto unlock;
+		}
 		pthread_mutex_unlock(&uplinks.lock);
 
 		while (true) {
@@ -182,10 +238,15 @@ void *uplink_thread(void *args) {
 		}
 
 		pthread_mutex_lock(&uplinks.lock);
+		if (uplink_delete(&arg->db, &uplink, &uplinks.head) != 0) {
+			goto unlock;
+		}
 		uplinks.head = (uint8_t)((uplinks.head + 1) % uplinks_size);
 		uplinks.size--;
 		trace("uplink thread decreased queue size to %hhu\n", uplinks.size);
 		pthread_cond_signal(&uplinks.available);
+
+	unlock:
 		pthread_mutex_unlock(&uplinks.lock);
 	}
 }
