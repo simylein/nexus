@@ -211,6 +211,12 @@ int configure(int argc, char *argv[], uint8_t *cmds) {
 		} else if (match_arg(flag, "--most-workers", "-mw")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint8(value, "most-workers", 3, 255, &most_workers);
+		} else if (match_arg(flag, "--uplinks-size", "-us")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "uplinks-size", 8, 128, &uplinks_size);
+		} else if (match_arg(flag, "--downlinks-size", "-ds")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "downlinks-size", 8, 128, &downlinks_size);
 		} else if (match_arg(flag, "--bwt-key", "-bk")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "bwt key", 16, 64, &bwt_key);
