@@ -18,11 +18,12 @@ const downlink_row_t downlink_row = {
 		.bandwidth = 266,
 		.spreading_factor = 270,
 		.coding_rate = 271,
-		.tx_power = 272,
-		.preamble_len = 273,
-		.sent_at = 274,
-		.device_id = 282,
-		.size = 290,
+		.checksum = 272,
+		.tx_power = 273,
+		.preamble_len = 274,
+		.sent_at = 275,
+		.device_id = 283,
+		.size = 291,
 };
 
 uint16_t downlink_select_one(octet_t *db, downlink_t *downlink, uint8_t *head) {
@@ -57,6 +58,7 @@ uint16_t downlink_select_one(octet_t *db, downlink_t *downlink, uint8_t *head) {
 	downlink->bandwidth = octet_uint32_read(db->row, downlink_row.bandwidth);
 	downlink->spreading_factor = octet_uint8_read(db->row, downlink_row.spreading_factor);
 	downlink->coding_rate = octet_uint8_read(db->row, downlink_row.coding_rate);
+	downlink->checksum = octet_bool_read(db->row, downlink_row.checksum);
 	downlink->tx_power = octet_uint8_read(db->row, downlink_row.tx_power);
 	downlink->preamble_len = octet_uint8_read(db->row, downlink_row.preamble_len);
 	downlink->sent_at = (time_t)octet_uint64_read(db->row, downlink_row.sent_at);
@@ -96,6 +98,7 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink, uint8_t *tail) {
 	octet_uint32_write(db->row, downlink_row.bandwidth, downlink->bandwidth);
 	octet_uint8_write(db->row, downlink_row.spreading_factor, downlink->spreading_factor);
 	octet_uint8_write(db->row, downlink_row.coding_rate, downlink->coding_rate);
+	octet_bool_write(db->row, downlink_row.checksum, downlink->checksum);
 	octet_uint8_write(db->row, downlink_row.tx_power, downlink->tx_power);
 	octet_uint8_write(db->row, downlink_row.preamble_len, downlink->preamble_len);
 	octet_uint64_write(db->row, downlink_row.sent_at, (uint64_t)downlink->sent_at);

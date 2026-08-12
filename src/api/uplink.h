@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../lib/octet.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -16,6 +17,7 @@ typedef struct uplink_t {
 	int8_t snr;
 	uint8_t spreading_factor;
 	uint8_t coding_rate;
+	bool checksum;
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	time_t received_at;
@@ -34,6 +36,7 @@ typedef struct uplink_row_t {
 	uint16_t snr;
 	uint16_t spreading_factor;
 	uint16_t coding_rate;
+	uint16_t checksum;
 	uint16_t tx_power;
 	uint16_t preamble_len;
 	uint16_t received_at;

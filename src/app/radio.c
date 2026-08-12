@@ -326,6 +326,7 @@ void *radio_thread(void *args) {
 		uplink.snr = snr;
 		uplink.spreading_factor = arg->radio->spreading_factor;
 		uplink.coding_rate = arg->radio->coding_rate;
+		uplink.checksum = arg->radio->checksum;
 		uplink.tx_power = ((rx_data[4] >> 4) & 0x0f) + 2;
 		uplink.preamble_len = (rx_data[4] & 0x0f) + 6;
 		uplink.received_at = time(NULL);
@@ -446,6 +447,7 @@ void *radio_thread(void *args) {
 		downlink.bandwidth = arg->radio->bandwidth;
 		downlink.spreading_factor = arg->radio->spreading_factor;
 		downlink.coding_rate = arg->radio->coding_rate;
+		downlink.checksum = arg->radio->checksum;
 		downlink.tx_power = ((tx_data[4] >> 4) & 0x0f) + 2;
 		downlink.preamble_len = (tx_data[4] & 0x0f) + 6;
 		downlink.sent_at = time(NULL);

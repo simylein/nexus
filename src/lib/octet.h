@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -43,6 +44,8 @@ void octet_close(octet_stmt_t *stmt, const char *file);
 ssize_t octet_row_read(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint16_t row_size);
 ssize_t octet_row_write(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint16_t row_size);
 
+bool octet_bool_read(uint8_t *row, uint16_t row_ind);
+
 uint8_t octet_uint8_read(uint8_t *row, uint16_t row_ind);
 uint16_t octet_uint16_read(uint8_t *row, uint16_t row_ind);
 uint32_t octet_uint32_read(uint8_t *row, uint16_t row_ind);
@@ -55,6 +58,8 @@ int64_t octet_int64_read(uint8_t *row, uint16_t row_ind);
 
 uint8_t *octet_blob_read(uint8_t *row, uint16_t row_ind);
 char *octet_text_read(uint8_t *row, uint16_t row_ind);
+
+void octet_bool_write(uint8_t *row, uint16_t row_ind, bool value);
 
 void octet_uint8_write(uint8_t *row, uint16_t row_ind, uint8_t value);
 void octet_uint16_write(uint8_t *row, uint16_t row_ind, uint16_t value);

@@ -309,6 +309,8 @@ int uplink_create(uplink_t *uplink, host_t *host, cookie_t *cookie) {
 	request.body.len += sizeof(uplink->spreading_factor);
 	memcpy(&request.body.ptr[request.body.len], &uplink->coding_rate, sizeof(uplink->coding_rate));
 	request.body.len += sizeof(uplink->coding_rate);
+	memcpy(&request.body.ptr[request.body.len], &uplink->checksum, sizeof(uplink->checksum));
+	request.body.len += sizeof(uplink->checksum);
 	memcpy(&request.body.ptr[request.body.len], &uplink->tx_power, sizeof(uplink->tx_power));
 	request.body.len += sizeof(uplink->tx_power);
 	memcpy(&request.body.ptr[request.body.len], &uplink->preamble_len, sizeof(uplink->preamble_len));

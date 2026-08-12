@@ -3,6 +3,7 @@
 #include "logger.h"
 #include <errno.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
@@ -150,6 +151,11 @@ ssize_t octet_row_write(octet_stmt_t *stmt, const char *file, off_t offset, uint
 	return bytes;
 }
 
+bool octet_bool_read(uint8_t *row, uint16_t row_ind) {
+	bool value = row[row_ind];
+	return value;
+}
+
 uint8_t octet_uint8_read(uint8_t *row, uint16_t row_ind) {
 	uint8_t value = row[row_ind];
 	return value;
@@ -207,6 +213,8 @@ char *octet_text_read(uint8_t *row, uint16_t row_ind) {
 	char *value = (char *)&row[row_ind];
 	return value;
 }
+
+void octet_bool_write(uint8_t *row, uint16_t row_ind, bool value) { row[row_ind] = value; }
 
 void octet_uint8_write(uint8_t *row, uint16_t row_ind, uint8_t value) { row[row_ind] = value; }
 
