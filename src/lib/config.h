@@ -15,8 +15,8 @@ extern uint8_t most_workers;
 
 extern uint8_t streams_size;
 extern uint8_t transmissions_size;
-extern uint8_t uplinks_size;
-extern uint8_t downlinks_size;
+extern uint16_t uplinks_size;
+extern uint16_t downlinks_size;
 extern uint8_t schedules_size;
 
 extern const char *bwt_key;

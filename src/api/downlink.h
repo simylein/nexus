@@ -44,6 +44,6 @@ extern const char *downlink_file;
 
 extern const downlink_row_t downlink_row;
 
-uint16_t downlink_select_one(octet_t *db, downlink_t *downlink, uint8_t *head);
-uint16_t downlink_insert(octet_t *db, downlink_t *downlink, uint8_t *tail);
-uint16_t downlink_delete(octet_t *db, downlink_t *downlink, uint8_t *head);
+uint16_t downlink_select_one(octet_t *db, downlink_t *downlink, uint16_t *head);
+uint16_t downlink_insert(octet_t *db, downlink_t *downlink, uint16_t *tail);
+uint16_t downlink_delete(octet_t *db, downlink_t *downlink, uint16_t *head);

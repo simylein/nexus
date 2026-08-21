@@ -16,8 +16,8 @@ uint8_t most_workers = 64;
 
 uint8_t streams_size = 128;
 uint8_t transmissions_size = 64;
-uint8_t uplinks_size = 16;
-uint8_t downlinks_size = 16;
+uint16_t uplinks_size = 16;
+uint16_t downlinks_size = 16;
 uint8_t schedules_size = 16;
 
 const char *bwt_key = "n6ee65x78u75s73";
@@ -213,10 +213,10 @@ int configure(int argc, char *argv[], uint8_t *cmds) {
 			errors += parse_uint8(value, "most-workers", 3, 255, &most_workers);
 		} else if (match_arg(flag, "--uplinks-size", "-us")) {
 			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_uint8(value, "uplinks-size", 8, 128, &uplinks_size);
+			errors += parse_uint16(value, "uplinks-size", 8, 32768, &uplinks_size);
 		} else if (match_arg(flag, "--downlinks-size", "-ds")) {
 			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_uint8(value, "downlinks-size", 8, 128, &downlinks_size);
+			errors += parse_uint16(value, "downlinks-size", 8, 32768, &downlinks_size);
 		} else if (match_arg(flag, "--bwt-key", "-bk")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "bwt key", 16, 64, &bwt_key);

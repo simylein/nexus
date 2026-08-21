@@ -21,9 +21,9 @@ typedef struct uplink_worker_t {
 
 typedef struct uplinks_t {
 	uplink_worker_t worker;
-	uint8_t head;
-	uint8_t tail;
-	uint8_t size;
+	uint16_t head;
+	uint16_t tail;
+	uint16_t size;
 	pthread_mutex_t lock;
 	pthread_cond_t filled;
 	pthread_cond_t available;

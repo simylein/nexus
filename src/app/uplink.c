@@ -145,11 +145,11 @@ int uplink_init(octet_t *db) {
 		time_t received_at = (time_t)octet_uint64_read(db->row, uplink_row.received_at);
 		if (memcmp(db->row, null, uplink_row.size) != 0) {
 			if (received_at < received_at_min || received_at_min == 0) {
-				uplinks.head = (uint8_t)(offset / uplink_row.size);
+				uplinks.head = (uint16_t)(offset / uplink_row.size);
 				received_at_min = received_at;
 			}
 			if (received_at >= received_at_max) {
-				uplinks.tail = (uint8_t)(offset / uplink_row.size);
+				uplinks.tail = (uint16_t)(offset / uplink_row.size);
 				received_at_max = received_at;
 			}
 			uplinks.size++;
@@ -157,7 +157,7 @@ int uplink_init(octet_t *db) {
 		offset += uplink_row.size;
 	}
 	if (uplinks.size != 0) {
-		uplinks.tail = (uint8_t)(uplinks.tail + 1) % uplinks_size;
+		uplinks.tail = (uint16_t)(uplinks.tail + 1) % uplinks_size;
 	}
 
 	uplinks.worker.arg.db.directory = database_directory;
@@ -241,9 +241,9 @@ void *uplink_thread(void *args) {
 		if (uplink_delete(&arg->db, &uplink, &uplinks.head) != 0) {
 			goto unlock;
 		}
-		uplinks.head = (uint8_t)((uplinks.head + 1) % uplinks_size);
+		uplinks.head = (uint16_t)((uplinks.head + 1) % uplinks_size);
 		uplinks.size--;
-		trace("uplink thread decreased queue size to %hhu\n", uplinks.size);
+		trace("uplink thread decreased queue size to %hu\n", uplinks.size);
 		pthread_cond_signal(&uplinks.available);
 
 	unlock:

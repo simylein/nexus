@@ -28,7 +28,7 @@ const uplink_row_t uplink_row = {
 		.size = 294,
 };
 
-uint16_t uplink_select_one(octet_t *db, uplink_t *uplink, uint8_t *head) {
+uint16_t uplink_select_one(octet_t *db, uplink_t *uplink, uint16_t *head) {
 	uint16_t status;
 
 	char file[128];
@@ -75,7 +75,7 @@ cleanup:
 	return status;
 }
 
-uint16_t uplink_insert(octet_t *db, uplink_t *uplink, uint8_t *tail) {
+uint16_t uplink_insert(octet_t *db, uplink_t *uplink, uint16_t *tail) {
 	uint16_t status;
 
 	char file[128];
@@ -122,7 +122,7 @@ cleanup:
 	return status;
 }
 
-uint16_t uplink_delete(octet_t *db, uplink_t *uplink, uint8_t *head) {
+uint16_t uplink_delete(octet_t *db, uplink_t *uplink, uint16_t *head) {
 	uint16_t status;
 
 	char file[128];

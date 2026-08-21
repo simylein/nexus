@@ -326,10 +326,10 @@ int main(int argc, char *argv[]) {
 	free(transmissions.ptr);
 
 	if (uplinks.size > 0) {
-		info("waiting for %hhu uplinks...\n", uplinks.size);
+		info("waiting for %hu uplinks...\n", uplinks.size);
 	}
 	while (uplinks.size > 0) {
-		trace("waiting for %hhu uplinks in queue\n", uplinks.size);
+		trace("waiting for %hu uplinks in queue\n", uplinks.size);
 		pthread_cond_wait(&uplinks.available, &uplinks.lock);
 	}
 
@@ -350,10 +350,10 @@ int main(int argc, char *argv[]) {
 	free(uplinks.worker.arg.hosts);
 
 	if (downlinks.size > 0) {
-		info("waiting for %hhu downlinks...\n", downlinks.size);
+		info("waiting for %hu downlinks...\n", downlinks.size);
 	}
 	while (downlinks.size > 0) {
-		trace("waiting for %hhu downlinks in queue\n", downlinks.size);
+		trace("waiting for %hu downlinks in queue\n", downlinks.size);
 		pthread_cond_wait(&downlinks.available, &downlinks.lock);
 	}
 

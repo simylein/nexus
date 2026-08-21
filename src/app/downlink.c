@@ -145,11 +145,11 @@ int downlink_init(octet_t *db) {
 		time_t sent_at = (time_t)octet_uint64_read(db->row, downlink_row.sent_at);
 		if (memcmp(db->row, null, downlink_row.size) != 0) {
 			if (sent_at < sent_at_min || sent_at_min == 0) {
-				downlinks.head = (uint8_t)(offset / downlink_row.size);
+				downlinks.head = (uint16_t)(offset / downlink_row.size);
 				sent_at_min = sent_at;
 			}
 			if (sent_at >= sent_at_max) {
-				downlinks.tail = (uint8_t)(offset / downlink_row.size);
+				downlinks.tail = (uint16_t)(offset / downlink_row.size);
 				sent_at_max = sent_at;
 			}
 			downlinks.size++;
@@ -157,7 +157,7 @@ int downlink_init(octet_t *db) {
 		offset += downlink_row.size;
 	}
 	if (downlinks.size != 0) {
-		downlinks.tail = (uint8_t)(downlinks.tail + 1) % downlinks_size;
+		downlinks.tail = (uint16_t)(downlinks.tail + 1) % downlinks_size;
 	}
 
 	downlinks.worker.arg.db.directory = database_directory;
@@ -241,9 +241,9 @@ void *downlink_thread(void *args) {
 		if (downlink_delete(&arg->db, &downlink, &downlinks.head) != 0) {
 			goto unlock;
 		}
-		downlinks.head = (uint8_t)((downlinks.head + 1) % downlinks_size);
+		downlinks.head = (uint16_t)((downlinks.head + 1) % downlinks_size);
 		downlinks.size--;
-		trace("downlink thread decreased queue size to %hhu\n", downlinks.size);
+		trace("downlink thread decreased queue size to %hu\n", downlinks.size);
 		pthread_cond_signal(&downlinks.available);
 
 	unlock:

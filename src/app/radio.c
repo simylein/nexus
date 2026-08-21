@@ -335,7 +335,7 @@ void *radio_thread(void *args) {
 		pthread_mutex_lock(&uplinks.lock);
 
 		while (uplinks.size >= uplinks_size) {
-			warn("waiting for uplinks size %hhu to decrease\n", uplinks.size);
+			warn("waiting for uplinks size %hu to decrease\n", uplinks.size);
 			pthread_cond_wait(&uplinks.available, &uplinks.lock);
 		}
 
@@ -343,9 +343,9 @@ void *radio_thread(void *args) {
 			pthread_mutex_unlock(&uplinks.lock);
 			continue;
 		}
-		uplinks.tail = (uint8_t)((uplinks.tail + 1) % uplinks_size);
+		uplinks.tail = (uint16_t)((uplinks.tail + 1) % uplinks_size);
 		uplinks.size++;
-		trace("radio thread increased uplinks size to %hhu\n", uplinks.size);
+		trace("radio thread increased uplinks size to %hu\n", uplinks.size);
 
 		pthread_cond_signal(&uplinks.filled);
 		pthread_mutex_unlock(&uplinks.lock);
@@ -456,7 +456,7 @@ void *radio_thread(void *args) {
 		pthread_mutex_lock(&downlinks.lock);
 
 		while (downlinks.size >= downlinks_size) {
-			warn("waiting for downlinks size %hhu to decrease\n", downlinks.size);
+			warn("waiting for downlinks size %hu to decrease\n", downlinks.size);
 			pthread_cond_wait(&downlinks.available, &downlinks.lock);
 		}
 
@@ -464,9 +464,9 @@ void *radio_thread(void *args) {
 			pthread_mutex_unlock(&downlinks.lock);
 			continue;
 		}
-		downlinks.tail = (uint8_t)((downlinks.tail + 1) % downlinks_size);
+		downlinks.tail = (uint16_t)((downlinks.tail + 1) % downlinks_size);
 		downlinks.size++;
-		trace("radio thread increased downlinks size to %hhu\n", downlinks.size);
+		trace("radio thread increased downlinks size to %hu\n", downlinks.size);
 
 		pthread_cond_signal(&downlinks.filled);
 		pthread_mutex_unlock(&downlinks.lock);
