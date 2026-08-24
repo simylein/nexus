@@ -184,7 +184,7 @@
 				<form class="m-4 flex flex-col gap-4" onsubmit="createForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Create radio?</h1>
 					<div class="flex flex-col lg:flex-row gap-4">
-						<div class="w-full flex flex-col gap-4">
+						<div class="w-full lg:max-w-96 flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
 								<label for="create-device" class="mb-2 text-base font-normal">Device</label>
 								<input
@@ -211,15 +211,86 @@
 								<p id="create-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
-								<label for="create-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
-								<input
-									id="create-bandwidth"
-									type="text"
-									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-									placeholder="bandwidth"
-									oninput="createForm.setValue('bandwidth', event.target.value)"
-									onblur="createForm.setTouched('bandwidth', true)"
-								/>
+								<label for="create-bandwidths" class="mb-2 text-base font-normal">Bandwidth</label>
+								<div id="create-bandwidths" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('create-bandwidths'), 250000);
+											createForm.setValue('bandwidth', 250000);
+											createForm.setTouched('bandwidth', true);
+										"
+									>
+										250000
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('create-bandwidths'), 125000);
+											createForm.setValue('bandwidth', 125000);
+											createForm.setTouched('bandwidth', true);
+										"
+									>
+										125000
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('create-bandwidths'), 62500);
+											createForm.setValue('bandwidth', 62500);
+											createForm.setTouched('bandwidth', true);
+										"
+									>
+										62500
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('create-bandwidths'), 41700);
+											createForm.setValue('bandwidth', 41700);
+											createForm.setTouched('bandwidth', true);
+										"
+									>
+										41700
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('create-bandwidths'), 31250);
+											createForm.setValue('bandwidth', 31250);
+											createForm.setTouched('bandwidth', true);
+										"
+									>
+										31250
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('create-bandwidths'), 20800);
+											createForm.setValue('bandwidth', 20800);
+											createForm.setTouched('bandwidth', true);
+										"
+									>
+										20800
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('create-bandwidths'), 15600);
+											createForm.setValue('bandwidth', 15600);
+											createForm.setTouched('bandwidth', true);
+										"
+									>
+										15600
+									</button>
+								</div>
 								<p id="create-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
@@ -317,7 +388,7 @@
 											createForm.setTouched('codingRate', true);
 										"
 									>
-										4/5
+										5
 									</button>
 									<button
 										type="button"
@@ -328,7 +399,7 @@
 											createForm.setTouched('codingRate', true);
 										"
 									>
-										4/6
+										6
 									</button>
 									<button
 										type="button"
@@ -339,7 +410,7 @@
 											createForm.setTouched('codingRate', true);
 										"
 									>
-										4/7
+										7
 									</button>
 									<button
 										type="button"
@@ -350,7 +421,7 @@
 											createForm.setTouched('codingRate', true);
 										"
 									>
-										4/8
+										8
 									</button>
 								</div>
 								<p id="create-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -358,29 +429,305 @@
 						</div>
 						<div class="w-full flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
-								<label for="create-tx-power" class="mb-2 text-base font-normal">Tx power</label>
-								<input
-									id="create-tx-power"
-									type="text"
-									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-									placeholder="tx power"
-									autofocus
-									oninput="createForm.setValue('txPower', event.target.value)"
-									onblur="createForm.setTouched('txPower', true)"
-								/>
+								<label for="create-tx-powers" class="mb-2 text-base font-normal">Tx power</label>
+								<div id="create-tx-powers" class="w-full flex flex-row">
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 2);
+											createForm.setValue('txPower', 2);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 3);
+											createForm.setValue('txPower', 3);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 4);
+											createForm.setValue('txPower', 4);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 5);
+											createForm.setValue('txPower', 5);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 6);
+											createForm.setValue('txPower', 6);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 7);
+											createForm.setValue('txPower', 7);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 8);
+											createForm.setValue('txPower', 8);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 9);
+											createForm.setValue('txPower', 9);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 10);
+											createForm.setValue('txPower', 10);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 11);
+											createForm.setValue('txPower', 11);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 12);
+											createForm.setValue('txPower', 12);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 13);
+											createForm.setValue('txPower', 13);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 14);
+											createForm.setValue('txPower', 14);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 15);
+											createForm.setValue('txPower', 15);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 16);
+											createForm.setValue('txPower', 16);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('create-tx-powers'), 17);
+											createForm.setValue('txPower', 17);
+											createForm.setTouched('txPower', true);
+										"
+									></button>
+								</div>
 								<p id="create-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
-								<label for="create-preamble-len" class="mb-2 text-base font-normal">Preamble len</label>
-								<input
-									id="create-preamble-len"
-									type="text"
-									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-									placeholder="preamble len"
-									autofocus
-									oninput="createForm.setValue('preambleLen', event.target.value)"
-									onblur="createForm.setTouched('preambleLen', true)"
-								/>
+								<label for="create-preamble-lens" class="mb-2 text-base font-normal">Preamble length</label>
+								<div id="create-preamble-lens" class="w-full flex flex-row">
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 6);
+											createForm.setValue('preambleLen', 6);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 7);
+											createForm.setValue('preambleLen', 7);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 8);
+											createForm.setValue('preambleLen', 8);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 9);
+											createForm.setValue('preambleLen', 9);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 10);
+											createForm.setValue('preambleLen', 10);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 11);
+											createForm.setValue('preambleLen', 11);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 12);
+											createForm.setValue('preambleLen', 12);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 13);
+											createForm.setValue('preambleLen', 13);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 14);
+											createForm.setValue('preambleLen', 14);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 15);
+											createForm.setValue('preambleLen', 15);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 16);
+											createForm.setValue('preambleLen', 16);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 17);
+											createForm.setValue('preambleLen', 17);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 18);
+											createForm.setValue('preambleLen', 18);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 19);
+											createForm.setValue('preambleLen', 19);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 20);
+											createForm.setValue('preambleLen', 20);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('create-preamble-lens'), 21);
+											createForm.setValue('preambleLen', 21);
+											createForm.setTouched('preambleLen', true);
+										"
+									></button>
+								</div>
 								<p id="create-preamble-len-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
@@ -402,7 +749,7 @@
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
 										onclick="
-											highlightChecksum(document.getElementById('create-checksum'), false);
+											highlightBoolean(document.getElementById('create-checksum'), false);
 											createForm.setValue('checksum', false);
 											createForm.setTouched('checksum', true);
 										"
@@ -469,7 +816,7 @@
 				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Update radio?</h1>
 					<div class="flex flex-col lg:flex-row gap-4">
-						<div class="w-full flex flex-col gap-4">
+						<div class="w-full lg:max-w-96 flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
 								<label for="update-device" class="mb-2 text-base font-normal">Device</label>
 								<input
@@ -496,15 +843,86 @@
 								<p id="update-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
-								<label for="update-bandwidth" class="mb-2 text-base font-normal">Bandwidth</label>
-								<input
-									id="update-bandwidth"
-									type="text"
-									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-									placeholder="bandwidth"
-									oninput="updateForm.setValue('bandwidth', event.target.value)"
-									onblur="updateForm.setTouched('bandwidth', true)"
-								/>
+								<label for="update-bandwidths" class="mb-2 text-base font-normal">Bandwidth</label>
+								<div id="update-bandwidths" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('update-bandwidths'), 250000);
+											updateForm.setValue('bandwidth', 250000);
+											updateForm.setTouched('bandwidth', true);
+										"
+									>
+										250000
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('update-bandwidths'), 125000);
+											updateForm.setValue('bandwidth', 125000);
+											updateForm.setTouched('bandwidth', true);
+										"
+									>
+										125000
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('update-bandwidths'), 62500);
+											updateForm.setValue('bandwidth', 62500);
+											updateForm.setTouched('bandwidth', true);
+										"
+									>
+										62500
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('update-bandwidths'), 41700);
+											updateForm.setValue('bandwidth', 41700);
+											updateForm.setTouched('bandwidth', true);
+										"
+									>
+										41700
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('update-bandwidths'), 31250);
+											updateForm.setValue('bandwidth', 31250);
+											updateForm.setTouched('bandwidth', true);
+										"
+									>
+										31250
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('update-bandwidths'), 20800);
+											updateForm.setValue('bandwidth', 20800);
+											updateForm.setTouched('bandwidth', true);
+										"
+									>
+										20800
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightBandwidth(document.getElementById('update-bandwidths'), 15600);
+											updateForm.setValue('bandwidth', 15600);
+											updateForm.setTouched('bandwidth', true);
+										"
+									>
+										15600
+									</button>
+								</div>
 								<p id="update-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
@@ -602,7 +1020,7 @@
 											updateForm.setTouched('codingRate', true);
 										"
 									>
-										4/5
+										5
 									</button>
 									<button
 										type="button"
@@ -613,7 +1031,7 @@
 											updateForm.setTouched('codingRate', true);
 										"
 									>
-										4/6
+										6
 									</button>
 									<button
 										type="button"
@@ -624,7 +1042,7 @@
 											updateForm.setTouched('codingRate', true);
 										"
 									>
-										4/7
+										7
 									</button>
 									<button
 										type="button"
@@ -635,7 +1053,7 @@
 											updateForm.setTouched('codingRate', true);
 										"
 									>
-										4/8
+										8
 									</button>
 								</div>
 								<p id="update-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -643,29 +1061,305 @@
 						</div>
 						<div class="w-full flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
-								<label for="update-tx-power" class="mb-2 text-base font-normal">Tx power</label>
-								<input
-									id="update-tx-power"
-									type="text"
-									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-									placeholder="tx power"
-									autofocus
-									oninput="updateForm.setValue('txPower', event.target.value)"
-									onblur="updateForm.setTouched('txPower', true)"
-								/>
+								<label for="update-tx-powers" class="mb-2 text-base font-normal">Tx power</label>
+								<div id="update-tx-powers" class="w-full flex flex-row">
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 2);
+											updateForm.setValue('txPower', 2);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 3);
+											updateForm.setValue('txPower', 3);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 4);
+											updateForm.setValue('txPower', 4);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 5);
+											updateForm.setValue('txPower', 5);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 6);
+											updateForm.setValue('txPower', 6);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 7);
+											updateForm.setValue('txPower', 7);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 8);
+											updateForm.setValue('txPower', 8);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 9);
+											updateForm.setValue('txPower', 9);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 10);
+											updateForm.setValue('txPower', 10);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 11);
+											updateForm.setValue('txPower', 11);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 12);
+											updateForm.setValue('txPower', 12);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 13);
+											updateForm.setValue('txPower', 13);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 14);
+											updateForm.setValue('txPower', 14);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 15);
+											updateForm.setValue('txPower', 15);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 16);
+											updateForm.setValue('txPower', 16);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightTxPower(document.getElementById('update-tx-powers'), 17);
+											updateForm.setValue('txPower', 17);
+											updateForm.setTouched('txPower', true);
+										"
+									></button>
+								</div>
 								<p id="update-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
-								<label for="update-preamble-len" class="mb-2 text-base font-normal">Preamble len</label>
-								<input
-									id="update-preamble-len"
-									type="text"
-									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-									placeholder="preamble len"
-									autofocus
-									oninput="updateForm.setValue('preambleLen', event.target.value)"
-									onblur="updateForm.setTouched('preambleLen', true)"
-								/>
+								<label for="update-preamble-lens" class="mb-2 text-base font-normal">Preamble length</label>
+								<div id="update-preamble-lens" class="w-full flex flex-row">
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 6);
+											updateForm.setValue('preambleLen', 6);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 7);
+											updateForm.setValue('preambleLen', 7);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 8);
+											updateForm.setValue('preambleLen', 8);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 9);
+											updateForm.setValue('preambleLen', 9);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 10);
+											updateForm.setValue('preambleLen', 10);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 11);
+											updateForm.setValue('preambleLen', 11);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 12);
+											updateForm.setValue('preambleLen', 12);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 13);
+											updateForm.setValue('preambleLen', 13);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 14);
+											updateForm.setValue('preambleLen', 14);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 15);
+											updateForm.setValue('preambleLen', 15);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 16);
+											updateForm.setValue('preambleLen', 16);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 17);
+											updateForm.setValue('preambleLen', 17);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 18);
+											updateForm.setValue('preambleLen', 18);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 19);
+											updateForm.setValue('preambleLen', 19);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 20);
+											updateForm.setValue('preambleLen', 20);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+									<button
+										type="button"
+										class="w-full h-8 text-sm font-normal p-0 border-0 background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPreambleLen(document.getElementById('update-preamble-lens'), 21);
+											updateForm.setValue('preambleLen', 21);
+											updateForm.setTouched('preambleLen', true);
+										"
+									></button>
+								</div>
 								<p id="update-preamble-len-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
@@ -687,7 +1381,7 @@
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
 										onclick="
-											highlightChecksum(document.getElementById('update-checksum'), false);
+											highlightBoolean(document.getElementById('update-checksum'), false);
 											updateForm.setValue('checksum', false);
 											updateForm.setTouched('checksum', true);
 										"
@@ -698,7 +1392,7 @@
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
 										onclick="
-											highlightChecksum(document.getElementById('update-checksum'), true);
+											highlightBoolean(document.getElementById('update-checksum'), true);
 											updateForm.setValue('checksum', true);
 											updateForm.setTouched('checksum', true);
 										"
@@ -827,7 +1521,7 @@
 				fade(element.children[ind].children[4].children[0]);
 				loading(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				loading(element.children[ind].children[5].children[0], ['w-7', 'h-4'], [], '');
+				loading(element.children[ind].children[5].children[0], ['w-3', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
 				loading(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[7].children[0]);
@@ -860,7 +1554,7 @@
 					paint(element.children[ind].children[4].children[0], [], ['w-5', 'h-4'], data[ind].spreadingFactor);
 					fade(element.children[ind].children[4].children[0]);
 					colorSf(element.children[ind].children[4].children[0], data[ind].spreadingFactor);
-					paint(element.children[ind].children[5].children[0], [], ['w-7', 'h-4'], `4/${data[ind].codingRate}`);
+					paint(element.children[ind].children[5].children[0], [], ['w-3', 'h-4'], data[ind].codingRate);
 					fade(element.children[ind].children[5].children[0]);
 					colorCr(element.children[ind].children[5].children[0], data[ind].codingRate);
 					paint(element.children[ind].children[6].children[0], [], ['w-5', 'h-4'], data[ind].txPower);
@@ -897,7 +1591,7 @@
 				fade(element.children[ind].children[4].children[0]);
 				error(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[5].children[0], ['w-7', 'h-4'], [], '');
+				error(element.children[ind].children[5].children[0], ['w-3', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
 				error(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[7].children[0]);
@@ -955,6 +1649,66 @@
 			(context) => window.requestAnimationFrame(() => paintRadios(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorRadios(context.element)),
 		);
+		const highlightBandwidth = (element, bandwidth) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+			});
+			switch (bandwidth) {
+				case 250000:
+					fade(element.children[0]);
+					element.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					break;
+				case 125000:
+					fade(element.children[1]);
+					element.children[1].classList.add('text-emerald-600', 'dark:text-emerald-400', 'background-emerald-100', 'dark:background-emerald-900');
+					break;
+				case 62500:
+					fade(element.children[2]);
+					element.children[2].classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-100', 'dark:background-teal-900');
+					break;
+				case 41700:
+					fade(element.children[3]);
+					element.children[3].classList.add('text-cyan-600', 'dark:text-cyan-400', 'background-cyan-100', 'dark:background-cyan-900');
+					break;
+				case 31250:
+					fade(element.children[4]);
+					element.children[4].classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-100', 'dark:background-sky-900');
+					break;
+				case 20800:
+					fade(element.children[5]);
+					element.children[5].classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-100', 'dark:background-blue-900');
+					break;
+				case 15600:
+					fade(element.children[6]);
+					element.children[6].classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-100', 'dark:background-indigo-900');
+					break;
+			}
+		};
+		const highlightCodingRate = (element, codingRate) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+			});
+			switch (codingRate) {
+				case 5:
+					fade(element.children[0]);
+					element.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					break;
+				case 6:
+					fade(element.children[1]);
+					element.children[1].classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-100', 'dark:background-teal-900');
+					break;
+				case 7:
+					fade(element.children[2]);
+					element.children[2].classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-100', 'dark:background-sky-900');
+					break;
+				case 8:
+					fade(element.children[3]);
+					element.children[3].classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-100', 'dark:background-indigo-900');
+					break;
+			}
+		};
 		const highlightSpreadingFactor = (element, spreadingFactor) => {
 			array(element.children.length).forEach((ind) => {
 				fade(element.children[ind]);
@@ -991,36 +1745,92 @@
 					break;
 			}
 		};
-		const highlightCodingRate = (element, codingRate) => {
+		const highlightPreambleLen = (element, preambleLen) => {
 			array(element.children.length).forEach((ind) => {
 				fade(element.children[ind]);
-				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+				element.children[ind].innerText = '';
+				element.children[ind].classList.add('background-neutral-200', 'dark:background-neutral-800');
 			});
-			switch (codingRate) {
-				case 5:
-					fade(element.children[0]);
-					element.children[0].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
-					break;
-				case 6:
-					fade(element.children[1]);
-					element.children[1].classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-100', 'dark:background-teal-900');
-					break;
-				case 7:
-					fade(element.children[2]);
-					element.children[2].classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-100', 'dark:background-sky-900');
-					break;
-				case 8:
-					fade(element.children[3]);
-					element.children[3].classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-100', 'dark:background-indigo-900');
-					break;
+			if (preambleLen !== null && preambleLen >= 6 && preambleLen <= 21) {
+				element.children[preambleLen - 6].innerText = preambleLen;
 			}
+			array(element.children.length).forEach((ind) => {
+				if (preambleLen - 6 >= ind) {
+					switch (true) {
+						case ind < 2:
+							element.children[ind].classList.add('background-green-300', 'dark:background-green-700');
+							break;
+						case ind >= 2 && ind < 5:
+							element.children[ind].classList.add('background-emerald-300', 'dark:background-emerald-700');
+							break;
+						case ind >= 5 && ind < 8:
+							element.children[ind].classList.add('background-teal-300', 'dark:background-teal-700');
+							break;
+						case ind >= 8 && ind < 10:
+							element.children[ind].classList.add('background-cyan-300', 'dark:background-cyan-700');
+							break;
+						case ind >= 10 && ind < 12:
+							element.children[ind].classList.add('background-sky-300', 'dark:background-sky-700');
+							break;
+						case ind >= 12 && ind < 14:
+							element.children[ind].classList.add('background-blue-300', 'dark:background-blue-700');
+							break;
+						case ind >= 14:
+							element.children[ind].classList.add('background-indigo-300', 'dark:background-indigo-700');
+							break;
+						default:
+							element.children[ind].classList.add('background-neutral-200', 'dark:background-neutral-800');
+							break;
+					}
+				}
+			});
 		};
-		const highlightChecksum = (element, checksum) => {
+		const highlightTxPower = (element, txPower) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].innerText = '';
+				element.children[ind].classList.add('background-neutral-200', 'dark:background-neutral-800');
+			});
+			if (txPower !== null && txPower >= 2 && txPower <= 17) {
+				element.children[txPower - 2].innerText = txPower;
+			}
+			array(element.children.length).forEach((ind) => {
+				if (txPower - 2 >= ind) {
+					switch (true) {
+						case ind < 2:
+							element.children[ind].classList.add('background-green-300', 'dark:background-green-700');
+							break;
+						case ind >= 2 && ind < 5:
+							element.children[ind].classList.add('background-emerald-300', 'dark:background-emerald-700');
+							break;
+						case ind >= 5 && ind < 8:
+							element.children[ind].classList.add('background-teal-300', 'dark:background-teal-700');
+							break;
+						case ind >= 8 && ind < 10:
+							element.children[ind].classList.add('background-cyan-300', 'dark:background-cyan-700');
+							break;
+						case ind >= 10 && ind < 12:
+							element.children[ind].classList.add('background-sky-300', 'dark:background-sky-700');
+							break;
+						case ind >= 12 && ind < 14:
+							element.children[ind].classList.add('background-blue-300', 'dark:background-blue-700');
+							break;
+						case ind >= 14:
+							element.children[ind].classList.add('background-indigo-300', 'dark:background-indigo-700');
+							break;
+						default:
+							element.children[ind].classList.add('background-neutral-200', 'dark:background-neutral-800');
+							break;
+					}
+				}
+			});
+		};
+		const highlightBoolean = (element, value) => {
 			array(element.children.length).forEach((ind) => {
 				fade(element.children[ind]);
 				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
 			});
-			switch (checksum) {
+			switch (value) {
 				case false:
 					fade(element.children[0]);
 					element.children[0].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
@@ -1039,13 +1849,13 @@
 		const openCreateDialog = () => {
 			document.getElementById('create-device').value = '';
 			document.getElementById('create-frequency').value = '';
-			document.getElementById('create-bandwidth').value = '';
+			highlightBandwidth(document.getElementById('create-bandwidths'), null);
 			highlightSpreadingFactor(document.getElementById('create-spreading-factors'), null);
 			highlightCodingRate(document.getElementById('create-coding-rates'), null);
-			document.getElementById('create-tx-power').value = '';
-			document.getElementById('create-preamble-len').value = '';
+			highlightTxPower(document.getElementById('create-tx-powers'), null);
+			highlightPreambleLen(document.getElementById('create-preamble-lens'), null);
 			document.getElementById('create-sync-word').value = '';
-			highlightChecksum(document.getElementById('create-checksum'), null);
+			highlightBoolean(document.getElementById('create-checksum'), null);
 			createDialog.showModal();
 		};
 		const closeCreateDialog = () => {
@@ -1064,20 +1874,20 @@
 			document.getElementById('update-device').value = radio.device;
 			updateForm.setValue('frequency', `${radio.frequency}`);
 			document.getElementById('update-frequency').value = radio.frequency;
-			updateForm.setValue('bandwidth', `${radio.bandwidth}`);
-			document.getElementById('update-bandwidth').value = radio.bandwidth;
+			updateForm.setValue('bandwidth', radio.bandwidth);
+			highlightBandwidth(document.getElementById('update-bandwidths'), radio.bandwidth);
 			updateForm.setValue('spreadingFactor', radio.spreadingFactor);
 			highlightSpreadingFactor(document.getElementById('update-spreading-factors'), radio.spreadingFactor);
 			updateForm.setValue('codingRate', radio.codingRate);
 			highlightCodingRate(document.getElementById('update-coding-rates'), radio.codingRate);
-			updateForm.setValue('txPower', `${radio.txPower}`);
-			document.getElementById('update-tx-power').value = radio.txPower;
-			updateForm.setValue('preambleLen', `${radio.preambleLen}`);
-			document.getElementById('update-preamble-len').value = radio.preambleLen;
+			updateForm.setValue('txPower', radio.txPower);
+			highlightTxPower(document.getElementById('update-tx-powers'), radio.txPower);
+			updateForm.setValue('preambleLen', radio.preambleLen);
+			highlightPreambleLen(document.getElementById('update-preamble-lens'), radio.preambleLen);
 			updateForm.setValue('syncWord', `${radio.syncWord}`);
 			document.getElementById('update-sync-word').value = radio.syncWord;
 			updateForm.setValue('checksum', radio.checksum);
-			highlightChecksum(document.getElementById('update-checksum'), radio.checksum);
+			highlightBoolean(document.getElementById('update-checksum'), radio.checksum);
 			updateDialog.showModal();
 		};
 		const closeUpdateDialog = () => {
@@ -1121,9 +1931,8 @@
 				},
 				bandwidth: (value) => {
 					if (!value) return 'bandwidth is required';
-					if (!value.match(/^[0-9]+$/)) return 'bandwidth must be a number';
-					if (+value < 7800) return 'bandwidth must be min 7800';
-					if (+value > 500000) return 'bandwidth must be max 500000';
+					if (value < 7800) return 'bandwidth must be min 7800';
+					if (value > 500000) return 'bandwidth must be max 500000';
 				},
 				spreadingFactor: (value) => {
 					if (!value) return 'spreading factor is required';
@@ -1137,15 +1946,13 @@
 				},
 				txPower: (value) => {
 					if (!value) return 'tx power is required';
-					if (!value.match(/^[0-9]+$/)) return 'tx power must be a number';
-					if (+value < 2) return 'tx power must be min 2';
-					if (+value > 17) return 'tx power must be max 17';
+					if (value < 2) return 'tx power must be min 2';
+					if (value > 17) return 'tx power must be max 17';
 				},
 				preambleLen: (value) => {
 					if (!value) return 'preamble len is required';
-					if (!value.match(/^[0-9]+$/)) return 'preamble len must be a number';
-					if (+value < 6) return 'preamble len must be min 6';
-					if (+value > 21) return 'preamble len must be max 21';
+					if (value < 6) return 'preamble len must be min 6';
+					if (value > 21) return 'preamble len must be max 21';
 				},
 				syncWord: (value) => {
 					if (!value) return 'sync word is required';
@@ -1227,9 +2034,8 @@
 				},
 				bandwidth: (value) => {
 					if (!value) return 'bandwidth is required';
-					if (!value.match(/^[0-9]+$/)) return 'bandwidth must be a number';
-					if (+value < 7800) return 'bandwidth must be min 7800';
-					if (+value > 500000) return 'bandwidth must be max 500000';
+					if (value < 7800) return 'bandwidth must be min 7800';
+					if (value > 500000) return 'bandwidth must be max 500000';
 				},
 				spreadingFactor: (value) => {
 					if (!value) return 'spreading factor is required';
@@ -1243,15 +2049,13 @@
 				},
 				txPower: (value) => {
 					if (!value) return 'tx power is required';
-					if (!value.match(/^[0-9]+$/)) return 'tx power must be a number';
-					if (+value < 2) return 'tx power must be min 2';
-					if (+value > 17) return 'tx power must be max 17';
+					if (value < 2) return 'tx power must be min 2';
+					if (value > 17) return 'tx power must be max 17';
 				},
 				preambleLen: (value) => {
 					if (!value) return 'preamble len is required';
-					if (!value.match(/^[0-9]+$/)) return 'preamble len must be a number';
-					if (+value < 6) return 'preamble len must be min 6';
-					if (+value > 21) return 'preamble len must be max 21';
+					if (value < 6) return 'preamble len must be min 6';
+					if (value > 21) return 'preamble len must be max 21';
 				},
 				syncWord: (value) => {
 					if (!value) return 'sync word is required';
