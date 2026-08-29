@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 typedef struct radio_arg_t {
-	int fd;
+	int spi_fd;
 	octet_t db;
 	radio_t *radio;
 	device_t *devices;

@@ -66,8 +66,8 @@ int radio_init(octet_t *db) {
 			goto cleanup;
 		}
 		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, radio_row.id);
-		uint8_t device_len = octet_uint8_read(db->row, radio_row.device_len);
-		char *device = octet_text_read(db->row, radio_row.device);
+		uint8_t spi_device_len = octet_uint8_read(db->row, radio_row.spi_device_len);
+		char *spi_device = octet_text_read(db->row, radio_row.spi_device);
 		uint32_t frequency = octet_uint32_read(db->row, radio_row.frequency);
 		uint32_t bandwidth = octet_uint32_read(db->row, radio_row.bandwidth);
 		uint8_t spreading_factor = octet_uint8_read(db->row, radio_row.spreading_factor);
@@ -88,15 +88,15 @@ int radio_init(octet_t *db) {
 			status = -1;
 			goto cleanup;
 		}
-		comms.radios[comms.radios_len].device = malloc(device_len);
-		if (comms.radios[comms.radios_len].device == NULL) {
-			error("failed to allocate %hhu bytes for device because %s\n", device_len, errno_str());
+		comms.radios[comms.radios_len].spi_device = malloc(spi_device_len);
+		if (comms.radios[comms.radios_len].spi_device == NULL) {
+			error("failed to allocate %hhu bytes for spi device because %s\n", spi_device_len, errno_str());
 			status = -1;
 			goto cleanup;
 		}
 		memcpy(comms.radios[comms.radios_len].id, id, sizeof(*id));
-		memcpy(comms.radios[comms.radios_len].device, device, device_len);
-		comms.radios[comms.radios_len].device_len = device_len;
+		memcpy(comms.radios[comms.radios_len].spi_device, spi_device, spi_device_len);
+		comms.radios[comms.radios_len].spi_device_len = spi_device_len;
 		comms.radios[comms.radios_len].frequency = frequency;
 		comms.radios[comms.radios_len].bandwidth = bandwidth;
 		comms.radios[comms.radios_len].spreading_factor = spreading_factor;
@@ -179,9 +179,9 @@ int radio_init(octet_t *db) {
 	}
 
 	for (uint8_t index = 0; index < comms.radios_len; index++) {
-		char device[64];
-		sprintf(device, "%.*s", (int)comms.radios[index].device_len, comms.radios[index].device);
-		if ((comms.workers[index].arg.fd = spi_init(device, 0, 8 * 1000 * 1000, 8)) == -1) {
+		char spi_device[64];
+		sprintf(spi_device, "%.*s", (int)comms.radios[index].spi_device_len, comms.radios[index].spi_device);
+		if ((comms.workers[index].arg.spi_fd = spi_init(spi_device, 0, 8 * 1000 * 1000, 8)) == -1) {
 			return -1;
 		}
 
@@ -229,50 +229,50 @@ void *radio_thread(void *args) {
 
 	srand((unsigned int)time(NULL));
 
-	if (sx1278_sleep(arg->fd) == -1) {
+	if (sx1278_sleep(arg->spi_fd) == -1) {
 		error("failed to enable sleep mode\n");
 	}
 
-	if (sx1278_standby(arg->fd) == -1) {
+	if (sx1278_standby(arg->spi_fd) == -1) {
 		error("failed to enable standby mode\n");
 	}
 
-	if (sx1278_frequency(arg->fd, arg->radio->frequency) == -1) {
+	if (sx1278_frequency(arg->spi_fd, arg->radio->frequency) == -1) {
 		error("failed to set radio frequency\n");
 	}
 
-	if (sx1278_tx_power(arg->fd, arg->radio->tx_power) == -1) {
+	if (sx1278_tx_power(arg->spi_fd, arg->radio->tx_power) == -1) {
 		error("failed to set radio tx power\n");
 	}
 
-	if (sx1278_preamble_length(arg->fd, arg->radio->preamble_len) == -1) {
+	if (sx1278_preamble_length(arg->spi_fd, arg->radio->preamble_len) == -1) {
 		error("failed to set radio preamble length\n");
 	}
 
-	if (sx1278_coding_rate(arg->fd, arg->radio->coding_rate) == -1) {
+	if (sx1278_coding_rate(arg->spi_fd, arg->radio->coding_rate) == -1) {
 		error("failed to set radio coding rate\n");
 	}
 
-	if (sx1278_bandwidth(arg->fd, arg->radio->bandwidth) == -1) {
+	if (sx1278_bandwidth(arg->spi_fd, arg->radio->bandwidth) == -1) {
 		error("failed to set radio bandwidth\n");
 	}
 
-	if (sx1278_spreading_factor(arg->fd, arg->radio->spreading_factor) == -1) {
+	if (sx1278_spreading_factor(arg->spi_fd, arg->radio->spreading_factor) == -1) {
 		error("failed to set radio spreading factor\n");
 	}
 
-	if (sx1278_checksum(arg->fd, arg->radio->checksum) == -1) {
+	if (sx1278_checksum(arg->spi_fd, arg->radio->checksum) == -1) {
 		error("failed to set radio checksum\n");
 	}
 
-	if (sx1278_sync_word(arg->fd, arg->radio->sync_word) == -1) {
+	if (sx1278_sync_word(arg->spi_fd, arg->radio->sync_word) == -1) {
 		error("failed to set sync word\n");
 	}
 
 	while (true) {
 		uint8_t rx_data[256];
 		uint8_t rx_data_len = 0;
-		if (sx1278_receive(arg->fd, &rx_data, &rx_data_len) == -1) {
+		if (sx1278_receive(arg->spi_fd, &rx_data, &rx_data_len) == -1) {
 			error("failed to receive packet\n");
 			continue;
 		}
@@ -283,13 +283,13 @@ void *radio_thread(void *args) {
 		}
 
 		int16_t rssi;
-		if (sx1278_rssi(arg->fd, &rssi) == -1) {
+		if (sx1278_rssi(arg->spi_fd, &rssi) == -1) {
 			error("failed to read packet rssi\n");
 			continue;
 		}
 
 		int8_t snr;
-		if (sx1278_snr(arg->fd, &snr) == -1) {
+		if (sx1278_snr(arg->spi_fd, &snr) == -1) {
 			error("failed to read packet snr\n");
 			continue;
 		}
@@ -381,20 +381,20 @@ void *radio_thread(void *args) {
 		pthread_cond_signal(&transmissions.filled);
 		pthread_mutex_unlock(&transmissions.lock);
 
-		if (sx1278_standby(arg->fd) == -1) {
+		if (sx1278_standby(arg->spi_fd) == -1) {
 			error("failed to enable standby mode\n");
 		}
 
 		if (arg->radio->tx_power != ((rx_data[4] >> 4) & 0x0f) + 2) {
 			arg->radio->tx_power = ((rx_data[4] >> 4) & 0x0f) + 2;
-			if (sx1278_tx_power(arg->fd, arg->radio->tx_power) == -1) {
+			if (sx1278_tx_power(arg->spi_fd, arg->radio->tx_power) == -1) {
 				error("failed to set radio tx power\n");
 			}
 		}
 
 		if (arg->radio->preamble_len != (rx_data[4] & 0x0f) + 6) {
 			arg->radio->preamble_len = (rx_data[4] & 0x0f) + 6;
-			if (sx1278_preamble_length(arg->fd, arg->radio->preamble_len) == -1) {
+			if (sx1278_preamble_length(arg->spi_fd, arg->radio->preamble_len) == -1) {
 				error("failed to set radio preamble length\n");
 			}
 		}
@@ -425,7 +425,7 @@ void *radio_thread(void *args) {
 			tx_data_len += sizeof(uint8_t);
 		}
 
-		if (sx1278_transmit(arg->fd, &tx_data, tx_data_len) == -1) {
+		if (sx1278_transmit(arg->spi_fd, &tx_data, tx_data_len) == -1) {
 			error("failed to transmit packet\n");
 			continue;
 		}
@@ -512,11 +512,11 @@ void radio_reload(octet_t *db, response_t *response) {
 		if (pthread_join(comms.workers[index].thread, NULL) == -1) {
 			error("failed to join radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
 		}
-		if (close(comms.workers[index].arg.fd) == -1) {
+		if (close(comms.workers[index].arg.spi_fd) == -1) {
 			error("failed to close ioctl because %s\n", errno_str());
 		}
 		free(comms.radios[index].id);
-		free(comms.radios[index].device);
+		free(comms.radios[index].spi_device);
 	}
 
 	for (uint8_t index = 0; index < comms.devices_len; index++) {

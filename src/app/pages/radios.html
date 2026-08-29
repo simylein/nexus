@@ -50,14 +50,14 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
-								id="device"
+								id="spi-device"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
-									paintSorting('device');
+									paintSorting('spiDevice');
 									loadRadios();
 								"
 							>
-								Device
+								Spi device
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
@@ -186,17 +186,17 @@
 					<div class="flex flex-col lg:flex-row gap-4">
 						<div class="w-full lg:max-w-96 flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
-								<label for="create-device" class="mb-2 text-base font-normal">Device</label>
+								<label for="create-spi-device" class="mb-2 text-base font-normal">Spi device</label>
 								<input
-									id="create-device"
+									id="create-spi-device"
 									type="text"
 									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-									placeholder="device"
+									placeholder="spi device"
 									autofocus
-									oninput="createForm.setValue('device', event.target.value)"
-									onblur="createForm.setTouched('device', true)"
+									oninput="createForm.setValue('spiDevice', event.target.value)"
+									onblur="createForm.setTouched('spiDevice', true)"
 								/>
-								<p id="create-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+								<p id="create-spi-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
 								<label for="create-frequency" class="mb-2 text-base font-normal">Frequency</label>
@@ -816,17 +816,17 @@
 					<div class="flex flex-col lg:flex-row gap-4">
 						<div class="w-full lg:max-w-96 flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
-								<label for="update-device" class="mb-2 text-base font-normal">Device</label>
+								<label for="update-spi-device" class="mb-2 text-base font-normal">Spi device</label>
 								<input
-									id="update-device"
+									id="update-spi-device"
 									type="text"
 									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-									placeholder="device"
+									placeholder="spi device"
 									autofocus
-									oninput="updateForm.setValue('device', event.target.value)"
-									onblur="updateForm.setTouched('device', true)"
+									oninput="updateForm.setValue('spiDevice', event.target.value)"
+									onblur="updateForm.setTouched('spiDevice', true)"
 								/>
-								<p id="update-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+								<p id="update-spi-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
 								<label for="update-frequency" class="mb-2 text-base font-normal">Frequency</label>
@@ -1472,7 +1472,7 @@
 		const radios = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('radios') };
 		const columns = {
 			id: document.getElementById('id'),
-			device: document.getElementById('device'),
+			spiDevice: document.getElementById('spi-device'),
 			frequency: document.getElementById('frequency'),
 			bandwidth: document.getElementById('bandwidth'),
 			spreadingFactor: document.getElementById('spreading-factor'),
@@ -1544,7 +1544,7 @@
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
 					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
-					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].device);
+					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].spiDevice);
 					paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], data[ind].frequency);
 					paint(element.children[ind].children[3].children[0], [], ['w-16', 'h-4'], data[ind].bandwidth);
 					paint(element.children[ind].children[4].children[0], [], ['w-5', 'h-4'], data[ind].spreadingFactor);
@@ -1610,7 +1610,7 @@
 			while (binary.offset < buffer.byteLength) {
 				const radio = {
 					id: null,
-					device: null,
+					spiDevice: null,
 					frequency: null,
 					bandwidth: null,
 					spreadingFactor: null,
@@ -1621,7 +1621,7 @@
 					checksum: null,
 				};
 				radio.id = binary.uuid();
-				radio.device = binary.string();
+				radio.spiDevice = binary.string();
 				radio.frequency = binary.uint(32);
 				radio.bandwidth = binary.uint(32);
 				radio.spreadingFactor = binary.uint(8);
@@ -1843,7 +1843,7 @@
 		const deleteDialog = document.getElementById('delete-dialog');
 		let radio = null;
 		const openCreateDialog = () => {
-			document.getElementById('create-device').value = '';
+			document.getElementById('create-spi-device').value = '';
 			document.getElementById('create-frequency').value = '';
 			highlightBandwidth(document.getElementById('create-bandwidths'), null);
 			highlightSpreadingFactor(document.getElementById('create-spreading-factors'), null);
@@ -1866,8 +1866,8 @@
 		};
 		const openUpdateDialog = (radio) => {
 			updateForm.setValue('id', radio.id);
-			updateForm.setValue('device', `${radio.device}`);
-			document.getElementById('update-device').value = radio.device;
+			updateForm.setValue('spiDevice', `${radio.spiDevice}`);
+			document.getElementById('update-spi-device').value = radio.spiDevice;
 			updateForm.setValue('frequency', `${radio.frequency}`);
 			document.getElementById('update-frequency').value = radio.frequency;
 			updateForm.setValue('bandwidth', radio.bandwidth);
@@ -1902,7 +1902,7 @@
 		const createForm = formik(
 			{
 				button: document.getElementById('create-button'),
-				device: document.getElementById('create-device-validation'),
+				spiDevice: document.getElementById('create-spi-device-validation'),
 				frequency: document.getElementById('create-frequency-validation'),
 				bandwidth: document.getElementById('create-bandwidth-validation'),
 				spreadingFactor: document.getElementById('create-spreading-factor-validation'),
@@ -1913,11 +1913,11 @@
 				checksum: document.getElementById('create-checksum-validation'),
 			},
 			{
-				device: (value) => {
-					if (!value) return 'device is required';
-					if (value.length < 8) return 'device must be at least 8 characters';
-					if (value.length > 32) return 'device must be at most 32 characters';
-					if (!value.match(/^[/a-z0-9.]+$/)) return 'device must be a valid unix path';
+				spiDevice: (value) => {
+					if (!value) return 'spi device is required';
+					if (value.length < 8) return 'spi device must be at least 8 characters';
+					if (value.length > 32) return 'spi device must be at most 32 characters';
+					if (!value.match(/^[/a-z0-9.]+$/)) return 'spi device must be a valid unix path';
 				},
 				frequency: (value) => {
 					if (!value) return 'frequency is required';
@@ -1971,7 +1971,7 @@
 				view.setUint8(11, values.preambleLen);
 				view.setUint8(12, parseInt(values.syncWord, 16));
 				view.setUint8(13, values.checksum);
-				const data = new Blob([values.device, '\0', view]);
+				const data = new Blob([values.spiDevice, '\0', view]);
 				try {
 					await fetcher('post', '/api/radio', data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', 'Successfully created radio');
@@ -2000,7 +2000,7 @@
 		const updateForm = formik(
 			{
 				button: document.getElementById('update-button'),
-				device: document.getElementById('update-device-validation'),
+				spiDevice: document.getElementById('update-spi-device-validation'),
 				frequency: document.getElementById('update-frequency-validation'),
 				bandwidth: document.getElementById('update-bandwidth-validation'),
 				spreadingFactor: document.getElementById('update-spreading-factor-validation'),
@@ -2016,11 +2016,11 @@
 					if (value.length !== 16) return 'id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
 				},
-				device: (value) => {
-					if (!value) return 'device is required';
-					if (value.length < 8) return 'device must be at least 8 characters';
-					if (value.length > 32) return 'device must be at most 32 characters';
-					if (!value.match(/^[/a-z0-9.]+$/)) return 'device must be a valid unix path';
+				spiDevice: (value) => {
+					if (!value) return 'spi device is required';
+					if (value.length < 8) return 'spi device must be at least 8 characters';
+					if (value.length > 32) return 'spi device must be at most 32 characters';
+					if (!value.match(/^[/a-z0-9.]+$/)) return 'spi device must be a valid unix path';
 				},
 				frequency: (value) => {
 					if (!value) return 'frequency is required';
@@ -2074,7 +2074,7 @@
 				view.setUint8(11, values.preambleLen);
 				view.setUint8(12, parseInt(values.syncWord, 16));
 				view.setUint8(13, values.checksum);
-				const data = new Blob([values.device, '\0', view]);
+				const data = new Blob([values.spiDevice, '\0', view]);
 				try {
 					await fetcher('patch', `/api/radio/${values.id}`, data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', `Successfully updated radio ${values.id.substring(0, 4)}`);

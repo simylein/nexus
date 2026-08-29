@@ -297,11 +297,11 @@ int main(int argc, char *argv[]) {
 		if (pthread_join(comms.workers[index].thread, NULL) == -1) {
 			error("failed to join radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
 		}
-		if (close(comms.workers[index].arg.fd) == -1) {
+		if (close(comms.workers[index].arg.spi_fd) == -1) {
 			error("failed to close ioctl because %s\n", errno_str());
 		}
 		free(comms.radios[index].id);
-		free(comms.radios[index].device);
+		free(comms.radios[index].spi_device);
 		free(comms.workers[index].arg.db.row);
 	}
 
