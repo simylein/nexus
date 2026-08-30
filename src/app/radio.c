@@ -10,6 +10,7 @@
 #include "../lib/ssc128.h"
 #include "airtime.h"
 #include "downlink.h"
+#include "gpio.h"
 #include "radio.h"
 #include "schedule.h"
 #include "spi.h"
@@ -194,6 +195,11 @@ int radio_init(octet_t *db) {
 		if ((comms.workers[index].arg.spi_fd = spi_init(spi_device, 0, 8 * 1000 * 1000, 8)) == -1) {
 			return -1;
 		}
+		char gpio_device[64];
+		sprintf(gpio_device, "%.*s", (int)comms.radios[index].gpio_device_len, comms.radios[index].gpio_device);
+		if ((comms.workers[index].arg.gpio_fd = gpio_init(gpio_device, 25)) == -1) {
+			return -1;
+		}
 
 		comms.workers[index].arg.db.directory = database_directory;
 		comms.workers[index].arg.db.row = malloc(512);
@@ -282,7 +288,7 @@ void *radio_thread(void *args) {
 	while (true) {
 		uint8_t rx_data[256];
 		uint8_t rx_data_len = 0;
-		if (sx1278_receive(arg->spi_fd, &rx_data, &rx_data_len) == -1) {
+		if (sx1278_receive(arg->spi_fd, arg->gpio_fd, &rx_data, &rx_data_len) == -1) {
 			error("failed to receive packet\n");
 			continue;
 		}
@@ -435,7 +441,7 @@ void *radio_thread(void *args) {
 			tx_data_len += sizeof(uint8_t);
 		}
 
-		if (sx1278_transmit(arg->spi_fd, &tx_data, tx_data_len) == -1) {
+		if (sx1278_transmit(arg->spi_fd, arg->gpio_fd, &tx_data, tx_data_len) == -1) {
 			error("failed to transmit packet\n");
 			continue;
 		}
@@ -523,6 +529,9 @@ void radio_reload(octet_t *db, response_t *response) {
 			error("failed to join radio thread %02x%02x\n", (*comms.radios[index].id)[0], (*comms.radios[index].id)[1]);
 		}
 		if (close(comms.workers[index].arg.spi_fd) == -1) {
+			error("failed to close ioctl because %s\n", errno_str());
+		}
+		if (close(comms.workers[index].arg.gpio_fd) == -1) {
 			error("failed to close ioctl because %s\n", errno_str());
 		}
 		free(comms.radios[index].id);

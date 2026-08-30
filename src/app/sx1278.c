@@ -1,5 +1,6 @@
 #include "../lib/format.h"
 #include "../lib/logger.h"
+#include "gpio.h"
 #include "spi.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -19,6 +20,7 @@ const uint8_t reg_irq_flags = 0x12;
 const uint8_t reg_packet_len = 0x13;
 const uint8_t reg_packet_snr = 0x19;
 const uint8_t reg_packet_rssi = 0x1a;
+const uint8_t reg_hop_channel = 0x1c;
 const uint8_t reg_modem_config_1 = 0x1d;
 const uint8_t reg_modem_config_2 = 0x1e;
 const uint8_t reg_preamble_msb = 0x20;
@@ -353,34 +355,38 @@ int sx1278_rssi(int fd, int16_t *rssi) {
 	return 0;
 }
 
-int sx1278_transmit(int fd, uint8_t (*data)[256], uint8_t length) {
-	if (spi_write_register(fd, reg_fifo_addr, 0x80) == -1) {
+int sx1278_transmit(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t length) {
+	if (spi_write_register(spi_fd, reg_fifo_addr, 0x80) == -1) {
 		return -1;
 	}
 
-	if (spi_write_register(fd, reg_tx_addr, 0x80) == -1) {
+	if (spi_write_register(spi_fd, reg_tx_addr, 0x80) == -1) {
 		return -1;
 	}
+
 	char buffer[512];
 	uint16_t buffer_len = 0;
 	for (uint8_t index = 0; index < length; index++) {
-		if (spi_write_register(fd, reg_fifo, (*data)[index]) == -1) {
+		if (spi_write_register(spi_fd, reg_fifo, (*data)[index]) == -1) {
 			return -1;
 		}
 		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%02x", (*data)[index]);
 	}
 
-	if (spi_write_register(fd, reg_payload_len, length) == -1) {
+	if (spi_write_register(spi_fd, reg_payload_len, length) == -1) {
 		return -1;
 	}
 
-	if (sx1278_tx(fd) == -1) {
+	if (sx1278_tx(spi_fd) == -1) {
 		return -1;
 	}
 
 	uint8_t irq_flags;
 	while (true) {
-		if (spi_read_register(fd, reg_irq_flags, &irq_flags) == -1) {
+		if (gpio_wait_edge(gpio_fd) == -1) {
+			return -1;
+		}
+		if (spi_read_register(spi_fd, reg_irq_flags, &irq_flags) == -1) {
 			return -1;
 		};
 		if (irq_flags & 0x08) {
@@ -391,11 +397,11 @@ int sx1278_transmit(int fd, uint8_t (*data)[256], uint8_t length) {
 	}
 	trace("transmitted data %.*s\n", buffer_len, buffer);
 
-	if (spi_write_register(fd, reg_irq_flags, 0xff) == -1) {
+	if (spi_write_register(spi_fd, reg_irq_flags, 0xff) == -1) {
 		return -1;
 	}
 
-	if (spi_read_register(fd, reg_irq_flags, &irq_flags) == -1) {
+	if (spi_read_register(spi_fd, reg_irq_flags, &irq_flags) == -1) {
 		return -1;
 	};
 
@@ -403,14 +409,17 @@ int sx1278_transmit(int fd, uint8_t (*data)[256], uint8_t length) {
 	return 0;
 }
 
-int sx1278_receive(int fd, uint8_t (*data)[256], uint8_t *length) {
-	if (sx1278_rx(fd) == -1) {
+int sx1278_receive(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t *length) {
+	if (sx1278_rx(spi_fd) == -1) {
 		return -1;
 	}
 
 	uint8_t irq_flags;
 	while (true) {
-		if (spi_read_register(fd, reg_irq_flags, &irq_flags) == -1) {
+		if (gpio_wait_edge(gpio_fd) == -1) {
+			return -1;
+		}
+		if (spi_read_register(spi_fd, reg_irq_flags, &irq_flags) == -1) {
 			return -1;
 		};
 		if (irq_flags & 0x40) {
@@ -421,41 +430,45 @@ int sx1278_receive(int fd, uint8_t (*data)[256], uint8_t *length) {
 	}
 
 	uint8_t rx_addr;
-	if (spi_read_register(fd, reg_rx_addr, &rx_addr) == -1) {
+	if (spi_read_register(spi_fd, reg_rx_addr, &rx_addr) == -1) {
+		return -1;
+	}
+
+	if (spi_write_register(spi_fd, reg_fifo_addr, rx_addr) == -1) {
 		return -1;
 	}
 
 	uint8_t packet_len;
-	if (spi_read_register(fd, reg_packet_len, &packet_len) == -1) {
+	if (spi_read_register(spi_fd, reg_packet_len, &packet_len) == -1) {
+		return -1;
+	}
+	*length = packet_len;
+
+	uint8_t hop_channel;
+	if (spi_read_register(spi_fd, reg_hop_channel, &hop_channel) == -1) {
 		return -1;
 	}
 
-	if (spi_write_register(fd, reg_fifo_addr, rx_addr) == -1) {
-		return -1;
+	if (hop_channel & 0x40 && irq_flags & 0x20) {
+		warn("checksum failed discarding packet length %hhu\n", packet_len);
+		*length = 0;
 	}
 
 	char buffer[512];
 	uint16_t buffer_len = 0;
 	for (uint8_t index = 0; index < packet_len; index++) {
-		if (spi_read_register(fd, reg_fifo, &(*data)[index]) == -1) {
+		if (spi_read_register(spi_fd, reg_fifo, &(*data)[index]) == -1) {
 			return -1;
 		}
 		buffer_len += (uint16_t)sprintf(&buffer[buffer_len], "%02x", (*data)[index]);
 	}
 	trace("received data %.*s\n", buffer_len, buffer);
 
-	*length = packet_len;
-
-	if (irq_flags & 0x20) {
-		warn("checksum failed discarding packet length %hhu\n", packet_len);
-		*length = 0;
-	}
-
-	if (spi_write_register(fd, reg_irq_flags, 0xff) == -1) {
+	if (spi_write_register(spi_fd, reg_irq_flags, 0xff) == -1) {
 		return -1;
 	}
 
-	if (spi_read_register(fd, reg_irq_flags, &irq_flags) == -1) {
+	if (spi_read_register(spi_fd, reg_irq_flags, &irq_flags) == -1) {
 		return -1;
 	};
 
