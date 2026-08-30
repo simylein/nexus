@@ -302,6 +302,7 @@ int main(int argc, char *argv[]) {
 		}
 		free(comms.radios[index].id);
 		free(comms.radios[index].spi_device);
+		free(comms.radios[index].gpio_device);
 		free(comms.workers[index].arg.db.row);
 	}
 

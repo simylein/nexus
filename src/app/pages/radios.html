@@ -62,6 +62,18 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
+								id="gpio-device"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="
+									paintSorting('gpioDevice');
+									loadRadios();
+								"
+							>
+								Gpio device
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th
 								id="frequency"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
@@ -199,6 +211,18 @@
 								<p id="create-spi-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
+								<label for="create-gpio-device" class="mb-2 text-base font-normal">Gpio device</label>
+								<input
+									id="create-gpio-device"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="gpio device"
+									oninput="createForm.setValue('gpioDevice', event.target.value)"
+									onblur="createForm.setTouched('gpioDevice', true)"
+								/>
+								<p id="create-gpio-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
 								<label for="create-frequency" class="mb-2 text-base font-normal">Frequency</label>
 								<input
 									id="create-frequency"
@@ -301,8 +325,8 @@
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
 										onclick="
 											highlightSpreadingFactor(document.getElementById('create-spreading-factors'), 6);
-											updateForm.setValue('spreadingFactor', 6);
-											updateForm.setTouched('spreadingFactor', true);
+											createForm.setValue('spreadingFactor', 6);
+											createForm.setTouched('spreadingFactor', true);
 										"
 									>
 										6
@@ -376,6 +400,8 @@
 								</div>
 								<p id="create-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
+						</div>
+						<div class="w-full flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
 								<label for="create-coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
 								<div id="create-coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
@@ -426,8 +452,6 @@
 								</div>
 								<p id="create-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
-						</div>
-						<div class="w-full flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
 								<label for="create-tx-powers" class="mb-2 text-base font-normal">Tx power</label>
 								<div id="create-tx-powers" class="w-full flex flex-row">
@@ -829,6 +853,18 @@
 								<p id="update-spi-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
+								<label for="update-gpio-device" class="mb-2 text-base font-normal">Spi device</label>
+								<input
+									id="update-gpio-device"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="gpio device"
+									oninput="updateForm.setValue('gpioDevice', event.target.value)"
+									onblur="updateForm.setTouched('gpioDevice', true)"
+								/>
+								<p id="update-gpio-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
 								<label for="update-frequency" class="mb-2 text-base font-normal">Frequency</label>
 								<input
 									id="update-frequency"
@@ -1006,6 +1042,8 @@
 								</div>
 								<p id="update-spreading-factor-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
+						</div>
+						<div class="w-full flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
 								<label for="update-coding-rates" class="mb-2 text-base font-normal">Coding rate</label>
 								<div id="update-coding-rates" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
@@ -1056,8 +1094,6 @@
 								</div>
 								<p id="update-coding-rate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
-						</div>
-						<div class="w-full flex flex-col gap-4">
 							<div class="w-full flex flex-col items-start">
 								<label for="update-tx-powers" class="mb-2 text-base font-normal">Tx power</label>
 								<div id="update-tx-powers" class="w-full flex flex-row">
@@ -1473,6 +1509,7 @@
 		const columns = {
 			id: document.getElementById('id'),
 			spiDevice: document.getElementById('spi-device'),
+			gpioDevice: document.getElementById('gpio-device'),
 			frequency: document.getElementById('frequency'),
 			bandwidth: document.getElementById('bandwidth'),
 			spreadingFactor: document.getElementById('spreading-factor'),
@@ -1512,25 +1549,26 @@
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
-				loading(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
-				loading(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
-				fade(element.children[ind].children[4].children[0]);
-				loading(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-32', 'h-4'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-24', 'h-4'], [], '');
+				loading(element.children[ind].children[4].children[0], ['w-16', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				loading(element.children[ind].children[5].children[0], ['w-3', 'h-4'], [], '');
+				loading(element.children[ind].children[5].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
-				loading(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
+				loading(element.children[ind].children[6].children[0], ['w-3', 'h-4'], [], '');
 				fade(element.children[ind].children[7].children[0]);
 				loading(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
 				loading(element.children[ind].children[8].children[0], ['w-5', 'h-4'], [], '');
-				fade(element.children[ind].children[9].children[0]);
-				loading(element.children[ind].children[9].children[0], ['w-8', 'h-4'], [], '');
-				element.children[ind].children[10].children[0].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[10].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[10].children[0].children[0].onclick = null;
-				element.children[ind].children[10].children[0].children[1].classList.remove('cursor-pointer');
-				element.children[ind].children[10].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[10].children[0].children[1].onclick = null;
+				loading(element.children[ind].children[9].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[10].children[0]);
+				loading(element.children[ind].children[10].children[0], ['w-8', 'h-4'], [], '');
+				element.children[ind].children[11].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[11].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[11].children[0].children[0].onclick = null;
+				element.children[ind].children[11].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[11].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[11].children[0].children[1].onclick = null;
 			});
 		};
 		const paintRadios = (element, data) => {
@@ -1545,30 +1583,31 @@
 				if (data[ind]) {
 					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
 					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].spiDevice);
-					paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], data[ind].frequency);
-					paint(element.children[ind].children[3].children[0], [], ['w-16', 'h-4'], data[ind].bandwidth);
-					paint(element.children[ind].children[4].children[0], [], ['w-5', 'h-4'], data[ind].spreadingFactor);
-					fade(element.children[ind].children[4].children[0]);
-					colorSf(element.children[ind].children[4].children[0], data[ind].spreadingFactor);
-					paint(element.children[ind].children[5].children[0], [], ['w-3', 'h-4'], data[ind].codingRate);
+					paint(element.children[ind].children[2].children[0], [], ['w-32', 'h-4'], data[ind].gpioDevice);
+					paint(element.children[ind].children[3].children[0], [], ['w-24', 'h-4'], data[ind].frequency);
+					paint(element.children[ind].children[4].children[0], [], ['w-16', 'h-4'], data[ind].bandwidth);
+					paint(element.children[ind].children[5].children[0], [], ['w-5', 'h-4'], data[ind].spreadingFactor);
 					fade(element.children[ind].children[5].children[0]);
-					colorCr(element.children[ind].children[5].children[0], data[ind].codingRate);
-					paint(element.children[ind].children[6].children[0], [], ['w-5', 'h-4'], data[ind].txPower);
+					colorSf(element.children[ind].children[5].children[0], data[ind].spreadingFactor);
+					paint(element.children[ind].children[6].children[0], [], ['w-3', 'h-4'], data[ind].codingRate);
 					fade(element.children[ind].children[6].children[0]);
-					colorTxPower(element.children[ind].children[6].children[0], data[ind].txPower);
-					paint(element.children[ind].children[7].children[0], [], ['w-5', 'h-4'], data[ind].preambleLen);
+					colorCr(element.children[ind].children[6].children[0], data[ind].codingRate);
+					paint(element.children[ind].children[7].children[0], [], ['w-5', 'h-4'], data[ind].txPower);
 					fade(element.children[ind].children[7].children[0]);
-					colorPreambleLen(element.children[ind].children[7].children[0], data[ind].preambleLen);
-					paint(element.children[ind].children[8].children[0], [], ['w-5', 'h-4'], data[ind].syncWord);
-					paint(element.children[ind].children[9].children[0], [], ['w-8', 'h-4'], data[ind].checksum);
-					fade(element.children[ind].children[9].children[0]);
-					colorChecksum(element.children[ind].children[9].children[0], data[ind].checksum);
-					element.children[ind].children[10].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[10].children[0].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[10].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
-					element.children[ind].children[10].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[10].children[0].children[1].classList.add('cursor-pointer');
-					element.children[ind].children[10].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
+					colorTxPower(element.children[ind].children[7].children[0], data[ind].txPower);
+					paint(element.children[ind].children[8].children[0], [], ['w-5', 'h-4'], data[ind].preambleLen);
+					fade(element.children[ind].children[8].children[0]);
+					colorPreambleLen(element.children[ind].children[8].children[0], data[ind].preambleLen);
+					paint(element.children[ind].children[9].children[0], [], ['w-5', 'h-4'], data[ind].syncWord);
+					paint(element.children[ind].children[10].children[0], [], ['w-8', 'h-4'], data[ind].checksum);
+					fade(element.children[ind].children[10].children[0]);
+					colorChecksum(element.children[ind].children[10].children[0], data[ind].checksum);
+					element.children[ind].children[11].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[11].children[0].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[11].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[11].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[11].children[0].children[1].classList.add('cursor-pointer');
+					element.children[ind].children[11].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -1582,25 +1621,26 @@
 			array(element.children.length).forEach((ind) => {
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
-				error(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
-				error(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
-				fade(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[4].children[0], ['w-5', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-32', 'h-4'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-24', 'h-4'], [], '');
+				error(element.children[ind].children[4].children[0], ['w-16', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[5].children[0], ['w-3', 'h-4'], [], '');
+				error(element.children[ind].children[5].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
-				error(element.children[ind].children[6].children[0], ['w-5', 'h-4'], [], '');
+				error(element.children[ind].children[6].children[0], ['w-3', 'h-4'], [], '');
 				fade(element.children[ind].children[7].children[0]);
 				error(element.children[ind].children[7].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
 				error(element.children[ind].children[8].children[0], ['w-5', 'h-4'], [], '');
-				fade(element.children[ind].children[9].children[0]);
-				error(element.children[ind].children[9].children[0], ['w-8', 'h-4'], [], '');
-				element.children[ind].children[10].children[0].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[10].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[10].children[0].children[0].onclick = null;
-				element.children[ind].children[10].children[0].children[1].classList.remove('cursor-pointer');
-				element.children[ind].children[10].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[10].children[0].children[1].onclick = null;
+				error(element.children[ind].children[9].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[10].children[0]);
+				error(element.children[ind].children[10].children[0], ['w-8', 'h-4'], [], '');
+				element.children[ind].children[11].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[11].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[11].children[0].children[0].onclick = null;
+				element.children[ind].children[11].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[11].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[11].children[0].children[1].onclick = null;
 			});
 		};
 		const parseRadios = async (response) => {
@@ -1611,6 +1651,7 @@
 				const radio = {
 					id: null,
 					spiDevice: null,
+					gpioDevice: null,
 					frequency: null,
 					bandwidth: null,
 					spreadingFactor: null,
@@ -1622,6 +1663,7 @@
 				};
 				radio.id = binary.uuid();
 				radio.spiDevice = binary.string();
+				radio.gpioDevice = binary.string();
 				radio.frequency = binary.uint(32);
 				radio.bandwidth = binary.uint(32);
 				radio.spreadingFactor = binary.uint(8);
@@ -1844,6 +1886,7 @@
 		let radio = null;
 		const openCreateDialog = () => {
 			document.getElementById('create-spi-device').value = '';
+			document.getElementById('create-gpio-device').value = '';
 			document.getElementById('create-frequency').value = '';
 			highlightBandwidth(document.getElementById('create-bandwidths'), null);
 			highlightSpreadingFactor(document.getElementById('create-spreading-factors'), null);
@@ -1868,6 +1911,8 @@
 			updateForm.setValue('id', radio.id);
 			updateForm.setValue('spiDevice', `${radio.spiDevice}`);
 			document.getElementById('update-spi-device').value = radio.spiDevice;
+			updateForm.setValue('gpioDevice', `${radio.gpioDevice}`);
+			document.getElementById('update-gpio-device').value = radio.gpioDevice;
 			updateForm.setValue('frequency', `${radio.frequency}`);
 			document.getElementById('update-frequency').value = radio.frequency;
 			updateForm.setValue('bandwidth', radio.bandwidth);
@@ -1903,6 +1948,7 @@
 			{
 				button: document.getElementById('create-button'),
 				spiDevice: document.getElementById('create-spi-device-validation'),
+				gpioDevice: document.getElementById('create-gpio-device-validation'),
 				frequency: document.getElementById('create-frequency-validation'),
 				bandwidth: document.getElementById('create-bandwidth-validation'),
 				spreadingFactor: document.getElementById('create-spreading-factor-validation'),
@@ -1918,6 +1964,12 @@
 					if (value.length < 8) return 'spi device must be at least 8 characters';
 					if (value.length > 32) return 'spi device must be at most 32 characters';
 					if (!value.match(/^[/a-z0-9.]+$/)) return 'spi device must be a valid unix path';
+				},
+				gpioDevice: (value) => {
+					if (!value) return 'gpio device is required';
+					if (value.length < 8) return 'gpio device must be at least 8 characters';
+					if (value.length > 32) return 'gpio device must be at most 32 characters';
+					if (!value.match(/^[/a-z0-9.]+$/)) return 'gpio device must be a valid unix path';
 				},
 				frequency: (value) => {
 					if (!value) return 'frequency is required';
@@ -1964,14 +2016,14 @@
 				const bytes = new Uint8Array(14);
 				const view = new DataView(bytes.buffer);
 				view.setUint32(0, +values.frequency);
-				view.setUint32(4, +values.bandwidth);
+				view.setUint32(4, values.bandwidth);
 				view.setUint8(8, values.spreadingFactor);
 				view.setUint8(9, values.codingRate);
 				view.setUint8(10, values.txPower);
 				view.setUint8(11, values.preambleLen);
 				view.setUint8(12, parseInt(values.syncWord, 16));
 				view.setUint8(13, values.checksum);
-				const data = new Blob([values.spiDevice, '\0', view]);
+				const data = new Blob([values.spiDevice, '\0', values.gpioDevice, '\0', view]);
 				try {
 					await fetcher('post', '/api/radio', data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', 'Successfully created radio');
@@ -2001,6 +2053,7 @@
 			{
 				button: document.getElementById('update-button'),
 				spiDevice: document.getElementById('update-spi-device-validation'),
+				gpioDevice: document.getElementById('update-gpio-device-validation'),
 				frequency: document.getElementById('update-frequency-validation'),
 				bandwidth: document.getElementById('update-bandwidth-validation'),
 				spreadingFactor: document.getElementById('update-spreading-factor-validation'),
@@ -2021,6 +2074,12 @@
 					if (value.length < 8) return 'spi device must be at least 8 characters';
 					if (value.length > 32) return 'spi device must be at most 32 characters';
 					if (!value.match(/^[/a-z0-9.]+$/)) return 'spi device must be a valid unix path';
+				},
+				gpioDevice: (value) => {
+					if (!value) return 'gpio device is required';
+					if (value.length < 8) return 'gpio device must be at least 8 characters';
+					if (value.length > 32) return 'gpio device must be at most 32 characters';
+					if (!value.match(/^[/a-z0-9.]+$/)) return 'gpio device must be a valid unix path';
 				},
 				frequency: (value) => {
 					if (!value) return 'frequency is required';
@@ -2067,14 +2126,14 @@
 				const bytes = new Uint8Array(14);
 				const view = new DataView(bytes.buffer);
 				view.setUint32(0, +values.frequency);
-				view.setUint32(4, +values.bandwidth);
+				view.setUint32(4, values.bandwidth);
 				view.setUint8(8, values.spreadingFactor);
 				view.setUint8(9, values.codingRate);
 				view.setUint8(10, values.txPower);
 				view.setUint8(11, values.preambleLen);
 				view.setUint8(12, parseInt(values.syncWord, 16));
 				view.setUint8(13, values.checksum);
-				const data = new Blob([values.spiDevice, '\0', view]);
+				const data = new Blob([values.spiDevice, '\0', values.gpioDevice, '\0', view]);
 				try {
 					await fetcher('patch', `/api/radio/${values.id}`, data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', `Successfully updated radio ${values.id.substring(0, 4)}`);

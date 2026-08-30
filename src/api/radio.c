@@ -18,15 +18,17 @@ const radio_row_t radio_row = {
 		.id = 0,
 		.spi_device_len = 8,
 		.spi_device = 9,
-		.frequency = 41,
-		.bandwidth = 45,
-		.spreading_factor = 49,
-		.coding_rate = 50,
-		.tx_power = 51,
-		.preamble_len = 52,
-		.sync_word = 53,
-		.checksum = 54,
-		.size = 55,
+		.gpio_device_len = 41,
+		.gpio_device = 42,
+		.frequency = 74,
+		.bandwidth = 78,
+		.spreading_factor = 82,
+		.coding_rate = 83,
+		.tx_power = 84,
+		.preamble_len = 85,
+		.sync_word = 86,
+		.checksum = 87,
+		.size = 88,
 };
 
 int radio_rowcmp(uint8_t *alpha, uint8_t *bravo, radio_query_t *query) {
@@ -47,6 +49,19 @@ int radio_rowcmp(uint8_t *alpha, uint8_t *bravo, radio_query_t *query) {
 		char *spi_device_bravo = octet_text_read(bravo, radio_row.spi_device);
 		int result = memcmp(spi_device_alpha, spi_device_bravo,
 												spi_device_len_alpha < spi_device_len_bravo ? spi_device_len_alpha : spi_device_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 10 && memcmp(query->order, "gpioDevice", query->order_len) == 0) {
+		uint8_t gpio_device_len_alpha = octet_uint8_read(alpha, radio_row.gpio_device_len);
+		char *gpio_device_alpha = octet_text_read(alpha, radio_row.gpio_device);
+		uint8_t gpio_device_len_bravo = octet_uint8_read(bravo, radio_row.gpio_device_len);
+		char *gpio_device_bravo = octet_text_read(bravo, radio_row.gpio_device);
+		int result = memcmp(gpio_device_alpha, gpio_device_bravo,
+												gpio_device_len_alpha < gpio_device_len_bravo ? gpio_device_len_alpha : gpio_device_len_bravo);
 		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
 			result = -result;
 		}
@@ -195,6 +210,8 @@ uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, u
 		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], radio_row.id);
 		uint8_t spi_device_len = octet_uint8_read(&db->table[index], radio_row.spi_device_len);
 		char *spi_device = octet_text_read(&db->table[index], radio_row.spi_device);
+		uint8_t gpio_device_len = octet_uint8_read(&db->table[index], radio_row.gpio_device_len);
+		char *gpio_device = octet_text_read(&db->table[index], radio_row.gpio_device);
 		uint32_t frequency = octet_uint32_read(&db->table[index], radio_row.frequency);
 		uint32_t bandwidth = octet_uint32_read(&db->table[index], radio_row.bandwidth);
 		uint8_t spreading_factor = octet_uint8_read(&db->table[index], radio_row.spreading_factor);
@@ -205,6 +222,8 @@ uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, u
 		uint8_t checksum = octet_uint8_read(&db->table[index], radio_row.checksum);
 		body_write(response, id, sizeof(*id));
 		body_write(response, spi_device, spi_device_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, gpio_device, gpio_device_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
 		body_write(response, (uint32_t[]){hton32(frequency)}, sizeof(frequency));
 		body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
@@ -229,7 +248,7 @@ int radio_parse(radio_t *radio, request_t *request) {
 	uint8_t stage = 0;
 
 	radio->spi_device_len = 0;
-	const uint8_t device_index = (uint8_t)request->body.pos;
+	const uint8_t spi_device_index = (uint8_t)request->body.pos;
 	while (stage == 0 && radio->spi_device_len < 32 && request->body.pos < request->body.len) {
 		const char *byte = body_read(request, sizeof(char));
 		if (*byte == '\0') {
@@ -238,9 +257,25 @@ int radio_parse(radio_t *radio, request_t *request) {
 			radio->spi_device_len++;
 		}
 	}
-	radio->spi_device = &request->body.ptr[device_index];
+	radio->spi_device = &request->body.ptr[spi_device_index];
 	if (stage != 1) {
 		debug("found spi device with %hhu bytes\n", radio->spi_device_len);
+		return -1;
+	}
+
+	radio->gpio_device_len = 0;
+	const uint8_t gpio_device_index = (uint8_t)request->body.pos;
+	while (stage == 1 && radio->gpio_device_len < 32 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 2;
+		} else {
+			radio->gpio_device_len++;
+		}
+	}
+	radio->gpio_device = &request->body.ptr[gpio_device_index];
+	if (stage != 2) {
+		debug("found gpio device with %hhu bytes\n", radio->gpio_device_len);
 		return -1;
 	}
 
@@ -379,6 +414,8 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	octet_blob_write(db->row, radio_row.id, (uint8_t *)radio->id, sizeof(*radio->id));
 	octet_uint8_write(db->row, radio_row.spi_device_len, radio->spi_device_len);
 	octet_text_write(db->row, radio_row.spi_device, radio->spi_device, radio->spi_device_len);
+	octet_uint8_write(db->row, radio_row.gpio_device_len, radio->gpio_device_len);
+	octet_text_write(db->row, radio_row.gpio_device, radio->gpio_device, radio->gpio_device_len);
 	octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
 	octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
 	octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);
@@ -433,6 +470,8 @@ uint16_t radio_update(octet_t *db, radio_t *radio) {
 		if (memcmp(id, radio->id, sizeof(*radio->id)) == 0) {
 			octet_uint8_write(db->row, radio_row.spi_device_len, radio->spi_device_len);
 			octet_text_write(db->row, radio_row.spi_device, (char *)radio->spi_device, radio->spi_device_len);
+			octet_uint8_write(db->row, radio_row.gpio_device_len, radio->gpio_device_len);
+			octet_text_write(db->row, radio_row.gpio_device, (char *)radio->gpio_device, radio->gpio_device_len);
 			octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
 			octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
 			octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);

@@ -68,6 +68,8 @@ int radio_init(octet_t *db) {
 		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, radio_row.id);
 		uint8_t spi_device_len = octet_uint8_read(db->row, radio_row.spi_device_len);
 		char *spi_device = octet_text_read(db->row, radio_row.spi_device);
+		uint8_t gpio_device_len = octet_uint8_read(db->row, radio_row.gpio_device_len);
+		char *gpio_device = octet_text_read(db->row, radio_row.gpio_device);
 		uint32_t frequency = octet_uint32_read(db->row, radio_row.frequency);
 		uint32_t bandwidth = octet_uint32_read(db->row, radio_row.bandwidth);
 		uint8_t spreading_factor = octet_uint8_read(db->row, radio_row.spreading_factor);
@@ -94,9 +96,17 @@ int radio_init(octet_t *db) {
 			status = -1;
 			goto cleanup;
 		}
+		comms.radios[comms.radios_len].gpio_device = malloc(gpio_device_len);
+		if (comms.radios[comms.radios_len].gpio_device == NULL) {
+			error("failed to allocate %hhu bytes for gpio device because %s\n", gpio_device_len, errno_str());
+			status = -1;
+			goto cleanup;
+		}
 		memcpy(comms.radios[comms.radios_len].id, id, sizeof(*id));
 		memcpy(comms.radios[comms.radios_len].spi_device, spi_device, spi_device_len);
 		comms.radios[comms.radios_len].spi_device_len = spi_device_len;
+		memcpy(comms.radios[comms.radios_len].gpio_device, gpio_device, gpio_device_len);
+		comms.radios[comms.radios_len].gpio_device_len = gpio_device_len;
 		comms.radios[comms.radios_len].frequency = frequency;
 		comms.radios[comms.radios_len].bandwidth = bandwidth;
 		comms.radios[comms.radios_len].spreading_factor = spreading_factor;
@@ -517,6 +527,7 @@ void radio_reload(octet_t *db, response_t *response) {
 		}
 		free(comms.radios[index].id);
 		free(comms.radios[index].spi_device);
+		free(comms.radios[index].gpio_device);
 	}
 
 	for (uint8_t index = 0; index < comms.devices_len; index++) {

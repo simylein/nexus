@@ -51,6 +51,7 @@ int seed_user(octet_t *db) {
 
 int seed_radio(octet_t *db) {
 	char *spi_devices[] = {"/dev/spidev0.0", "/dev/spidev0.1", "/dev/spidev1.0", "/dev/spidev1.1"};
+	char *gpio_devices[] = {"/dev/gpiochip0", "/dev/gpiochip1", "/dev/gpiochip2", "/dev/gpiochip3"};
 
 	radio_ids_len = sizeof(spi_devices) / sizeof(*spi_devices);
 	radio_ids = malloc(radio_ids_len * sizeof(*((radio_t *)0)->id));
@@ -63,6 +64,8 @@ int seed_radio(octet_t *db) {
 				.id = (uint8_t (*)[8])(&radio_ids[index * sizeof(*((radio_t *)0)->id)]),
 				.spi_device = spi_devices[index],
 				.spi_device_len = (uint8_t)strlen(spi_devices[index]),
+				.gpio_device = gpio_devices[index],
+				.gpio_device_len = (uint8_t)strlen(gpio_devices[index]),
 				.frequency = (uint32_t)434225000 - (index * 200000),
 				.bandwidth = 125000,
 				.spreading_factor = 7 + index,
