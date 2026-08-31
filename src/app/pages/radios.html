@@ -223,6 +223,18 @@
 								<p id="create-gpio-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
+								<label for="create-gpio-int-pin" class="mb-2 text-base font-normal">Gpio int pin</label>
+								<input
+									id="create-gpio-int-pin"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="gpio int pin"
+									oninput="createForm.setValue('gpioIntPin', event.target.value)"
+									onblur="createForm.setTouched('gpioIntPin', true)"
+								/>
+								<p id="create-gpio-int-pin-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
 								<label for="create-frequency" class="mb-2 text-base font-normal">Frequency</label>
 								<input
 									id="create-frequency"
@@ -853,7 +865,7 @@
 								<p id="update-spi-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
-								<label for="update-gpio-device" class="mb-2 text-base font-normal">Spi device</label>
+								<label for="update-gpio-device" class="mb-2 text-base font-normal">Gpio device</label>
 								<input
 									id="update-gpio-device"
 									type="text"
@@ -863,6 +875,18 @@
 									onblur="updateForm.setTouched('gpioDevice', true)"
 								/>
 								<p id="update-gpio-device-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-gpio-int-pin" class="mb-2 text-base font-normal">Gpio int pin</label>
+								<input
+									id="update-gpio-int-pin"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="gpio int pin"
+									oninput="updateForm.setValue('gpioIntPin', event.target.value)"
+									onblur="updateForm.setTouched('gpioIntPin', true)"
+								/>
+								<p id="update-gpio-int-pin-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 							</div>
 							<div class="w-full flex flex-col items-start">
 								<label for="update-frequency" class="mb-2 text-base font-normal">Frequency</label>
@@ -1652,6 +1676,7 @@
 					id: null,
 					spiDevice: null,
 					gpioDevice: null,
+					gpioIntPin: null,
 					frequency: null,
 					bandwidth: null,
 					spreadingFactor: null,
@@ -1664,6 +1689,7 @@
 				radio.id = binary.uuid();
 				radio.spiDevice = binary.string();
 				radio.gpioDevice = binary.string();
+				radio.gpioIntPin = binary.uint(8);
 				radio.frequency = binary.uint(32);
 				radio.bandwidth = binary.uint(32);
 				radio.spreadingFactor = binary.uint(8);
@@ -1887,6 +1913,7 @@
 		const openCreateDialog = () => {
 			document.getElementById('create-spi-device').value = '';
 			document.getElementById('create-gpio-device').value = '';
+			document.getElementById('create-gpio-int-pin').value = '';
 			document.getElementById('create-frequency').value = '';
 			highlightBandwidth(document.getElementById('create-bandwidths'), null);
 			highlightSpreadingFactor(document.getElementById('create-spreading-factors'), null);
@@ -1913,6 +1940,8 @@
 			document.getElementById('update-spi-device').value = radio.spiDevice;
 			updateForm.setValue('gpioDevice', `${radio.gpioDevice}`);
 			document.getElementById('update-gpio-device').value = radio.gpioDevice;
+			updateForm.setValue('gpioIntPin', `${radio.gpioIntPin}`);
+			document.getElementById('update-gpio-int-pin').value = radio.gpioIntPin;
 			updateForm.setValue('frequency', `${radio.frequency}`);
 			document.getElementById('update-frequency').value = radio.frequency;
 			updateForm.setValue('bandwidth', radio.bandwidth);
@@ -1949,6 +1978,7 @@
 				button: document.getElementById('create-button'),
 				spiDevice: document.getElementById('create-spi-device-validation'),
 				gpioDevice: document.getElementById('create-gpio-device-validation'),
+				gpioIntPin: document.getElementById('create-gpio-int-pin-validation'),
 				frequency: document.getElementById('create-frequency-validation'),
 				bandwidth: document.getElementById('create-bandwidth-validation'),
 				spreadingFactor: document.getElementById('create-spreading-factor-validation'),
@@ -1970,6 +2000,12 @@
 					if (value.length < 8) return 'gpio device must be at least 8 characters';
 					if (value.length > 32) return 'gpio device must be at most 32 characters';
 					if (!value.match(/^[/a-z0-9.]+$/)) return 'gpio device must be a valid unix path';
+				},
+				gpioIntPin: (value) => {
+					if (!value) return 'gpio int pin is required';
+					if (!value.match(/^[0-9]+$/)) return 'gpio int pin must be a number';
+					if (+value < 3) return 'gpio int pin must be min 3';
+					if (+value > 40) return 'gpio int pin must be max 40';
 				},
 				frequency: (value) => {
 					if (!value) return 'frequency is required';
@@ -2013,16 +2049,17 @@
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(14);
+				const bytes = new Uint8Array(15);
 				const view = new DataView(bytes.buffer);
-				view.setUint32(0, +values.frequency);
-				view.setUint32(4, values.bandwidth);
-				view.setUint8(8, values.spreadingFactor);
-				view.setUint8(9, values.codingRate);
-				view.setUint8(10, values.txPower);
-				view.setUint8(11, values.preambleLen);
-				view.setUint8(12, parseInt(values.syncWord, 16));
-				view.setUint8(13, values.checksum);
+				view.setUint8(0, +values.gpioIntPin);
+				view.setUint32(1, +values.frequency);
+				view.setUint32(5, values.bandwidth);
+				view.setUint8(9, values.spreadingFactor);
+				view.setUint8(10, values.codingRate);
+				view.setUint8(11, values.txPower);
+				view.setUint8(12, values.preambleLen);
+				view.setUint8(13, parseInt(values.syncWord, 16));
+				view.setUint8(14, values.checksum);
 				const data = new Blob([values.spiDevice, '\0', values.gpioDevice, '\0', view]);
 				try {
 					await fetcher('post', '/api/radio', data, { headers: { 'content-type': 'application/octet-stream' } });
@@ -2054,6 +2091,7 @@
 				button: document.getElementById('update-button'),
 				spiDevice: document.getElementById('update-spi-device-validation'),
 				gpioDevice: document.getElementById('update-gpio-device-validation'),
+				gpioIntPin: document.getElementById('update-gpio-int-pin-validation'),
 				frequency: document.getElementById('update-frequency-validation'),
 				bandwidth: document.getElementById('update-bandwidth-validation'),
 				spreadingFactor: document.getElementById('update-spreading-factor-validation'),
@@ -2080,6 +2118,12 @@
 					if (value.length < 8) return 'gpio device must be at least 8 characters';
 					if (value.length > 32) return 'gpio device must be at most 32 characters';
 					if (!value.match(/^[/a-z0-9.]+$/)) return 'gpio device must be a valid unix path';
+				},
+				gpioIntPin: (value) => {
+					if (!value) return 'gpio int pin is required';
+					if (!value.match(/^[0-9]+$/)) return 'gpio int pin must be a number';
+					if (+value < 3) return 'gpio int pin must be min 3';
+					if (+value > 40) return 'gpio int pin must be max 40';
 				},
 				frequency: (value) => {
 					if (!value) return 'frequency is required';
@@ -2123,16 +2167,17 @@
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(14);
+				const bytes = new Uint8Array(15);
 				const view = new DataView(bytes.buffer);
-				view.setUint32(0, +values.frequency);
-				view.setUint32(4, values.bandwidth);
-				view.setUint8(8, values.spreadingFactor);
-				view.setUint8(9, values.codingRate);
-				view.setUint8(10, values.txPower);
-				view.setUint8(11, values.preambleLen);
-				view.setUint8(12, parseInt(values.syncWord, 16));
-				view.setUint8(13, values.checksum);
+				view.setUint8(0, +values.gpioIntPin);
+				view.setUint32(1, +values.frequency);
+				view.setUint32(5, values.bandwidth);
+				view.setUint8(9, values.spreadingFactor);
+				view.setUint8(10, values.codingRate);
+				view.setUint8(11, values.txPower);
+				view.setUint8(12, values.preambleLen);
+				view.setUint8(13, parseInt(values.syncWord, 16));
+				view.setUint8(14, values.checksum);
 				const data = new Blob([values.spiDevice, '\0', values.gpioDevice, '\0', view]);
 				try {
 					await fetcher('patch', `/api/radio/${values.id}`, data, { headers: { 'content-type': 'application/octet-stream' } });

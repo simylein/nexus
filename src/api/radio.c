@@ -20,15 +20,16 @@ const radio_row_t radio_row = {
 		.spi_device = 9,
 		.gpio_device_len = 41,
 		.gpio_device = 42,
-		.frequency = 74,
-		.bandwidth = 78,
-		.spreading_factor = 82,
-		.coding_rate = 83,
-		.tx_power = 84,
-		.preamble_len = 85,
-		.sync_word = 86,
-		.checksum = 87,
-		.size = 88,
+		.gpio_int_pin = 74,
+		.frequency = 75,
+		.bandwidth = 79,
+		.spreading_factor = 83,
+		.coding_rate = 84,
+		.tx_power = 85,
+		.preamble_len = 86,
+		.sync_word = 87,
+		.checksum = 88,
+		.size = 89,
 };
 
 int radio_rowcmp(uint8_t *alpha, uint8_t *bravo, radio_query_t *query) {
@@ -212,6 +213,7 @@ uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, u
 		char *spi_device = octet_text_read(&db->table[index], radio_row.spi_device);
 		uint8_t gpio_device_len = octet_uint8_read(&db->table[index], radio_row.gpio_device_len);
 		char *gpio_device = octet_text_read(&db->table[index], radio_row.gpio_device);
+		uint8_t gpio_int_pin = octet_uint8_read(&db->table[index], radio_row.gpio_int_pin);
 		uint32_t frequency = octet_uint32_read(&db->table[index], radio_row.frequency);
 		uint32_t bandwidth = octet_uint32_read(&db->table[index], radio_row.bandwidth);
 		uint8_t spreading_factor = octet_uint8_read(&db->table[index], radio_row.spreading_factor);
@@ -225,6 +227,7 @@ uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, u
 		body_write(response, (char[]){0x00}, sizeof(char));
 		body_write(response, gpio_device, gpio_device_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, &gpio_int_pin, sizeof(gpio_int_pin));
 		body_write(response, (uint32_t[]){hton32(frequency)}, sizeof(frequency));
 		body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
 		body_write(response, &spreading_factor, sizeof(spreading_factor));
@@ -278,6 +281,12 @@ int radio_parse(radio_t *radio, request_t *request) {
 		debug("found gpio device with %hhu bytes\n", radio->gpio_device_len);
 		return -1;
 	}
+
+	if (request->body.len < request->body.pos + sizeof(radio->gpio_int_pin)) {
+		debug("missing gpio int pin on radio\n");
+		return -1;
+	}
+	radio->gpio_int_pin = *(uint8_t *)body_read(request, sizeof(radio->gpio_int_pin));
 
 	if (request->body.len < request->body.pos + sizeof(radio->frequency)) {
 		debug("missing frequency on radio\n");
@@ -338,6 +347,11 @@ int radio_parse(radio_t *radio, request_t *request) {
 }
 
 int radio_validate(radio_t *radio) {
+	if (radio->gpio_int_pin < 3 || radio->gpio_int_pin > 40) {
+		debug("invalid gpio int pin %hhu on radio\n", radio->gpio_int_pin);
+		return -1;
+	}
+
 	if (radio->frequency < 400 * 1000 * 1000 || radio->frequency > 500 * 1000 * 1000) {
 		debug("invalid frequency %u on radio\n", radio->frequency);
 		return -1;
@@ -416,6 +430,7 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	octet_text_write(db->row, radio_row.spi_device, radio->spi_device, radio->spi_device_len);
 	octet_uint8_write(db->row, radio_row.gpio_device_len, radio->gpio_device_len);
 	octet_text_write(db->row, radio_row.gpio_device, radio->gpio_device, radio->gpio_device_len);
+	octet_uint8_write(db->row, radio_row.gpio_int_pin, radio->gpio_int_pin);
 	octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
 	octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
 	octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);
@@ -472,6 +487,7 @@ uint16_t radio_update(octet_t *db, radio_t *radio) {
 			octet_text_write(db->row, radio_row.spi_device, (char *)radio->spi_device, radio->spi_device_len);
 			octet_uint8_write(db->row, radio_row.gpio_device_len, radio->gpio_device_len);
 			octet_text_write(db->row, radio_row.gpio_device, (char *)radio->gpio_device, radio->gpio_device_len);
+			octet_uint8_write(db->row, radio_row.gpio_int_pin, radio->gpio_int_pin);
 			octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
 			octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
 			octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);

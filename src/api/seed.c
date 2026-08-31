@@ -66,6 +66,7 @@ int seed_radio(octet_t *db) {
 				.spi_device_len = (uint8_t)strlen(spi_devices[index]),
 				.gpio_device = gpio_devices[index],
 				.gpio_device_len = (uint8_t)strlen(gpio_devices[index]),
+				.gpio_int_pin = 25 + index,
 				.frequency = (uint32_t)434225000 - (index * 200000),
 				.bandwidth = 125000,
 				.spreading_factor = 7 + index,
