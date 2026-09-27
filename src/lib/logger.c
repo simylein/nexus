@@ -54,7 +54,7 @@ void print(FILE *file, const char *time, const char *level, const char *color, c
 }
 
 void rx(const char *message, ...) {
-	if (log_requests == true) {
+	if (log_receives == true) {
 		char buffer[9];
 		timestamp(&buffer);
 		va_list args;
@@ -65,7 +65,7 @@ void rx(const char *message, ...) {
 }
 
 void tx(const char *message, ...) {
-	if (log_responses == true) {
+	if (log_transmits == true) {
 		char buffer[9];
 		timestamp(&buffer);
 		va_list args;
