@@ -250,6 +250,12 @@ int configure(int argc, char *argv[], uint8_t *cmds) {
 		} else if (match_arg(flag, "--log-level", "-ll")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_log_level(value, &log_level);
+		} else if (match_arg(flag, "--log-receives", "-lr")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_bool(value, "log receives", &log_receives);
+		} else if (match_arg(flag, "--log-transmits", "-lt")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_bool(value, "log transmits", &log_transmits);
 		} else if (match_arg(flag, "--log-requests", "-lq")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_bool(value, "log requests", &log_requests);
