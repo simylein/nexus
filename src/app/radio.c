@@ -199,7 +199,7 @@ int radio_init(octet_t *db) {
 		}
 		char gpio_device[64];
 		sprintf(gpio_device, "%.*s", (int)comms.radios[index].gpio_device_len, comms.radios[index].gpio_device);
-		if ((comms.workers[index].arg.gpio_int_fd = gpio_init(gpio_device, comms.radios[index].gpio_int_pin)) == -1) {
+		if ((comms.workers[index].arg.gpio_int_fd = gpio_init_edge(gpio_device, comms.radios[index].gpio_int_pin)) == -1) {
 			return -1;
 		}
 

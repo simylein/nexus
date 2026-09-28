@@ -8,7 +8,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-int gpio_init(const char *device, uint8_t pin) {
+int gpio_init_edge(const char *device, uint8_t pin) {
 	int fd = open(device, O_RDONLY);
 
 	if (fd == -1) {
@@ -25,6 +25,36 @@ int gpio_init(const char *device, uint8_t pin) {
 
 	if (ioctl(fd, GPIO_GET_LINEEVENT_IOCTL, &req) == -1) {
 		error("failed to get gpio event because %s\n", errno_str());
+		return -1;
+	}
+
+	if (close(fd) == -1) {
+		error("failed to close %s because %s\n", device, errno_str());
+		return -1;
+	}
+
+	return req.fd;
+}
+
+int gpio_init_output(const char *device, uint8_t pin, uint8_t value) {
+	int fd = open(device, O_RDONLY);
+
+	if (fd == -1) {
+		error("failed to open %s because %s\n", device, errno_str());
+		return -1;
+	}
+
+	struct gpiohandle_request req = {
+			.lines = 1,
+			.lineoffsets = {pin},
+			.flags = GPIOHANDLE_REQUEST_OUTPUT,
+			.default_values = {value},
+	};
+
+	sprintf(req.consumer_label, "%s-gpio%hhu", name, pin);
+
+	if (ioctl(fd, GPIO_GET_LINEHANDLE_IOCTL, &req) == -1) {
+		error("failed to get gpio output because %s\n", errno_str());
 		return -1;
 	}
 
