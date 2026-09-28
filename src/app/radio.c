@@ -199,7 +199,7 @@ int radio_init(octet_t *db) {
 		}
 		char gpio_device[64];
 		sprintf(gpio_device, "%.*s", (int)comms.radios[index].gpio_device_len, comms.radios[index].gpio_device);
-		if ((comms.workers[index].arg.gpio_fd = gpio_init(gpio_device, comms.radios[index].gpio_int_pin)) == -1) {
+		if ((comms.workers[index].arg.gpio_int_fd = gpio_init(gpio_device, comms.radios[index].gpio_int_pin)) == -1) {
 			return -1;
 		}
 
@@ -290,7 +290,7 @@ void *radio_thread(void *args) {
 	while (true) {
 		uint8_t rx_data[256];
 		uint8_t rx_data_len = 0;
-		if (sx1278_receive(arg->spi_fd, arg->gpio_fd, &rx_data, &rx_data_len) == -1) {
+		if (sx1278_receive(arg->spi_fd, arg->gpio_int_fd, &rx_data, &rx_data_len) == -1) {
 			error("failed to receive packet\n");
 			continue;
 		}
@@ -443,7 +443,7 @@ void *radio_thread(void *args) {
 			tx_data_len += sizeof(uint8_t);
 		}
 
-		if (sx1278_transmit(arg->spi_fd, arg->gpio_fd, &tx_data, tx_data_len) == -1) {
+		if (sx1278_transmit(arg->spi_fd, arg->gpio_int_fd, &tx_data, tx_data_len) == -1) {
 			error("failed to transmit packet\n");
 			continue;
 		}
@@ -533,7 +533,10 @@ void radio_reload(octet_t *db, response_t *response) {
 		if (close(comms.workers[index].arg.spi_fd) == -1) {
 			error("failed to close ioctl because %s\n", errno_str());
 		}
-		if (close(comms.workers[index].arg.gpio_fd) == -1) {
+		if (close(comms.workers[index].arg.gpio_int_fd) == -1) {
+			error("failed to close ioctl because %s\n", errno_str());
+		}
+		if (close(comms.workers[index].arg.gpio_reset_fd) == -1) {
 			error("failed to close ioctl because %s\n", errno_str());
 		}
 		free(comms.radios[index].id);

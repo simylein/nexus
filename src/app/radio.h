@@ -9,7 +9,8 @@
 
 typedef struct radio_arg_t {
 	int spi_fd;
-	int gpio_fd;
+	int gpio_int_fd;
+	int gpio_reset_fd;
 	octet_t db;
 	radio_t *radio;
 	device_t *devices;

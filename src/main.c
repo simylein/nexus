@@ -300,7 +300,10 @@ int main(int argc, char *argv[]) {
 		if (close(comms.workers[index].arg.spi_fd) == -1) {
 			error("failed to close ioctl because %s\n", errno_str());
 		}
-		if (close(comms.workers[index].arg.gpio_fd) == -1) {
+		if (close(comms.workers[index].arg.gpio_int_fd) == -1) {
+			error("failed to close ioctl because %s\n", errno_str());
+		}
+		if (close(comms.workers[index].arg.gpio_reset_fd) == -1) {
 			error("failed to close ioctl because %s\n", errno_str());
 		}
 		free(comms.radios[index].id);
