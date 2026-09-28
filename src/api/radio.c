@@ -21,15 +21,16 @@ const radio_row_t radio_row = {
 		.gpio_device_len = 41,
 		.gpio_device = 42,
 		.gpio_int_pin = 74,
-		.frequency = 75,
-		.bandwidth = 79,
-		.spreading_factor = 83,
-		.coding_rate = 84,
-		.tx_power = 85,
-		.preamble_len = 86,
-		.sync_word = 87,
-		.checksum = 88,
-		.size = 89,
+		.gpio_reset_pin = 75,
+		.frequency = 76,
+		.bandwidth = 80,
+		.spreading_factor = 84,
+		.coding_rate = 85,
+		.tx_power = 86,
+		.preamble_len = 87,
+		.sync_word = 88,
+		.checksum = 89,
+		.size = 90,
 };
 
 int radio_rowcmp(uint8_t *alpha, uint8_t *bravo, radio_query_t *query) {
@@ -214,6 +215,7 @@ uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, u
 		uint8_t gpio_device_len = octet_uint8_read(&db->table[index], radio_row.gpio_device_len);
 		char *gpio_device = octet_text_read(&db->table[index], radio_row.gpio_device);
 		uint8_t gpio_int_pin = octet_uint8_read(&db->table[index], radio_row.gpio_int_pin);
+		uint8_t gpio_reset_pin = octet_uint8_read(&db->table[index], radio_row.gpio_reset_pin);
 		uint32_t frequency = octet_uint32_read(&db->table[index], radio_row.frequency);
 		uint32_t bandwidth = octet_uint32_read(&db->table[index], radio_row.bandwidth);
 		uint8_t spreading_factor = octet_uint8_read(&db->table[index], radio_row.spreading_factor);
@@ -228,6 +230,7 @@ uint16_t radio_select(octet_t *db, radio_query_t *query, response_t *response, u
 		body_write(response, gpio_device, gpio_device_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
 		body_write(response, &gpio_int_pin, sizeof(gpio_int_pin));
+		body_write(response, &gpio_reset_pin, sizeof(gpio_reset_pin));
 		body_write(response, (uint32_t[]){hton32(frequency)}, sizeof(frequency));
 		body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
 		body_write(response, &spreading_factor, sizeof(spreading_factor));
@@ -287,6 +290,12 @@ int radio_parse(radio_t *radio, request_t *request) {
 		return -1;
 	}
 	radio->gpio_int_pin = *(uint8_t *)body_read(request, sizeof(radio->gpio_int_pin));
+
+	if (request->body.len < request->body.pos + sizeof(radio->gpio_reset_pin)) {
+		debug("missing gpio reset pin on radio\n");
+		return -1;
+	}
+	radio->gpio_reset_pin = *(uint8_t *)body_read(request, sizeof(radio->gpio_reset_pin));
 
 	if (request->body.len < request->body.pos + sizeof(radio->frequency)) {
 		debug("missing frequency on radio\n");
@@ -349,6 +358,11 @@ int radio_parse(radio_t *radio, request_t *request) {
 int radio_validate(radio_t *radio) {
 	if (radio->gpio_int_pin < 3 || radio->gpio_int_pin > 40) {
 		debug("invalid gpio int pin %hhu on radio\n", radio->gpio_int_pin);
+		return -1;
+	}
+
+	if (radio->gpio_reset_pin < 3 || radio->gpio_reset_pin > 40) {
+		debug("invalid gpio reset pin %hhu on radio\n", radio->gpio_reset_pin);
 		return -1;
 	}
 
@@ -431,6 +445,7 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	octet_uint8_write(db->row, radio_row.gpio_device_len, radio->gpio_device_len);
 	octet_text_write(db->row, radio_row.gpio_device, radio->gpio_device, radio->gpio_device_len);
 	octet_uint8_write(db->row, radio_row.gpio_int_pin, radio->gpio_int_pin);
+	octet_uint8_write(db->row, radio_row.gpio_reset_pin, radio->gpio_reset_pin);
 	octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
 	octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
 	octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);
@@ -488,6 +503,7 @@ uint16_t radio_update(octet_t *db, radio_t *radio) {
 			octet_uint8_write(db->row, radio_row.gpio_device_len, radio->gpio_device_len);
 			octet_text_write(db->row, radio_row.gpio_device, (char *)radio->gpio_device, radio->gpio_device_len);
 			octet_uint8_write(db->row, radio_row.gpio_int_pin, radio->gpio_int_pin);
+			octet_uint8_write(db->row, radio_row.gpio_reset_pin, radio->gpio_reset_pin);
 			octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
 			octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
 			octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);

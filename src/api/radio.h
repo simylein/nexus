@@ -13,6 +13,7 @@ typedef struct radio_t {
 	char *gpio_device;
 	uint8_t gpio_device_len;
 	uint8_t gpio_int_pin;
+	uint8_t gpio_reset_pin;
 	uint32_t frequency;
 	uint32_t bandwidth;
 	uint8_t spreading_factor;
@@ -39,6 +40,7 @@ typedef struct radio_row_t {
 	uint8_t gpio_device_len;
 	uint8_t gpio_device;
 	uint8_t gpio_int_pin;
+	uint8_t gpio_reset_pin;
 	uint8_t frequency;
 	uint8_t bandwidth;
 	uint8_t spreading_factor;

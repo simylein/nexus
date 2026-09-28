@@ -72,6 +72,7 @@ int radio_init(octet_t *db) {
 		uint8_t gpio_device_len = octet_uint8_read(db->row, radio_row.gpio_device_len);
 		char *gpio_device = octet_text_read(db->row, radio_row.gpio_device);
 		uint8_t gpio_int_pin = octet_uint8_read(db->row, radio_row.gpio_int_pin);
+		uint8_t gpio_reset_pin = octet_uint8_read(db->row, radio_row.gpio_reset_pin);
 		uint32_t frequency = octet_uint32_read(db->row, radio_row.frequency);
 		uint32_t bandwidth = octet_uint32_read(db->row, radio_row.bandwidth);
 		uint8_t spreading_factor = octet_uint8_read(db->row, radio_row.spreading_factor);
@@ -110,6 +111,7 @@ int radio_init(octet_t *db) {
 		memcpy(comms.radios[comms.radios_len].gpio_device, gpio_device, gpio_device_len);
 		comms.radios[comms.radios_len].gpio_device_len = gpio_device_len;
 		comms.radios[comms.radios_len].gpio_int_pin = gpio_int_pin;
+		comms.radios[comms.radios_len].gpio_reset_pin = gpio_reset_pin;
 		comms.radios[comms.radios_len].frequency = frequency;
 		comms.radios[comms.radios_len].bandwidth = bandwidth;
 		comms.radios[comms.radios_len].spreading_factor = spreading_factor;
@@ -200,6 +202,9 @@ int radio_init(octet_t *db) {
 		char gpio_device[64];
 		sprintf(gpio_device, "%.*s", (int)comms.radios[index].gpio_device_len, comms.radios[index].gpio_device);
 		if ((comms.workers[index].arg.gpio_int_fd = gpio_init_edge(gpio_device, comms.radios[index].gpio_int_pin)) == -1) {
+			return -1;
+		}
+		if ((comms.workers[index].arg.gpio_reset_fd = gpio_init_output(gpio_device, comms.radios[index].gpio_reset_pin, 1)) == -1) {
 			return -1;
 		}
 
