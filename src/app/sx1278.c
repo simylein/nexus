@@ -349,7 +349,7 @@ int sx1278_rssi(int fd, int16_t *rssi) {
 		return -1;
 	}
 
-	*rssi = -157 + packet_rssi;
+	*rssi = -164 + packet_rssi;
 
 	trace("packet_rssi 0x%02x\n", packet_rssi);
 	return 0;
