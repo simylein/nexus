@@ -3,10 +3,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
-uint16_t airtime_calculate(radio_t *radio, uint8_t payload_len) {
+uint16_t airtime_calculate(radio_t *radio, uint8_t preamble_len, uint8_t payload_len) {
 	double symbol_duration = (double)(1 << radio->spreading_factor) / radio->bandwidth;
 
-	double preamble_duration = symbol_duration * (radio->preamble_len + 4.25);
+	double preamble_duration = symbol_duration * (preamble_len + 4.25);
 
 	double numerator = 8 * payload_len - 4 * radio->spreading_factor + 28 + 16 * radio->checksum - 20 * 0;
 	double denominator = 4.0 * (radio->spreading_factor - 2 * (radio->spreading_factor > 10 ? 1 : 0));

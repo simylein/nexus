@@ -342,7 +342,7 @@ void *radio_thread(void *args) {
 		uplink.kind = rx_data[5];
 		memcpy(uplink.data, &rx_data[6], rx_data_len - 6);
 		uplink.data_len = rx_data_len - 6;
-		uplink.airtime = airtime_calculate(arg->radio, rx_data_len);
+		uplink.airtime = airtime_calculate(arg->radio, (rx_data[4] & 0x0f) + 6, rx_data_len);
 		uplink.frequency = arg->radio->frequency;
 		uplink.bandwidth = arg->radio->bandwidth;
 		uplink.rssi = rssi;
@@ -465,7 +465,7 @@ void *radio_thread(void *args) {
 		downlink.kind = tx_data[5];
 		memcpy(downlink.data, &tx_data[6], tx_data_len - 6);
 		downlink.data_len = tx_data_len - 6;
-		downlink.airtime = airtime_calculate(arg->radio, tx_data_len);
+		downlink.airtime = airtime_calculate(arg->radio, (tx_data[4] & 0x0f) + 6, tx_data_len);
 		downlink.frequency = arg->radio->frequency;
 		downlink.bandwidth = arg->radio->bandwidth;
 		downlink.spreading_factor = arg->radio->spreading_factor;
