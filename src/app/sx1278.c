@@ -29,7 +29,7 @@ const uint8_t reg_payload_len = 0x22;
 const uint8_t reg_sync_word = 0x39;
 
 int sx1278_sleep(int fd) {
-	if (spi_write_register(fd, reg_op_mode, 0x80) == -1) {
+	if (spi_write_register(fd, reg_op_mode, 0x88) == -1) {
 		return -1;
 	};
 
@@ -49,7 +49,7 @@ int sx1278_sleep(int fd) {
 }
 
 int sx1278_standby(int fd) {
-	if (spi_write_register(fd, reg_op_mode, 0x81) == -1) {
+	if (spi_write_register(fd, reg_op_mode, 0x89) == -1) {
 		return -1;
 	};
 
@@ -69,7 +69,7 @@ int sx1278_standby(int fd) {
 }
 
 int sx1278_tx(int fd) {
-	if (spi_write_register(fd, reg_op_mode, 0x83) == -1) {
+	if (spi_write_register(fd, reg_op_mode, 0x8b) == -1) {
 		return -1;
 	};
 
@@ -89,7 +89,7 @@ int sx1278_tx(int fd) {
 }
 
 int sx1278_rx(int fd) {
-	if (spi_write_register(fd, reg_op_mode, 0x85) == -1) {
+	if (spi_write_register(fd, reg_op_mode, 0x8d) == -1) {
 		return -1;
 	};
 
