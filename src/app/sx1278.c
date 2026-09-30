@@ -27,6 +27,7 @@ const uint8_t reg_preamble_msb = 0x20;
 const uint8_t reg_preamble_lsb = 0x21;
 const uint8_t reg_payload_len = 0x22;
 const uint8_t reg_sync_word = 0x39;
+const uint8_t reg_dio_mapping_1 = 0x40;
 
 int sx1278_sleep(int fd) {
 	if (spi_write_register(fd, reg_op_mode, 0x88) == -1) {
@@ -356,6 +357,16 @@ int sx1278_rssi(int fd, int16_t *rssi) {
 }
 
 int sx1278_transmit(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t length) {
+	uint8_t dio_mapping_1;
+	if (spi_read_register(spi_fd, reg_dio_mapping_1, &dio_mapping_1) == -1) {
+		return -1;
+	};
+	dio_mapping_1 &= 0x3f;
+	dio_mapping_1 |= 0x40;
+	if (spi_write_register(spi_fd, reg_dio_mapping_1, dio_mapping_1) == -1) {
+		return -1;
+	}
+
 	if (spi_write_register(spi_fd, reg_fifo_addr, 0x80) == -1) {
 		return -1;
 	}
@@ -410,6 +421,16 @@ int sx1278_transmit(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t lengt
 }
 
 int sx1278_receive(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t *length) {
+	uint8_t dio_mapping_1;
+	if (spi_read_register(spi_fd, reg_dio_mapping_1, &dio_mapping_1) == -1) {
+		return -1;
+	};
+	dio_mapping_1 &= 0x3f;
+	dio_mapping_1 |= 0x00;
+	if (spi_write_register(spi_fd, reg_dio_mapping_1, dio_mapping_1) == -1) {
+		return -1;
+	}
+
 	if (sx1278_rx(spi_fd) == -1) {
 		return -1;
 	}
