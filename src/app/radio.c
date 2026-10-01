@@ -252,12 +252,36 @@ void *radio_thread(void *args) {
 
 	srand((unsigned int)time(NULL));
 
+	if (sx1278_reset(arg->gpio_reset_fd) == -1) {
+		error("failed to reset radio\n");
+	}
+
+	uint8_t id;
+	if (sx1278_id(arg->spi_fd, &id) == -1) {
+		error("failed to get radio id\n");
+	}
+	if (id != 0x12) {
+		warn("radio id %02x does not match %02x\n", id, 0x12);
+	}
+
 	if (sx1278_sleep(arg->spi_fd) == -1) {
 		error("failed to enable sleep mode\n");
 	}
 
+	if (sx1278_lora(arg->spi_fd) == -1) {
+		error("failed to enable lora mode\n");
+	}
+
+	if (sx1278_lf(arg->spi_fd) == -1) {
+		error("failed to enable lf mode\n");
+	}
+
 	if (sx1278_standby(arg->spi_fd) == -1) {
 		error("failed to enable standby mode\n");
+	}
+
+	if (sx1278_fifo(arg->spi_fd) == -1) {
+		error("failed to set radio fifo\n");
 	}
 
 	if (sx1278_frequency(arg->spi_fd, arg->radio->frequency) == -1) {

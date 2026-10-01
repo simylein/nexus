@@ -75,3 +75,13 @@ int gpio_wait_edge(int gpio_fd) {
 
 	return 0;
 }
+
+int gpio_write_value(int gpio_fd, uint8_t value) {
+	struct gpiohandle_data data = {.values = {value}};
+	if (ioctl(gpio_fd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, &data) == -1) {
+		error("failed to write gpio value because %s\n", errno_str());
+		return -1;
+	}
+
+	return 0;
+}

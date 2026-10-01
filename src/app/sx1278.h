@@ -3,8 +3,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+int sx1278_id(int fd, uint8_t *id);
+int sx1278_reset(int gpio_fd);
+
+int sx1278_lora(int fd);
+int sx1278_lf(int fd);
 int sx1278_sleep(int fd);
 int sx1278_standby(int fd);
+
+int sx1278_fifo(int fd);
 
 int sx1278_frequency(int fd, uint32_t frequency);
 int sx1278_tx_power(int fd, uint8_t power);

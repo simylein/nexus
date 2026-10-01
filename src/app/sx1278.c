@@ -13,9 +13,10 @@ const uint8_t reg_frf_msb = 0x06;
 const uint8_t reg_frf_mid = 0x07;
 const uint8_t reg_frf_lsb = 0x08;
 const uint8_t reg_pa_config = 0x09;
-const uint8_t reg_fifo_addr = 0x0d;
-const uint8_t reg_tx_addr = 0x0e;
-const uint8_t reg_rx_addr = 0x10;
+const uint8_t reg_fifo_addr_ptr = 0x0d;
+const uint8_t reg_fifo_tx_base = 0x0e;
+const uint8_t reg_fifo_rx_base = 0x0f;
+const uint8_t reg_fifo_rx_current = 0x10;
 const uint8_t reg_irq_flags = 0x12;
 const uint8_t reg_packet_len = 0x13;
 const uint8_t reg_packet_snr = 0x19;
@@ -28,13 +29,87 @@ const uint8_t reg_preamble_lsb = 0x21;
 const uint8_t reg_payload_len = 0x22;
 const uint8_t reg_sync_word = 0x39;
 const uint8_t reg_dio_mapping_1 = 0x40;
+const uint8_t reg_version = 0x42;
 
-int sx1278_sleep(int fd) {
-	if (spi_write_register(fd, reg_op_mode, 0x88) == -1) {
+int sx1278_id(int fd, uint8_t *id) {
+	if (spi_read_register(fd, reg_version, id) == -1) {
+		return -1;
+	};
+	return 0;
+}
+
+int sx1278_reset(int gpio_fd) {
+	if (gpio_write_value(gpio_fd, 0) == -1) {
+		return -1;
+	}
+	usleep(1000);
+
+	if (gpio_write_value(gpio_fd, 1) == -1) {
+		return -1;
+	}
+	usleep(5000);
+
+	return 0;
+}
+
+int sx1278_lora(int fd) {
+	uint8_t op_mode;
+	if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+		return -1;
+	};
+	op_mode = (op_mode & ~0x80) | 0x80;
+	if (spi_write_register(fd, reg_op_mode, op_mode) == -1) {
 		return -1;
 	};
 
+	while (true) {
+		if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+			return -1;
+		};
+		if ((op_mode & 0x80) == 0x80) {
+			break;
+		}
+		usleep(500);
+	}
+
+	trace("lora op_mode 0x%02x\n", op_mode);
+	return 0;
+}
+
+int sx1278_lf(int fd) {
 	uint8_t op_mode;
+	if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+		return -1;
+	};
+	op_mode = (op_mode & ~0x08) | 0x08;
+	if (spi_write_register(fd, reg_op_mode, op_mode) == -1) {
+		return -1;
+	};
+
+	while (true) {
+		if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+			return -1;
+		};
+		if ((op_mode & 0x08) == 0x08) {
+			break;
+		}
+		usleep(500);
+	}
+
+	trace("lf op_mode 0x%02x\n", op_mode);
+	return 0;
+}
+
+int sx1278_sleep(int fd) {
+	uint8_t op_mode;
+	if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+		return -1;
+	};
+	op_mode = (uint8_t)((op_mode & ~0x07) | 0x00);
+	if (spi_write_register(fd, reg_op_mode, op_mode) == -1) {
+		return -1;
+	};
+
 	while (true) {
 		if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
 			return -1;
@@ -50,11 +125,15 @@ int sx1278_sleep(int fd) {
 }
 
 int sx1278_standby(int fd) {
-	if (spi_write_register(fd, reg_op_mode, 0x89) == -1) {
+	uint8_t op_mode;
+	if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+		return -1;
+	};
+	op_mode = (uint8_t)((op_mode & ~0x07) | 0x01);
+	if (spi_write_register(fd, reg_op_mode, op_mode) == -1) {
 		return -1;
 	};
 
-	uint8_t op_mode;
 	while (true) {
 		if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
 			return -1;
@@ -70,11 +149,15 @@ int sx1278_standby(int fd) {
 }
 
 int sx1278_tx(int fd) {
-	if (spi_write_register(fd, reg_op_mode, 0x8b) == -1) {
+	uint8_t op_mode;
+	if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+		return -1;
+	};
+	op_mode = (uint8_t)((op_mode & ~0x07) | 0x03);
+	if (spi_write_register(fd, reg_op_mode, op_mode) == -1) {
 		return -1;
 	};
 
-	uint8_t op_mode;
 	while (true) {
 		if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
 			return -1;
@@ -90,11 +173,15 @@ int sx1278_tx(int fd) {
 }
 
 int sx1278_rx(int fd) {
-	if (spi_write_register(fd, reg_op_mode, 0x8d) == -1) {
+	uint8_t op_mode;
+	if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
+		return -1;
+	};
+	op_mode = (uint8_t)((op_mode & ~0x07) | 0x05);
+	if (spi_write_register(fd, reg_op_mode, op_mode) == -1) {
 		return -1;
 	};
 
-	uint8_t op_mode;
 	while (true) {
 		if (spi_read_register(fd, reg_op_mode, &op_mode) == -1) {
 			return -1;
@@ -106,6 +193,27 @@ int sx1278_rx(int fd) {
 	}
 
 	trace("receive op_mode 0x%02x\n", op_mode);
+	return 0;
+}
+
+int sx1278_fifo(int fd) {
+	if (spi_write_register(fd, reg_fifo_tx_base, 0x00) == -1) {
+		return -1;
+	}
+	if (spi_write_register(fd, reg_fifo_rx_base, 0x00) == -1) {
+		return -1;
+	}
+
+	uint8_t fifo_tx_base;
+	uint8_t fifo_rx_base;
+	if (spi_read_register(fd, reg_fifo_tx_base, &fifo_tx_base) == -1) {
+		return -1;
+	}
+	if (spi_read_register(fd, reg_fifo_rx_base, &fifo_rx_base) == -1) {
+		return -1;
+	}
+
+	trace("fifo tx base 0x%02x rx base 0x%02x\n", fifo_tx_base, fifo_rx_base);
 	return 0;
 }
 
@@ -367,11 +475,7 @@ int sx1278_transmit(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t lengt
 		return -1;
 	}
 
-	if (spi_write_register(spi_fd, reg_fifo_addr, 0x80) == -1) {
-		return -1;
-	}
-
-	if (spi_write_register(spi_fd, reg_tx_addr, 0x80) == -1) {
+	if (spi_write_register(spi_fd, reg_fifo_addr_ptr, 0x00) == -1) {
 		return -1;
 	}
 
@@ -451,11 +555,11 @@ int sx1278_receive(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t *lengt
 	}
 
 	uint8_t rx_addr;
-	if (spi_read_register(spi_fd, reg_rx_addr, &rx_addr) == -1) {
+	if (spi_read_register(spi_fd, reg_fifo_rx_current, &rx_addr) == -1) {
 		return -1;
 	}
 
-	if (spi_write_register(spi_fd, reg_fifo_addr, rx_addr) == -1) {
+	if (spi_write_register(spi_fd, reg_fifo_addr_ptr, rx_addr) == -1) {
 		return -1;
 	}
 
