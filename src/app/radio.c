@@ -250,8 +250,6 @@ int radio_spawn(pthread_t *thread, void *(*function)(void *), radio_arg_t *arg) 
 void *radio_thread(void *args) {
 	radio_arg_t *arg = (radio_arg_t *)args;
 
-	srand((unsigned int)time(NULL));
-
 	if (sx1278_reset(arg->gpio_reset_fd) == -1) {
 		error("failed to reset radio\n");
 	}
