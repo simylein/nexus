@@ -9,6 +9,7 @@
 #include "host.h"
 #include "radio.h"
 #include "schedule.h"
+#include "statistic.h"
 #include "transmission.h"
 #include "user.h"
 #include <stdbool.h>
@@ -137,6 +138,13 @@ void route(octet_t *db, request_t *request, response_t *response) {
 
 	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
 		serve(&page_signin, response);
+	}
+
+	if (endpoint(request, "get", "/api/statistics", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			statistic_find(request, response);
+		}
 	}
 
 	if (endpoint(request, "get", "/api/transmissions/sse", &method_found, &pathname_found) == true) {
