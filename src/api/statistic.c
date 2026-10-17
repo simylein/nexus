@@ -97,13 +97,13 @@ void statistic_find(request_t *request, response_t *response) {
 	for (uint8_t index = 0; index < statistics_size; index++) {
 		uint32_t ind = index + start_index;
 		if (ind < statistics_size) {
-			uint16_t packet_rx = atomic_load_explicit(&statistics.data[ind].packet_rx, memory_order_relaxed);
-			uint16_t packet_tx = atomic_load_explicit(&statistics.data[ind].packet_tx, memory_order_relaxed);
-			uint16_t packet_crc = atomic_load_explicit(&statistics.data[ind].packet_crc, memory_order_relaxed);
-			uint16_t packet_loss = atomic_load_explicit(&statistics.data[ind].packet_loss, memory_order_relaxed);
-			uint16_t packet_foreign = atomic_load_explicit(&statistics.data[ind].packet_foreign, memory_order_relaxed);
-			uint32_t airtime_rx = atomic_load_explicit(&statistics.data[ind].airtime_rx, memory_order_relaxed);
-			uint32_t airtime_tx = atomic_load_explicit(&statistics.data[ind].airtime_tx, memory_order_relaxed);
+			uint16_t packet_rx = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_rx, memory_order_relaxed);
+			uint16_t packet_tx = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_tx, memory_order_relaxed);
+			uint16_t packet_crc = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_crc, memory_order_relaxed);
+			uint16_t packet_loss = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_loss, memory_order_relaxed);
+			uint16_t packet_foreign = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_foreign, memory_order_relaxed);
+			uint32_t airtime_rx = (uint32_t)atomic_load_explicit(&statistics.data[ind].airtime_rx, memory_order_relaxed);
+			uint32_t airtime_tx = (uint32_t)atomic_load_explicit(&statistics.data[ind].airtime_tx, memory_order_relaxed);
 			body_write(response, (uint16_t[]){hton16(packet_rx)}, sizeof(packet_rx));
 			body_write(response, (uint16_t[]){hton16(packet_tx)}, sizeof(packet_tx));
 			body_write(response, (uint16_t[]){hton16(packet_crc)}, sizeof(packet_crc));
