@@ -7,7 +7,10 @@
 		<title>Nexus home</title>
 		<style></style>
 	</head>
-	<body class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black">
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		onload="loadStatistics()"
+	>
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -19,7 +22,357 @@
 				<a href="/hosts" class="no-underline text-black dark:text-white">Hosts</a>
 			</nav>
 		</header>
-		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8"></main>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<div class="w-full flex flex-col gap-2 md:gap-3 lg:gap-4">
+				<div class="flex-1 p-2 md:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-2">
+						<h2 class="m-0 text-base font-normal">Packets</h2>
+						<p id="packet-count" class="w-40 h-4 m-0 text-base font-normal background-neutral-200 dark:background-neutral-800">
+							<span></span><span class="background-green-400/80 dark:background-green-600/80"></span>
+							<span></span>
+							<span></span><span class="background-blue-400/80 dark:background-blue-600/80"></span>
+						</p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 md:gap-1 lg:gap-2">
+						<div id="packet-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 mb-8 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<div class="absolute w-full h-full">
+								<div id="packet-graph" class="flex justify-between w-full h-full gap-0.5 xs:gap-1 sm:gap-1.5 md:gap-2 lg:gap-3 xl:gap-4">
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 42%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 42%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 68%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 68%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 31%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 31%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 55%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 55%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 74%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 74%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 23%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 23%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 61%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 61%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 48%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 48%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 37%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 37%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 79%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 79%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 52%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 52%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 26%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 26%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 65%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 65%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 44%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 44%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 71%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 71%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 33%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 33%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 20%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 20%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 76%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 76%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 49%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 49%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 63%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 63%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 28%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 28%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 54%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 54%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 39%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 39%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+									<div class="flex flex-col w-full h-full">
+										<div class="flex flex-col-reverse w-full h-full">
+											<div style="height: 67%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+										<div class="flex flex-col w-full h-full">
+											<div style="height: 67%" class="background-neutral-200 dark:background-neutral-800"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="packet-times" class="w-full flex justify-around xl:justify-between text-xs">
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- checksum error graph -->
+				<!-- packet error graph -->
+				<!-- spreading factor usage bar -->
+				<!-- coding rate usage bar -->
+				<!-- tx power usage bar -->
+				<!-- preamble len usage bar -->
+			</div>
+		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
 				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
@@ -29,5 +382,148 @@
 			</div>
 		</footer>
 	</body>
-	<script></script>
+	<script>
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		const statistics = { retries: 0, reload: 10, timeout: null, controller: null, data: null };
+		const packetSkeletons = [42, 68, 31, 55, 74, 23, 61, 48, 37, 79, 52, 26, 65, 44, 71, 33, 58, 20, 76, 49, 63, 28, 54, 39, 67];
+		const packets = {
+			count: document.getElementById('packet-count'),
+			scale: document.getElementById('packet-scale'),
+			times: document.getElementById('packet-times'),
+			graph: document.getElementById('packet-graph'),
+		};
+		const units = (amount) => {
+			switch (true) {
+				case amount >= 1e4:
+					return `${(amount / 1e3).toFixed(1)}k`;
+				case amount >= 1e3:
+					return `${(amount / 1e3).toFixed(2)}k`;
+				case amount >= 1e1:
+					return amount.toFixed(0);
+				default:
+					return amount % 1 === 0 ? amount : amount.toFixed(1);
+			}
+		};
+		const loadingPackets = (element) => {
+			loading(element.count, ['w-40'], []);
+			array(element.count.children.length).forEach((ind) => {
+				element.count.children[ind].innerText = '';
+			});
+			array(Math.ceil(element.scale.children.length / 2)).forEach((ind) => {
+				loading(element.scale.children[ind], ['h-3'], [], '');
+			});
+			array(Math.ceil(element.scale.children.length / 2)).forEach((ind) => {
+				loading(element.scale.children[element.scale.children.length - 1 - ind], ['h-3'], [], '');
+			});
+			array(element.times.children.length).forEach((ind) => {
+				loading(element.times.children[ind].children[0], ['h-3', 'w-9'], [], '');
+				loading(element.times.children[ind].children[1], ['h-3', 'w-4'], [], '');
+			});
+			array(element.graph.children.length).forEach((index) => {
+				fade(element.graph.children[index].children[0].children[0]);
+				element.graph.children[index].children[0].children[0].classList.add('background-neutral-200', 'dark:background-neutral-800');
+				element.graph.children[index].children[0].children[0].style.height = `${packetSkeletons[index]}%`;
+				fade(element.graph.children[index].children[1].children[0]);
+				element.graph.children[index].children[1].children[0].classList.add('background-neutral-200', 'dark:background-neutral-800');
+				element.graph.children[index].children[1].children[0].style.height = `${packetSkeletons[index]}%`;
+			});
+		};
+		const paintPackets = (element, data) => {
+			const packetRxMax = data.length === 0 ? 0 : Math.max(...data.map((statistic) => statistic.packetRx));
+			const packetTxMax = data.length === 0 ? 0 : Math.max(...data.map((statistic) => statistic.packetTx));
+			const packetRxSum = data.reduce((accumulator, statistic) => accumulator + statistic.packetRx, 0);
+			const packetTxSum = data.reduce((accumulator, statistic) => accumulator + statistic.packetTx, 0);
+			paint(element.count, ['w-40'], []);
+			[`${packetRxSum} `, 'rx', ' - ', `${packetTxSum} `, 'tx'].forEach((frag, ind) => {
+				element.count.children[ind].innerText = frag;
+			});
+			array(Math.ceil(element.scale.children.length / 2)).forEach((ind) => {
+				const step = (4 - ind) * 2;
+				paint(element.scale.children[ind], [], ['h-3'], units((packetRxMax / element.scale.children.length) * step));
+			});
+			array(Math.ceil(element.scale.children.length / 2)).forEach((ind) => {
+				const step = (4 - ind) * 2;
+				paint(element.scale.children[element.scale.children.length - 1 - ind], [], ['h-3'], units((packetTxMax / element.scale.children.length) * step));
+			});
+			const now = new Date();
+			array(element.times.children.length).forEach((ind) => {
+				const hour = new Date(now - (24 - ind) * 3600 * 1000).getHours().toString().padStart(2, '0');
+				paint(element.times.children[ind].children[0], [], ['h-3', 'w-9'], `${hour}:00`);
+				paint(element.times.children[ind].children[1], [], ['h-3', 'w-4'], `${hour}`);
+			});
+			array(element.graph.children.length).forEach((index) => {
+				array(element.graph.children[index].children.length).forEach((ind) => {
+					element.graph.children[index].children[ind].children[0].style.height = null;
+				});
+				const packetRxPercent = (data[index].packetRx / packetRxMax) * 100;
+				fade(element.graph.children[index].children[0].children[0]);
+				element.graph.children[index].children[0].children[0].classList.add('background-green-400/80', 'dark:background-green-600/80');
+				element.graph.children[index].children[0].children[0].style.height = `${packetRxPercent}%`;
+				const packetTxPercent = (data[index].packetTx / packetTxMax) * 100;
+				fade(element.graph.children[index].children[1].children[0]);
+				element.graph.children[index].children[1].children[0].classList.add('background-blue-400/80', 'dark:background-blue-600/80');
+				element.graph.children[index].children[1].children[0].style.height = `${packetTxPercent}%`;
+			});
+		};
+		const errorPackets = (element) => {
+			error(element.count, ['w-40'], []);
+			array(element.count.children.length).forEach((ind) => {
+				element.count.children[ind].innerText = '';
+			});
+			array(Math.ceil(element.scale.children.length / 2)).forEach((ind) => {
+				error(element.scale.children[ind], ['h-3'], [], '');
+			});
+			array(Math.ceil(element.scale.children.length / 2)).forEach((ind) => {
+				error(element.scale.children[element.scale.children.length - 1 - ind], ['h-3'], [], '');
+			});
+			array(element.times.children.length).forEach((ind) => {
+				error(element.times.children[ind].children[0], ['h-3', 'w-9'], [], '');
+				error(element.times.children[ind].children[1], ['h-3', 'w-4'], [], '');
+			});
+			array(element.graph.children.length).forEach((index) => {
+				fade(element.graph.children[index].children[0].children[0]);
+				element.graph.children[index].children[0].children[0].classList.add('background-red-200', 'dark:background-red-800');
+				element.graph.children[index].children[0].children[0].style.height = `${packetSkeletons[index]}%`;
+				fade(element.graph.children[index].children[1].children[0]);
+				element.graph.children[index].children[1].children[0].classList.add('background-red-200', 'dark:background-red-800');
+				element.graph.children[index].children[1].children[0].style.height = `${packetSkeletons[index]}%`;
+			});
+		};
+		const parseStatistics = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const statistics = [];
+			while (binary.offset < buffer.byteLength) {
+				const statistic = { packetRx: null, packetTx: null, packetCrc: null, packetLoss: null, packetForeign: null, airtimeRx: null, airtimeTx: null };
+				statistic.packetRx = binary.uint(16);
+				statistic.packetTx = binary.uint(16);
+				statistic.packetCrc = binary.uint(16);
+				statistic.packetLoss = binary.uint(16);
+				statistic.packetForeign = binary.uint(16);
+				statistic.airtimeRx = binary.uint(32);
+				statistic.airtimeTx = binary.uint(32);
+				statistics.push(statistic);
+			}
+			return statistics;
+		};
+		const loadStatistics = fetching(
+			statistics,
+			(context) => {
+				window.requestAnimationFrame(() => loadingPackets(packets));
+			},
+			(context) => fetcher('get', '/api/statistics', null, { controller: context.controller }),
+			async (context, response) => (context.data = await parseStatistics(response)),
+			(context) => {
+				window.requestAnimationFrame(() => paintPackets(packets, context.data));
+			},
+			(context) => {
+				window.requestAnimationFrame(() => errorPackets(packets));
+			},
+		);
+	</script>
 </html>
