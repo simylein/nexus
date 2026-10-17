@@ -9,6 +9,7 @@
 file_t page_home = {.path = "./src/app/pages/home.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_robots = {.path = "./src/app/pages/robots.txt", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_security = {.path = "./src/app/pages/security.txt", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_traffic = {.path = "./src/app/pages/traffic.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_radios = {.path = "./src/app/pages/radios.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_devices = {.path = "./src/app/pages/devices.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_hosts = {.path = "./src/app/pages/hosts.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
@@ -30,6 +31,7 @@ file_t *pages[] = {
 		&page_home,
 		&page_robots,
 		&page_security,
+		&page_traffic,
 		&page_radios,
 		&page_devices,
 		&page_hosts,

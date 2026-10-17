@@ -107,6 +107,13 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		serve(&page_security, response);
 	}
 
+	if (endpoint(request, "get", "/traffic", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve(&page_traffic, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/radios", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
