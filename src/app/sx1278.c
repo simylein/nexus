@@ -524,7 +524,7 @@ int sx1278_transmit(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t lengt
 	return 0;
 }
 
-int sx1278_receive(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t *length) {
+int sx1278_receive(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t *length, bool *crc_used, bool *crc_fail) {
 	uint8_t dio_mapping_1;
 	if (spi_read_register(spi_fd, reg_dio_mapping_1, &dio_mapping_1) == -1) {
 		return -1;
@@ -574,9 +574,12 @@ int sx1278_receive(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t *lengt
 		return -1;
 	}
 
-	if (hop_channel & 0x40 && irq_flags & 0x20) {
-		warn("checksum failed discarding packet length %hhu\n", packet_len);
-		*length = 0;
+	if (hop_channel & 0x40) {
+		*crc_used = true;
+	}
+
+	if (irq_flags & 0x20) {
+		*crc_fail = true;
 	}
 
 	char buffer[512];

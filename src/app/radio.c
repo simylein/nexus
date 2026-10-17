@@ -317,11 +317,18 @@ void *radio_thread(void *args) {
 	while (true) {
 		uint8_t rx_data[256];
 		uint8_t rx_data_len = 0;
-		if (sx1278_receive(arg->spi_fd, arg->gpio_int_fd, &rx_data, &rx_data_len) == -1) {
+		bool crc_used = false;
+		bool crc_fail = false;
+		if (sx1278_receive(arg->spi_fd, arg->gpio_int_fd, &rx_data, &rx_data_len, &crc_used, &crc_fail) == -1) {
 			error("failed to receive packet\n");
 			continue;
 		}
 		time_t received_at = time(NULL);
+
+		if (crc_used == true && crc_fail == true) {
+			warn("checksum failed discarding packet length %hhu\n", rx_data_len);
+			continue;
+		}
 
 		if (rx_data_len < 6) {
 			debug("received packet without headers\n");

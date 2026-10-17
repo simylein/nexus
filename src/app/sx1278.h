@@ -26,4 +26,4 @@ int sx1278_snr(int fd, int8_t *snr);
 int sx1278_rssi(int fd, int16_t *rssi);
 
 int sx1278_transmit(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t length);
-int sx1278_receive(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t *length);
+int sx1278_receive(int spi_fd, int gpio_fd, uint8_t (*data)[256], uint8_t *length, bool *crc_used, bool *crc_fail);
