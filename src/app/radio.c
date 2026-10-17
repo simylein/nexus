@@ -182,6 +182,7 @@ int radio_init(octet_t *db) {
 		memcpy(comms.devices[comms.devices_len].id, id, sizeof(*id));
 		memcpy(comms.devices[comms.devices_len].tag, tag, sizeof(*tag));
 		memcpy(comms.devices[comms.devices_len].key, key, sizeof(*key));
+		comms.devices[comms.devices_len].frame = 0;
 		comms.devices_len += 1;
 		offset += device_row.size;
 	}
@@ -384,6 +385,8 @@ void *radio_thread(void *args) {
 		uplink.preamble_len = (rx_data[4] & 0x0f) + 6;
 		uplink.received_at = received_at;
 		memcpy(uplink.device_id, device->id, sizeof(*device->id));
+
+		device->frame = uplink.frame;
 
 		pthread_mutex_lock(&uplinks.lock);
 
