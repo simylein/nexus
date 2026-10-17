@@ -1,5 +1,6 @@
 #include "../api/radio.h"
 #include "../api/downlink.h"
+#include "../api/statistic.h"
 #include "../api/transmission.h"
 #include "../api/uplink.h"
 #include "../lib/config.h"
@@ -328,6 +329,7 @@ void *radio_thread(void *args) {
 
 		if (crc_used == true && crc_fail == true) {
 			warn("checksum failed discarding packet length %hhu\n", rx_data_len);
+			statistic_account(received_at, false, 0, false, 0, true, 0, false);
 			continue;
 		}
 
@@ -362,6 +364,7 @@ void *radio_thread(void *args) {
 
 		if (device == NULL) {
 			debug("no registration for device %02x%02x\n", rx_data[0], rx_data[1]);
+			statistic_account(received_at, false, 0, false, 0, false, 0, true);
 			continue;
 		}
 
@@ -386,7 +389,14 @@ void *radio_thread(void *args) {
 		uplink.received_at = received_at;
 		memcpy(uplink.device_id, device->id, sizeof(*device->id));
 
+		uint16_t packet_loss = 0;
+		uint16_t packet_delta = (uint16_t)(uplink.frame - device->frame);
+		if (device->frame != 0 && packet_delta > 1 && packet_delta < 2048) {
+			packet_loss = packet_delta - 1;
+		}
 		device->frame = uplink.frame;
+
+		statistic_account(uplink.received_at, true, uplink.airtime, false, 0, false, packet_loss, false);
 
 		pthread_mutex_lock(&uplinks.lock);
 
@@ -509,6 +519,8 @@ void *radio_thread(void *args) {
 		downlink.preamble_len = (tx_data[4] & 0x0f) + 6;
 		downlink.sent_at = sent_at;
 		memcpy(downlink.device_id, device->id, sizeof(*device->id));
+
+		statistic_account(downlink.sent_at, false, 0, true, downlink.airtime, false, 0, false);
 
 		pthread_mutex_lock(&downlinks.lock);
 
