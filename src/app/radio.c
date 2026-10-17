@@ -321,6 +321,7 @@ void *radio_thread(void *args) {
 			error("failed to receive packet\n");
 			continue;
 		}
+		time_t received_at = time(NULL);
 
 		if (rx_data_len < 6) {
 			debug("received packet without headers\n");
@@ -374,7 +375,7 @@ void *radio_thread(void *args) {
 		uplink.checksum = arg->radio->checksum;
 		uplink.tx_power = ((rx_data[4] >> 4) & 0x0f) + 2;
 		uplink.preamble_len = (rx_data[4] & 0x0f) + 6;
-		uplink.received_at = time(NULL);
+		uplink.received_at = received_at;
 		memcpy(uplink.device_id, device->id, sizeof(*device->id));
 
 		pthread_mutex_lock(&uplinks.lock);
@@ -474,6 +475,7 @@ void *radio_thread(void *args) {
 			error("failed to transmit packet\n");
 			continue;
 		}
+		time_t sent_at = time(NULL);
 
 		tx("id %02x%02x frame %hu kind %02x bytes %hhu sf %hhu power %hhu\n", tx_data[0], tx_data[1],
 			 (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3], tx_data[5], tx_data_len, arg->radio->spreading_factor,
@@ -495,7 +497,7 @@ void *radio_thread(void *args) {
 		downlink.checksum = arg->radio->checksum;
 		downlink.tx_power = ((tx_data[4] >> 4) & 0x0f) + 2;
 		downlink.preamble_len = (tx_data[4] & 0x0f) + 6;
-		downlink.sent_at = time(NULL);
+		downlink.sent_at = sent_at;
 		memcpy(downlink.device_id, device->id, sizeof(*device->id));
 
 		pthread_mutex_lock(&downlinks.lock);
