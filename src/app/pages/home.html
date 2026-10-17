@@ -365,8 +365,414 @@
 						</div>
 					</div>
 				</div>
-				<!-- checksum error graph -->
-				<!-- packet error graph -->
+				<div class="flex-1 p-2 md:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-2">
+						<h2 class="m-0 text-base font-normal">Packet corruptions</h2>
+						<p id="corruption-count" class="w-20 h-4 m-0 text-base font-normal background-neutral-200 dark:background-neutral-800">
+							<span></span><span class="background-yellow-400/80 dark:background-yellow-600/80"></span>
+						</p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 md:gap-1 lg:gap-2">
+						<div id="corruption-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<div class="absolute w-full h-full">
+								<div id="corruption-graph" class="flex justify-between w-full h-full gap-0.5 xs:gap-1 sm:gap-1.5 md:gap-2 lg:gap-3 xl:gap-4">
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 8%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 14%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 5%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 72%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 11%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 3%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 17%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 9%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 62%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 6%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 13%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 19%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 4%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 10%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 78%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 7%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 15%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 2%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 12%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 66%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 9%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 5%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 16%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 8%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 13%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+								</div>
+							</div>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="corruption-times" class="w-full flex justify-around xl:justify-between text-xs">
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="flex-1 p-2 md:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-2">
+						<h2 class="m-0 text-base font-normal">Packet losses</h2>
+						<p id="loss-count" class="w-20 h-4 m-0 text-base font-normal background-neutral-200 dark:background-neutral-800">
+							<span></span><span class="background-red-400/80 dark:background-red-600/80"></span>
+						</p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 md:gap-1 lg:gap-2">
+						<div id="loss-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<div class="absolute w-full h-full">
+								<div id="loss-graph" class="flex justify-between w-full h-full gap-0.5 xs:gap-1 sm:gap-1.5 md:gap-2 lg:gap-3 xl:gap-4">
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 10%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 12%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 7%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 65%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 14%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 4%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 15%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 11%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 57%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 8%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 11%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 17%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 6%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 12%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 71%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 9%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 13%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 4%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 10%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 61%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 11%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 7%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 14%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 6%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 15%" class="background-neutral-200 dark:background-neutral-800"></div>
+									</div>
+								</div>
+							</div>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="loss-times" class="w-full flex justify-around xl:justify-between text-xs">
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div>
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+							<div class="hidden xl:inline">
+								<label class="h-3 w-9 hidden sm:block text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+								<label class="h-3 w-4 block sm:hidden text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							</div>
+						</div>
+					</div>
+				</div>
 				<!-- spreading factor usage bar -->
 				<!-- coding rate usage bar -->
 				<!-- tx power usage bar -->
@@ -391,11 +797,25 @@
 		import './src/app/scripts/fetching.js';
 		const statistics = { retries: 0, reload: 10, timeout: null, controller: null, data: null };
 		const packetSkeletons = [42, 68, 31, 55, 74, 23, 61, 48, 37, 79, 52, 26, 65, 44, 71, 33, 58, 20, 76, 49, 63, 28, 54, 39, 67];
+		const corruptionSkeletons = [8, 14, 5, 72, 11, 3, 17, 9, 62, 6, 13, 19, 4, 10, 78, 7, 15, 2, 12, 66, 9, 5, 16, 8, 13];
+		const lossSkeletons = [10, 12, 7, 65, 14, 4, 15, 11, 57, 8, 11, 17, 6, 12, 71, 9, 13, 4, 10, 61, 11, 7, 14, 6, 15];
 		const packets = {
 			count: document.getElementById('packet-count'),
 			scale: document.getElementById('packet-scale'),
 			times: document.getElementById('packet-times'),
 			graph: document.getElementById('packet-graph'),
+		};
+		const corruptions = {
+			count: document.getElementById('corruption-count'),
+			scale: document.getElementById('corruption-scale'),
+			times: document.getElementById('corruption-times'),
+			graph: document.getElementById('corruption-graph'),
+		};
+		const losses = {
+			count: document.getElementById('loss-count'),
+			scale: document.getElementById('loss-scale'),
+			times: document.getElementById('loss-times'),
+			graph: document.getElementById('loss-graph'),
 		};
 		const units = (amount) => {
 			switch (true) {
@@ -494,6 +914,130 @@
 				element.graph.children[index].children[1].children[0].style.height = `${packetSkeletons[index]}%`;
 			});
 		};
+		const loadingCorruptions = (element) => {
+			loading(element.count, ['w-20'], []);
+			array(element.count.children.length).forEach((ind) => {
+				element.count.children[ind].innerText = '';
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], ['h-3'], [], '');
+			});
+			array(element.times.children.length).forEach((ind) => {
+				loading(element.times.children[ind].children[0], ['h-3', 'w-9'], [], '');
+				loading(element.times.children[ind].children[1], ['h-3', 'w-4'], [], '');
+			});
+			array(element.graph.children.length).forEach((index) => {
+				fade(element.graph.children[index].children[0]);
+				element.graph.children[index].children[0].classList.add('background-neutral-200', 'dark:background-neutral-800');
+				element.graph.children[index].children[0].style.height = `${corruptionSkeletons[index]}%`;
+			});
+		};
+		const paintCorruptions = (element, data) => {
+			const packetCrcMax = data.length === 0 ? 0 : Math.max(...data.map((statistic) => statistic.packetCrc));
+			const packetCrcSum = data.reduce((accumulator, statistic) => accumulator + statistic.packetCrc, 0);
+			paint(element.count, ['w-20'], []);
+			[`${packetCrcSum} `, 'crc'].forEach((frag, ind) => {
+				element.count.children[ind].innerText = frag;
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				paint(element.scale.children[ind], [], ['h-3'], units((packetCrcMax / element.scale.children.length) * (3 - ind)));
+			});
+			const now = new Date();
+			array(element.times.children.length).forEach((ind) => {
+				const hour = new Date(now - (24 - ind) * 3600 * 1000).getHours().toString().padStart(2, '0');
+				paint(element.times.children[ind].children[0], [], ['h-3', 'w-9'], `${hour}:00`);
+				paint(element.times.children[ind].children[1], [], ['h-3', 'w-4'], `${hour}`);
+			});
+			array(element.graph.children.length).forEach((index) => {
+				array(element.graph.children[index].children.length).forEach((ind) => {
+					element.graph.children[index].children[ind].style.height = null;
+				});
+				const packetCrcPercent = (data[index].packetCrc / packetCrcMax) * 100;
+				fade(element.graph.children[index].children[0]);
+				element.graph.children[index].children[0].classList.add('background-yellow-400/80', 'dark:background-yellow-600/80');
+				element.graph.children[index].children[0].style.height = `${packetCrcPercent}%`;
+			});
+		};
+		const errorCorruptions = (element) => {
+			error(element.count, ['w-20'], []);
+			array(element.count.children.length).forEach((ind) => {
+				element.count.children[ind].innerText = '';
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind], ['h-3'], [], '');
+			});
+			array(element.times.children.length).forEach((ind) => {
+				error(element.times.children[ind].children[0], ['h-3', 'w-9'], [], '');
+				error(element.times.children[ind].children[1], ['h-3', 'w-4'], [], '');
+			});
+			array(element.graph.children.length).forEach((index) => {
+				fade(element.graph.children[index].children[0]);
+				element.graph.children[index].children[0].classList.add('background-red-200', 'dark:background-red-800');
+				element.graph.children[index].children[0].style.height = `${corruptionSkeletons[index]}%`;
+			});
+		};
+		const loadingLosses = (element) => {
+			loading(element.count, ['w-20'], []);
+			array(element.count.children.length).forEach((ind) => {
+				element.count.children[ind].innerText = '';
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], ['h-3'], [], '');
+			});
+			array(element.times.children.length).forEach((ind) => {
+				loading(element.times.children[ind].children[0], ['h-3', 'w-9'], [], '');
+				loading(element.times.children[ind].children[1], ['h-3', 'w-4'], [], '');
+			});
+			array(element.graph.children.length).forEach((index) => {
+				fade(element.graph.children[index].children[0]);
+				element.graph.children[index].children[0].classList.add('background-neutral-200', 'dark:background-neutral-800');
+				element.graph.children[index].children[0].style.height = `${lossSkeletons[index]}%`;
+			});
+		};
+		const paintLosses = (element, data) => {
+			const packetLossMax = data.length === 0 ? 0 : Math.max(...data.map((statistic) => statistic.packetLoss));
+			const packetLossSum = data.reduce((accumulator, statistic) => accumulator + statistic.packetLoss, 0);
+			paint(element.count, ['w-20'], []);
+			[`${packetLossSum} `, 'loss'].forEach((frag, ind) => {
+				element.count.children[ind].innerText = frag;
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				paint(element.scale.children[ind], [], ['h-3'], units((packetLossMax / element.scale.children.length) * (3 - ind)));
+			});
+			const now = new Date();
+			array(element.times.children.length).forEach((ind) => {
+				const hour = new Date(now - (24 - ind) * 3600 * 1000).getHours().toString().padStart(2, '0');
+				paint(element.times.children[ind].children[0], [], ['h-3', 'w-9'], `${hour}:00`);
+				paint(element.times.children[ind].children[1], [], ['h-3', 'w-4'], `${hour}`);
+			});
+			array(element.graph.children.length).forEach((index) => {
+				array(element.graph.children[index].children.length).forEach((ind) => {
+					element.graph.children[index].children[ind].style.height = null;
+				});
+				const packetLossPercent = (data[index].packetLoss / packetLossMax) * 100;
+				fade(element.graph.children[index].children[0]);
+				element.graph.children[index].children[0].classList.add('background-red-400/80', 'dark:background-red-600/80');
+				element.graph.children[index].children[0].style.height = `${packetLossPercent}%`;
+			});
+		};
+		const errorLosses = (element) => {
+			error(element.count, ['w-20'], []);
+			array(element.count.children.length).forEach((ind) => {
+				element.count.children[ind].innerText = '';
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind], ['h-3'], [], '');
+			});
+			array(element.times.children.length).forEach((ind) => {
+				error(element.times.children[ind].children[0], ['h-3', 'w-9'], [], '');
+				error(element.times.children[ind].children[1], ['h-3', 'w-4'], [], '');
+			});
+			array(element.graph.children.length).forEach((index) => {
+				fade(element.graph.children[index].children[0]);
+				element.graph.children[index].children[0].classList.add('background-red-200', 'dark:background-red-800');
+				element.graph.children[index].children[0].style.height = `${lossSkeletons[index]}%`;
+			});
+		};
 		const parseStatistics = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
@@ -515,14 +1059,20 @@
 			statistics,
 			(context) => {
 				window.requestAnimationFrame(() => loadingPackets(packets));
+				window.requestAnimationFrame(() => loadingCorruptions(corruptions));
+				window.requestAnimationFrame(() => loadingLosses(losses));
 			},
 			(context) => fetcher('get', '/api/statistics', null, { controller: context.controller }),
 			async (context, response) => (context.data = await parseStatistics(response)),
 			(context) => {
 				window.requestAnimationFrame(() => paintPackets(packets, context.data));
+				window.requestAnimationFrame(() => paintCorruptions(corruptions, context.data));
+				window.requestAnimationFrame(() => paintLosses(losses, context.data));
 			},
 			(context) => {
 				window.requestAnimationFrame(() => errorPackets(packets));
+				window.requestAnimationFrame(() => errorCorruptions(corruptions));
+				window.requestAnimationFrame(() => errorLosses(losses));
 			},
 		);
 	</script>
