@@ -342,7 +342,7 @@ int hydrate(file_t *file, class_t (*classes)[256], uint16_t *classes_len) {
 	if (tiny_len != 0) {
 		memcpy(&ptr[ptr_ind], tiny_breakpoint.prefix, tiny_breakpoint.prefix_len);
 		ptr_ind += tiny_breakpoint.prefix_len;
-		memcpy(&ptr[ptr_ind], small, tiny_len);
+		memcpy(&ptr[ptr_ind], tiny, tiny_len);
 		ptr_ind += tiny_len;
 		memcpy(&ptr[ptr_ind], tiny_breakpoint.suffix, tiny_breakpoint.suffix_len);
 		ptr_ind += tiny_breakpoint.suffix_len;
