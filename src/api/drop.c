@@ -5,6 +5,7 @@
 #include "downlink.h"
 #include "host.h"
 #include "radio.h"
+#include "statistic.h"
 #include "uplink.h"
 #include "user.h"
 #include <stdio.h>
@@ -99,6 +100,21 @@ int drop_downlink(octet_t *db) {
 	return 0;
 }
 
+int drop_statistic(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, statistic_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	if (octet_unlink(file) == -1) {
+		return -1;
+	}
+
+	info("unlinked file %s\n", statistic_file);
+	return 0;
+}
+
 int drop(octet_t *db) {
 	if (drop_user(db) == -1) {
 		return -1;
@@ -116,6 +132,9 @@ int drop(octet_t *db) {
 		return -1;
 	}
 	if (drop_downlink(db) == -1) {
+		return -1;
+	}
+	if (drop_statistic(db) == -1) {
 		return -1;
 	}
 

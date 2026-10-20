@@ -1,6 +1,7 @@
 #include "api/drop.h"
 #include "api/init.h"
 #include "api/seed.h"
+#include "api/statistic.h"
 #include "api/transmission.h"
 #include "api/wipe.h"
 #include "app/downlink.h"
@@ -175,6 +176,10 @@ int main(int argc, char *argv[]) {
 			.table_len = sizeof(table),
 	};
 
+	if (statistic_init(&db) == -1) {
+		warn("failed to init statistics\n");
+	}
+
 	if (uplink_init(&db) == -1) {
 		exit(1);
 	}
@@ -321,6 +326,10 @@ int main(int argc, char *argv[]) {
 	free(comms.workers);
 	free(comms.radios);
 	free(comms.devices);
+
+	if (statistic_save(&db) == -1) {
+		warn("failed to save statistics\n");
+	}
 
 	if (pthread_cancel(transmissions.worker.thread) == -1) {
 		error("failed to cancel transmission thread\n");

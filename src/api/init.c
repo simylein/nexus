@@ -4,6 +4,7 @@
 #include "downlink.h"
 #include "host.h"
 #include "radio.h"
+#include "statistic.h"
 #include "uplink.h"
 #include "user.h"
 #include <stdio.h>
@@ -99,6 +100,21 @@ int init_downlink(octet_t *db) {
 	return 0;
 }
 
+int init_statistic(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, statistic_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	if (octet_creat(file) == -1) {
+		return -1;
+	}
+
+	info("created file %s\n", statistic_file);
+	return 0;
+}
+
 int init(octet_t *db) {
 	if (octet_mkdir(db->directory) == -1) {
 		return -1;
@@ -122,6 +138,9 @@ int init(octet_t *db) {
 		return -1;
 	}
 	if (init_downlink(db) == -1) {
+		return -1;
+	}
+	if (init_statistic(db) == -1) {
 		return -1;
 	}
 

@@ -1,8 +1,10 @@
 #include "statistic.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include <fcntl.h>
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -11,9 +13,93 @@
 struct statistics_t statistics = {.bucket = 0};
 const uint8_t statistics_size = sizeof(statistics.data) / sizeof(statistics.data[0]);
 
-void statistic_account(time_t time, bool rx, uint16_t rx_time, bool tx, uint16_t tx_time, bool crc, uint16_t loss,
+const char *statistic_file = "statistic";
+
+const statistic_row_t statistic_row = {
+		.packet_rx = 0,
+		.packet_tx = 50,
+		.packet_crc = 100,
+		.packet_loss = 150,
+		.packet_foreign = 200,
+		.airtime_rx = 250,
+		.airtime_tx = 350,
+		.bucket = 450,
+		.size = 458,
+};
+
+int statistic_init(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, statistic_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
+		status = -1;
+		goto cleanup;
+	}
+
+	if (stmt.stat.st_size == 0) {
+		debug("file %s is empty\n", statistic_file);
+		status = 0;
+		goto cleanup;
+	}
+
+	if (stmt.stat.st_size != statistic_row.size) {
+		error("file length %zu does not match %u\n", (size_t)stmt.stat.st_size, statistic_row.size);
+		status = -1;
+		goto cleanup;
+	}
+
+	debug("select statistics\n");
+
+	if (octet_row_read(&stmt, file, 0, db->table, statistic_row.size) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	uint8_t index = 0;
+	while (true) {
+		if (index >= statistics_size) {
+			status = 0;
+			break;
+		}
+		uint16_t packet_rx = octet_uint16_read(db->table, statistic_row.packet_rx + index * sizeof(uint16_t));
+		uint16_t packet_tx = octet_uint16_read(db->table, statistic_row.packet_tx + index * sizeof(uint16_t));
+		uint16_t packet_crc = octet_uint16_read(db->table, statistic_row.packet_crc + index * sizeof(uint16_t));
+		uint16_t packet_loss = octet_uint16_read(db->table, statistic_row.packet_loss + index * sizeof(uint16_t));
+		uint16_t packet_foreign = octet_uint16_read(db->table, statistic_row.packet_foreign + index * sizeof(uint16_t));
+		uint32_t airtime_rx = octet_uint32_read(db->table, statistic_row.airtime_rx + index * sizeof(uint32_t));
+		uint32_t airtime_tx = octet_uint32_read(db->table, statistic_row.airtime_tx + index * sizeof(uint32_t));
+		atomic_store_explicit(&statistics.data[index].packet_rx, packet_rx, memory_order_relaxed);
+		atomic_store_explicit(&statistics.data[index].packet_tx, packet_tx, memory_order_relaxed);
+		atomic_store_explicit(&statistics.data[index].packet_crc, packet_crc, memory_order_relaxed);
+		atomic_store_explicit(&statistics.data[index].packet_loss, packet_loss, memory_order_relaxed);
+		atomic_store_explicit(&statistics.data[index].packet_foreign, packet_foreign, memory_order_relaxed);
+		atomic_store_explicit(&statistics.data[index].airtime_rx, airtime_rx, memory_order_relaxed);
+		atomic_store_explicit(&statistics.data[index].airtime_tx, airtime_tx, memory_order_relaxed);
+		index += 1;
+	}
+	time_t bucket = (time_t)octet_uint64_read(db->table, statistic_row.bucket);
+	atomic_store_explicit(&statistics.bucket, bucket, memory_order_relaxed);
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+void statistic_account(time_t now, bool rx, uint16_t rx_time, bool tx, uint16_t tx_time, bool crc, uint16_t loss,
 											 bool foreign) {
-	int64_t bucket = (time / 3600) * 3600;
+	int64_t bucket = (now / 3600) * 3600;
 	int64_t bucket_old = atomic_load_explicit(&statistics.bucket, memory_order_acquire);
 
 	int32_t diff = (int32_t)((bucket - bucket_old) / 3600);
@@ -120,4 +206,67 @@ void statistic_find(request_t *request, response_t *response) {
 
 	info("found %hhu statistics\n", statistics_len);
 	response->status = 200;
+}
+
+int statistic_save(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, statistic_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (statistic_row.size > db->table_len) {
+		error("file length %hu exceeds buffer length %u\n", statistic_row.size, db->table_len);
+		status = -1;
+		goto cleanup;
+	}
+
+	debug("insert statistics\n");
+
+	uint8_t index = 0;
+	while (true) {
+		if (index >= statistics_size) {
+			status = 0;
+			break;
+		}
+		uint16_t packet_rx = atomic_load_explicit(&statistics.data[index].packet_rx, memory_order_relaxed);
+		uint16_t packet_tx = atomic_load_explicit(&statistics.data[index].packet_tx, memory_order_relaxed);
+		uint16_t packet_crc = atomic_load_explicit(&statistics.data[index].packet_crc, memory_order_relaxed);
+		uint16_t packet_loss = atomic_load_explicit(&statistics.data[index].packet_loss, memory_order_relaxed);
+		uint16_t packet_foreign = atomic_load_explicit(&statistics.data[index].packet_foreign, memory_order_relaxed);
+		uint32_t airtime_rx = atomic_load_explicit(&statistics.data[index].airtime_rx, memory_order_relaxed);
+		uint32_t airtime_tx = atomic_load_explicit(&statistics.data[index].airtime_tx, memory_order_relaxed);
+		octet_uint16_write(db->table, statistic_row.packet_rx + index * sizeof(uint16_t), packet_rx);
+		octet_uint16_write(db->table, statistic_row.packet_tx + index * sizeof(uint16_t), packet_tx);
+		octet_uint16_write(db->table, statistic_row.packet_crc + index * sizeof(uint16_t), packet_crc);
+		octet_uint16_write(db->table, statistic_row.packet_loss + index * sizeof(uint16_t), packet_loss);
+		octet_uint16_write(db->table, statistic_row.packet_foreign + index * sizeof(uint16_t), packet_foreign);
+		octet_uint32_write(db->table, statistic_row.airtime_rx + index * sizeof(uint32_t), airtime_rx);
+		octet_uint32_write(db->table, statistic_row.airtime_tx + index * sizeof(uint32_t), airtime_tx);
+		index += 1;
+	}
+	time_t bucket = atomic_load_explicit(&statistics.bucket, memory_order_relaxed);
+	octet_uint64_write(db->table, statistic_row.bucket, (uint64_t)bucket);
+
+	if (octet_row_write(&stmt, file, 0, db->table, statistic_row.size) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, statistic_row.size) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
 }
