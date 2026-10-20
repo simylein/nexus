@@ -73,13 +73,13 @@ int statistic_init(octet_t *db) {
 			status = 0;
 			break;
 		}
-		uint16_t packet_rx = octet_uint16_read(db->table, statistic_row.packet_rx + index * sizeof(uint16_t));
-		uint16_t packet_tx = octet_uint16_read(db->table, statistic_row.packet_tx + index * sizeof(uint16_t));
-		uint16_t packet_crc = octet_uint16_read(db->table, statistic_row.packet_crc + index * sizeof(uint16_t));
-		uint16_t packet_loss = octet_uint16_read(db->table, statistic_row.packet_loss + index * sizeof(uint16_t));
-		uint16_t packet_foreign = octet_uint16_read(db->table, statistic_row.packet_foreign + index * sizeof(uint16_t));
-		uint32_t airtime_rx = octet_uint32_read(db->table, statistic_row.airtime_rx + index * sizeof(uint32_t));
-		uint32_t airtime_tx = octet_uint32_read(db->table, statistic_row.airtime_tx + index * sizeof(uint32_t));
+		uint16_t packet_rx = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_rx + index * sizeof(uint16_t)));
+		uint16_t packet_tx = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_tx + index * sizeof(uint16_t)));
+		uint16_t packet_crc = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_crc + index * sizeof(uint16_t)));
+		uint16_t packet_loss = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_loss + index * sizeof(uint16_t)));
+		uint16_t packet_foreign = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_foreign + index * sizeof(uint16_t)));
+		uint32_t airtime_rx = octet_uint32_read(db->table, (uint16_t)(statistic_row.airtime_rx + index * sizeof(uint32_t)));
+		uint32_t airtime_tx = octet_uint32_read(db->table, (uint16_t)(statistic_row.airtime_tx + index * sizeof(uint32_t)));
 		atomic_store_explicit(&statistics.data[index].packet_rx, packet_rx, memory_order_relaxed);
 		atomic_store_explicit(&statistics.data[index].packet_tx, packet_tx, memory_order_relaxed);
 		atomic_store_explicit(&statistics.data[index].packet_crc, packet_crc, memory_order_relaxed);
@@ -237,20 +237,20 @@ int statistic_save(octet_t *db) {
 			status = 0;
 			break;
 		}
-		uint16_t packet_rx = atomic_load_explicit(&statistics.data[index].packet_rx, memory_order_relaxed);
-		uint16_t packet_tx = atomic_load_explicit(&statistics.data[index].packet_tx, memory_order_relaxed);
-		uint16_t packet_crc = atomic_load_explicit(&statistics.data[index].packet_crc, memory_order_relaxed);
-		uint16_t packet_loss = atomic_load_explicit(&statistics.data[index].packet_loss, memory_order_relaxed);
-		uint16_t packet_foreign = atomic_load_explicit(&statistics.data[index].packet_foreign, memory_order_relaxed);
-		uint32_t airtime_rx = atomic_load_explicit(&statistics.data[index].airtime_rx, memory_order_relaxed);
-		uint32_t airtime_tx = atomic_load_explicit(&statistics.data[index].airtime_tx, memory_order_relaxed);
-		octet_uint16_write(db->table, statistic_row.packet_rx + index * sizeof(uint16_t), packet_rx);
-		octet_uint16_write(db->table, statistic_row.packet_tx + index * sizeof(uint16_t), packet_tx);
-		octet_uint16_write(db->table, statistic_row.packet_crc + index * sizeof(uint16_t), packet_crc);
-		octet_uint16_write(db->table, statistic_row.packet_loss + index * sizeof(uint16_t), packet_loss);
-		octet_uint16_write(db->table, statistic_row.packet_foreign + index * sizeof(uint16_t), packet_foreign);
-		octet_uint32_write(db->table, statistic_row.airtime_rx + index * sizeof(uint32_t), airtime_rx);
-		octet_uint32_write(db->table, statistic_row.airtime_tx + index * sizeof(uint32_t), airtime_tx);
+		uint16_t packet_rx = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_rx, memory_order_relaxed);
+		uint16_t packet_tx = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_tx, memory_order_relaxed);
+		uint16_t packet_crc = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_crc, memory_order_relaxed);
+		uint16_t packet_loss = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_loss, memory_order_relaxed);
+		uint16_t packet_foreign = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_foreign, memory_order_relaxed);
+		uint32_t airtime_rx = (uint32_t)atomic_load_explicit(&statistics.data[index].airtime_rx, memory_order_relaxed);
+		uint32_t airtime_tx = (uint32_t)atomic_load_explicit(&statistics.data[index].airtime_tx, memory_order_relaxed);
+		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_rx + index * sizeof(uint16_t)), packet_rx);
+		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_tx + index * sizeof(uint16_t)), packet_tx);
+		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_crc + index * sizeof(uint16_t)), packet_crc);
+		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_loss + index * sizeof(uint16_t)), packet_loss);
+		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_foreign + index * sizeof(uint16_t)), packet_foreign);
+		octet_uint32_write(db->table, (uint16_t)(statistic_row.airtime_rx + index * sizeof(uint32_t)), airtime_rx);
+		octet_uint32_write(db->table, (uint16_t)(statistic_row.airtime_tx + index * sizeof(uint32_t)), airtime_tx);
 		index += 1;
 	}
 	time_t bucket = atomic_load_explicit(&statistics.bucket, memory_order_relaxed);
