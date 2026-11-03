@@ -333,7 +333,7 @@ void *radio_thread(void *args) {
 			continue;
 		}
 
-		if (rx_data_len < 6) {
+		if (rx_data_len < 8) {
 			debug("received packet without headers\n");
 			continue;
 		}
@@ -368,14 +368,21 @@ void *radio_thread(void *args) {
 			continue;
 		}
 
-		ssc128_decrypt(&rx_data[6], rx_data_len - 6, (uint16_t)(rx_data[2] << 8) | (uint16_t)rx_data[3],
-									 (const uint8_t (*)[16])device->key);
+		bool mic_fail = false;
+		ssc128_decrypt(&rx_data[8], rx_data_len - 8, (const uint8_t (*)[2])(&rx_data[0]),
+									 (uint16_t)(rx_data[2] << 8) | (uint16_t)rx_data[3], rx_data[5], rx_data[4], 0x55,
+									 (const uint8_t (*)[2])(&rx_data[6]), (const uint8_t (*)[16])device->key, &mic_fail);
+
+		if (mic_fail == true) {
+			warn("integrity failed discarding packet length %hhu\n", rx_data_len);
+			continue;
+		}
 
 		uplink_t uplink;
 		uplink.frame = (uint16_t)(rx_data[2] << 8) | (uint16_t)rx_data[3];
 		uplink.kind = rx_data[5];
-		memcpy(uplink.data, &rx_data[6], rx_data_len - 6);
-		uplink.data_len = rx_data_len - 6;
+		memcpy(uplink.data, &rx_data[8], rx_data_len - 8);
+		uplink.data_len = rx_data_len - 8;
 		uplink.airtime = airtime_calculate(arg->radio, (rx_data[4] & 0x0f) + 6, rx_data_len);
 		uplink.frequency = arg->radio->frequency;
 		uplink.bandwidth = arg->radio->bandwidth;
@@ -482,14 +489,18 @@ void *radio_thread(void *args) {
 		if (schedule_find(&schedule, (uint8_t (*)[2])(&rx_data[0])) == 0) {
 			tx_data[tx_data_len] = schedule.kind;
 			tx_data_len += sizeof(schedule.kind);
+			tx_data_len += sizeof(uint16_t);
 			memcpy(&tx_data[tx_data_len], schedule.data, schedule.data_len);
 			tx_data_len += schedule.data_len;
-			ssc128_encrypt(&tx_data[6], tx_data_len - 6, (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3],
-										 (const uint8_t (*)[16])device->key);
 		} else {
 			tx_data[tx_data_len] = 0x00;
 			tx_data_len += sizeof(uint8_t);
+			tx_data_len += sizeof(uint16_t);
 		}
+
+		ssc128_encrypt(&tx_data[8], tx_data_len - 8, (const uint8_t (*)[2])(&tx_data[0]),
+									 (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3], tx_data[5], tx_data[4], 0xaa,
+									 (uint8_t (*)[2])(&tx_data[6]), (const uint8_t (*)[16])device->key);
 
 		if (sx1278_transmit(arg->spi_fd, arg->gpio_int_fd, &tx_data, tx_data_len) == -1) {
 			error("failed to transmit packet\n");
@@ -501,14 +512,15 @@ void *radio_thread(void *args) {
 			 (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3], tx_data[5], tx_data_len, arg->radio->spreading_factor,
 			 ((tx_data[4] >> 4) & 0x0f) + 2);
 
-		ssc128_decrypt(&tx_data[6], tx_data_len - 6, (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3],
-									 (const uint8_t (*)[16])device->key);
+		ssc128_decrypt(&tx_data[8], tx_data_len - 8, (const uint8_t (*)[2])(&tx_data[0]),
+									 (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3], tx_data[5], tx_data[4], 0xaa,
+									 (const uint8_t (*)[2])(&tx_data[6]), (const uint8_t (*)[16])device->key, &mic_fail);
 
 		downlink_t downlink;
 		downlink.frame = (uint16_t)(tx_data[2] << 8) | (uint16_t)tx_data[3];
 		downlink.kind = tx_data[5];
-		memcpy(downlink.data, &tx_data[6], tx_data_len - 6);
-		downlink.data_len = tx_data_len - 6;
+		memcpy(downlink.data, &tx_data[8], tx_data_len - 8);
+		downlink.data_len = tx_data_len - 8;
 		downlink.airtime = airtime_calculate(arg->radio, (tx_data[4] & 0x0f) + 6, tx_data_len);
 		downlink.frequency = arg->radio->frequency;
 		downlink.bandwidth = arg->radio->bandwidth;
