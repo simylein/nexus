@@ -329,7 +329,7 @@ void *radio_thread(void *args) {
 
 		if (crc_used == true && crc_fail == true) {
 			warn("checksum failed discarding packet length %hhu\n", rx_data_len);
-			statistic_account(received_at, false, 0, false, 0, true, 0, false);
+			statistic_account(received_at, 0, 0, true, false, 0, false);
 			continue;
 		}
 
@@ -364,7 +364,7 @@ void *radio_thread(void *args) {
 
 		if (device == NULL) {
 			debug("no registration for device %02x%02x\n", rx_data[0], rx_data[1]);
-			statistic_account(received_at, false, 0, false, 0, false, 0, true);
+			statistic_account(received_at, 0, 0, false, false, 0, true);
 			continue;
 		}
 
@@ -375,6 +375,7 @@ void *radio_thread(void *args) {
 
 		if (mic_fail == true) {
 			warn("integrity failed discarding packet length %hhu\n", rx_data_len);
+			statistic_account(received_at, 0, 0, false, true, 0, false);
 			continue;
 		}
 
@@ -403,7 +404,7 @@ void *radio_thread(void *args) {
 		}
 		device->frame = uplink.frame;
 
-		statistic_account(uplink.received_at, true, uplink.airtime, false, 0, false, packet_loss, false);
+		statistic_account(uplink.received_at, uplink.airtime, 0, false, false, packet_loss, false);
 
 		pthread_mutex_lock(&uplinks.lock);
 
@@ -532,7 +533,7 @@ void *radio_thread(void *args) {
 		downlink.sent_at = sent_at;
 		memcpy(downlink.device_id, device->id, sizeof(*device->id));
 
-		statistic_account(downlink.sent_at, false, 0, true, downlink.airtime, false, 0, false);
+		statistic_account(downlink.sent_at, 0, downlink.airtime, false, false, 0, false);
 
 		pthread_mutex_lock(&downlinks.lock);
 

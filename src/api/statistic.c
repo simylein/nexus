@@ -19,12 +19,13 @@ const statistic_row_t statistic_row = {
 		.packet_rx = 0,
 		.packet_tx = 50,
 		.packet_crc = 100,
-		.packet_loss = 150,
-		.packet_foreign = 200,
-		.airtime_rx = 250,
-		.airtime_tx = 350,
-		.bucket = 450,
-		.size = 458,
+		.packet_mic = 150,
+		.packet_loss = 200,
+		.packet_foreign = 250,
+		.airtime_rx = 300,
+		.airtime_tx = 400,
+		.bucket = 500,
+		.size = 508,
 };
 
 int statistic_init(octet_t *db) {
@@ -76,6 +77,7 @@ int statistic_init(octet_t *db) {
 		uint16_t packet_rx = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_rx + index * sizeof(uint16_t)));
 		uint16_t packet_tx = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_tx + index * sizeof(uint16_t)));
 		uint16_t packet_crc = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_crc + index * sizeof(uint16_t)));
+		uint16_t packet_mic = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_mic + index * sizeof(uint16_t)));
 		uint16_t packet_loss = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_loss + index * sizeof(uint16_t)));
 		uint16_t packet_foreign = octet_uint16_read(db->table, (uint16_t)(statistic_row.packet_foreign + index * sizeof(uint16_t)));
 		uint32_t airtime_rx = octet_uint32_read(db->table, (uint16_t)(statistic_row.airtime_rx + index * sizeof(uint32_t)));
@@ -83,6 +85,7 @@ int statistic_init(octet_t *db) {
 		atomic_store_explicit(&statistics.data[index].packet_rx, packet_rx, memory_order_relaxed);
 		atomic_store_explicit(&statistics.data[index].packet_tx, packet_tx, memory_order_relaxed);
 		atomic_store_explicit(&statistics.data[index].packet_crc, packet_crc, memory_order_relaxed);
+		atomic_store_explicit(&statistics.data[index].packet_mic, packet_mic, memory_order_relaxed);
 		atomic_store_explicit(&statistics.data[index].packet_loss, packet_loss, memory_order_relaxed);
 		atomic_store_explicit(&statistics.data[index].packet_foreign, packet_foreign, memory_order_relaxed);
 		atomic_store_explicit(&statistics.data[index].airtime_rx, airtime_rx, memory_order_relaxed);
@@ -97,8 +100,7 @@ cleanup:
 	return status;
 }
 
-void statistic_account(time_t now, bool rx, uint16_t rx_time, bool tx, uint16_t tx_time, bool crc, uint16_t loss,
-											 bool foreign) {
+void statistic_account(time_t now, uint16_t rx_time, uint16_t tx_time, bool crc, bool mic, uint16_t loss, bool foreign) {
 	int64_t bucket = (now / 3600) * 3600;
 	int64_t bucket_old = atomic_load_explicit(&statistics.bucket, memory_order_acquire);
 
@@ -123,6 +125,9 @@ void statistic_account(time_t now, bool rx, uint16_t rx_time, bool tx, uint16_t 
 			atomic_store_explicit(&statistics.data[index].packet_crc,
 														atomic_load_explicit(&statistics.data[index + diff].packet_crc, memory_order_relaxed),
 														memory_order_relaxed);
+			atomic_store_explicit(&statistics.data[index].packet_mic,
+														atomic_load_explicit(&statistics.data[index + diff].packet_mic, memory_order_relaxed),
+														memory_order_relaxed);
 			atomic_store_explicit(&statistics.data[index].packet_loss,
 														atomic_load_explicit(&statistics.data[index + diff].packet_loss, memory_order_relaxed),
 														memory_order_relaxed);
@@ -141,6 +146,7 @@ void statistic_account(time_t now, bool rx, uint16_t rx_time, bool tx, uint16_t 
 			atomic_store_explicit(&statistics.data[index].packet_rx, 0, memory_order_relaxed);
 			atomic_store_explicit(&statistics.data[index].packet_tx, 0, memory_order_relaxed);
 			atomic_store_explicit(&statistics.data[index].packet_crc, 0, memory_order_relaxed);
+			atomic_store_explicit(&statistics.data[index].packet_mic, 0, memory_order_relaxed);
 			atomic_store_explicit(&statistics.data[index].packet_loss, 0, memory_order_relaxed);
 			atomic_store_explicit(&statistics.data[index].packet_foreign, 0, memory_order_relaxed);
 			atomic_store_explicit(&statistics.data[index].airtime_rx, 0, memory_order_relaxed);
@@ -148,16 +154,19 @@ void statistic_account(time_t now, bool rx, uint16_t rx_time, bool tx, uint16_t 
 		}
 	}
 
-	if (rx == true) {
+	if (rx_time != 0) {
 		atomic_fetch_add_explicit(&statistics.data[statistics_size - 1].packet_rx, 1, memory_order_relaxed);
 		atomic_fetch_add_explicit(&statistics.data[statistics_size - 1].airtime_rx, rx_time, memory_order_relaxed);
 	}
-	if (tx == true) {
+	if (tx_time != 0) {
 		atomic_fetch_add_explicit(&statistics.data[statistics_size - 1].packet_tx, 1, memory_order_relaxed);
 		atomic_fetch_add_explicit(&statistics.data[statistics_size - 1].airtime_tx, tx_time, memory_order_relaxed);
 	}
 	if (crc == true) {
 		atomic_fetch_add_explicit(&statistics.data[statistics_size - 1].packet_crc, 1, memory_order_relaxed);
+	}
+	if (mic == true) {
+		atomic_fetch_add_explicit(&statistics.data[statistics_size - 1].packet_mic, 1, memory_order_relaxed);
 	}
 	if (loss != 0) {
 		atomic_fetch_add_explicit(&statistics.data[statistics_size - 1].packet_loss, loss, memory_order_relaxed);
@@ -186,6 +195,7 @@ void statistic_find(request_t *request, response_t *response) {
 			uint16_t packet_rx = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_rx, memory_order_relaxed);
 			uint16_t packet_tx = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_tx, memory_order_relaxed);
 			uint16_t packet_crc = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_crc, memory_order_relaxed);
+			uint16_t packet_mic = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_mic, memory_order_relaxed);
 			uint16_t packet_loss = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_loss, memory_order_relaxed);
 			uint16_t packet_foreign = (uint16_t)atomic_load_explicit(&statistics.data[ind].packet_foreign, memory_order_relaxed);
 			uint32_t airtime_rx = (uint32_t)atomic_load_explicit(&statistics.data[ind].airtime_rx, memory_order_relaxed);
@@ -193,6 +203,7 @@ void statistic_find(request_t *request, response_t *response) {
 			body_write(response, (uint16_t[]){hton16(packet_rx)}, sizeof(packet_rx));
 			body_write(response, (uint16_t[]){hton16(packet_tx)}, sizeof(packet_tx));
 			body_write(response, (uint16_t[]){hton16(packet_crc)}, sizeof(packet_crc));
+			body_write(response, (uint16_t[]){hton16(packet_mic)}, sizeof(packet_mic));
 			body_write(response, (uint16_t[]){hton16(packet_loss)}, sizeof(packet_loss));
 			body_write(response, (uint16_t[]){hton16(packet_foreign)}, sizeof(packet_foreign));
 			body_write(response, (uint32_t[]){hton32(airtime_rx)}, sizeof(airtime_rx));
@@ -240,6 +251,7 @@ int statistic_save(octet_t *db) {
 		uint16_t packet_rx = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_rx, memory_order_relaxed);
 		uint16_t packet_tx = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_tx, memory_order_relaxed);
 		uint16_t packet_crc = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_crc, memory_order_relaxed);
+		uint16_t packet_mic = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_mic, memory_order_relaxed);
 		uint16_t packet_loss = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_loss, memory_order_relaxed);
 		uint16_t packet_foreign = (uint16_t)atomic_load_explicit(&statistics.data[index].packet_foreign, memory_order_relaxed);
 		uint32_t airtime_rx = (uint32_t)atomic_load_explicit(&statistics.data[index].airtime_rx, memory_order_relaxed);
@@ -247,6 +259,7 @@ int statistic_save(octet_t *db) {
 		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_rx + index * sizeof(uint16_t)), packet_rx);
 		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_tx + index * sizeof(uint16_t)), packet_tx);
 		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_crc + index * sizeof(uint16_t)), packet_crc);
+		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_mic + index * sizeof(uint16_t)), packet_mic);
 		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_loss + index * sizeof(uint16_t)), packet_loss);
 		octet_uint16_write(db->table, (uint16_t)(statistic_row.packet_foreign + index * sizeof(uint16_t)), packet_foreign);
 		octet_uint32_write(db->table, (uint16_t)(statistic_row.airtime_rx + index * sizeof(uint32_t)), airtime_rx);

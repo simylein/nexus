@@ -11,6 +11,7 @@ typedef struct statistic_t {
 	atomic_uint_fast16_t packet_rx;
 	atomic_uint_fast16_t packet_tx;
 	atomic_uint_fast16_t packet_crc;
+	atomic_uint_fast16_t packet_mic;
 	atomic_uint_fast16_t packet_loss;
 	atomic_uint_fast16_t packet_foreign;
 	atomic_uint_fast32_t airtime_rx;
@@ -26,6 +27,7 @@ typedef struct statistic_row_t {
 	uint16_t packet_rx;
 	uint16_t packet_tx;
 	uint16_t packet_crc;
+	uint16_t packet_mic;
 	uint16_t packet_loss;
 	uint16_t packet_foreign;
 	uint16_t airtime_rx;
@@ -41,6 +43,6 @@ extern const char *statistic_file;
 extern const statistic_row_t statistic_row;
 
 int statistic_init(octet_t *db);
-void statistic_account(time_t now, bool rx, uint16_t rx_time, bool tx, uint16_t tx_time, bool crc, uint16_t loss, bool foreign);
+void statistic_account(time_t now, uint16_t rx_time, uint16_t tx_time, bool crc, bool mic, uint16_t loss, bool foreign);
 void statistic_find(request_t *request, response_t *response);
 int statistic_save(octet_t *db);
